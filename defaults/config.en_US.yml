@@ -1,0 +1,26 @@
+# WorldAreaReset official English defaults
+config_version: 2
+language: "en_US"
+
+cleanup:
+  # Disabled until an administrator confirms the world and boundaries.
+  enabled: false
+  interval_minutes: 180
+  countdown_seconds: 10
+  world: "world_nether"
+
+  min_x: -200
+  max_x: 200
+  min_y: 0
+  max_y: 128
+  min_z: -200
+  max_z: 200
+
+  keep_blocks:
+    - BEDROCK
+    - BARRIER
+
+updates:
+  enabled: true
+  auto_download: true
+  notify_latest: true

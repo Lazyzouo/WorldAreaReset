@@ -1,0 +1,55 @@
+prefix: "&8[&6WorldAreaReset&8] &r"
+reload_success: "&8[&a✔&8] &a&l操作成功 &8► &7配置文件已重载，清理任务已重新启动！"
+manual_cleanup_started: "&8[&a✔&8] &a&l手动清理倒计时已启动 &8► &7自动清理倒计时已重置为 &e{interval} &7分钟。"
+no_permission: "&8[&c✖&8] &c&l权限不足 &8► &7你没有权限执行此命令！"
+wrong_usage: "&8[&e⚠&8] &e&l参数错误 &8► &7未知的指令，请使用 &6/war help &7查看帮助。"
+start_cleanup: "&8[&e❖&8] &e&l系统提示 &8► &7正在执行区域清理，请稍候..."
+
+warning: |-
+  &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+  &c ⚠ &c&l地形清理警告 &c⚠
+    &8▪ &7清理世界: &e{world}
+    &8▪ &7将在 &c{time} &7秒后开始清理。
+  &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+
+finish_cleanup: |-
+  &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+  &a ❖ &a&l区域清理完成 &a❖
+    &8▪ &7清理方块: &c{blocks} &7个
+    &8▪ &7清理实体: &c{entities} &7个
+    &8▪ &7总计耗时: &a{time} &7ms
+  &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+
+help_menu_player:
+  - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+  - "&b ❖ &3&l{name} &7v{version} &8| &f作者: &e{author}"
+  - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+  - "&e ► &e&l基础指令 &e◄"
+  - "  &f/war help &8- &7打开帮助菜单"
+  - "&a ► &a&l当前运行状态 &a◄"
+  - "  &8▪ &7全局清理周期: &a{interval} &7分钟"
+  - "  &8▪ &7清理警告倒计时: &c{countdown} &7秒"
+  - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+
+help_menu_admin:
+  - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+  - "&b ❖ &3&l{name} &7v{version} &8| &f作者: &e{author}"
+  - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+  - "&e ► &e&l基础指令 &e◄"
+  - "  &f/war help &8- &7打开帮助菜单"
+  - "&c ► &c&l管理员指令 &c◄"
+  - "  &f/war cleanup &8- &7立即清理地形并重置自动倒计时"
+  - "  &f/war reload &8- &7重载 config.yml 并重新排程"
+  - "&a ► &a&l当前运行状态 &a◄"
+  - "  &8▪ &7全局清理周期: &a{interval} &7分钟"
+  - "  &8▪ &7清理警告倒计时: &c{countdown} &7秒"
+  - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+
+updater:
+  disabled: "自动更新检查已关闭。"
+  checking: "正在检查 WorldAreaReset 官方 GitHub 仓库更新..."
+  latest: "WorldAreaReset {version} 已经是最新版本。"
+  available: "发现新版本 WorldAreaReset {version}，当前版本为 {current}。"
+  manual_download: "自动下载已关闭，请前往 {url} 手动下载。"
+  downloaded: "WorldAreaReset {version} 已下载，将在下一次服务器重启时安装。"
+  failed: "自动更新失败：{reason}。请前往 {url} 手动下载。"

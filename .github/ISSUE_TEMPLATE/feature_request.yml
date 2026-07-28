@@ -1,0 +1,22 @@
+name: Feature request / 功能建议
+description: Propose a focused improvement / 提出明确的改进建议
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / 使用问题
+      description: What administrator or player problem should this solve? / 需要解决什么问题？
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior / 建议行为
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and risks / 替代方案与风险

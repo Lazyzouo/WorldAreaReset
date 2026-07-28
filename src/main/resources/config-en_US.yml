@@ -1,0 +1,30 @@
+# WorldAreaReset official English configuration
+config_version: 2
+language: "en_US"
+
+cleanup:
+  # Disabled by default to prevent accidental world damage on first installation.
+  enabled: false
+  interval_minutes: 180
+  countdown_seconds: 10
+  world: "world_nether"
+
+  # All boundaries are inclusive.
+  min_x: -200
+  max_x: 200
+  min_y: 0
+  max_y: 128
+  min_z: -200
+  max_z: 200
+
+  keep_blocks:
+    - BEDROCK
+    - BARRIER
+
+updates:
+  enabled: true
+  auto_download: true
+  notify_latest: true
+
+# Language files are created in plugins/WorldAreaReset/lang/.
+# Optional message overrides are supported under messages.*.

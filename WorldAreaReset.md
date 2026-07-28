@@ -1,0 +1,190 @@
+# WorldAreaReset Administrator Guide / 管理员配置与逻辑说明
+
+> Applies to / 适用于：`WorldAreaReset 1.1.0`<br>
+> Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
+
+## English
+
+### 1. Runtime model
+
+WorldAreaReset cleans an inclusive cuboid in one loaded world. Every non-air block not listed in `cleanup.keep_blocks` is changed to air without physics. Every non-player entity whose location is inside the cuboid is removed.
+
+It does not regenerate terrain, restore a schematic, respect claims, or keep an automatic backup.
+
+### 2. Configuration reference
+
+| Path | Default | Meaning |
+| --- | --- | --- |
+| `config_version` | `2` | Public configuration format marker |
+| `language` | `zh_CN` | `zh_CN` or `en_US` |
+| `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
+| `cleanup.interval_minutes` | `180` | Fixed automatic schedule interval in minutes |
+| `cleanup.countdown_seconds` | `10` | Shared warning delay for automatic and manual cleanup |
+| `cleanup.world` | `world_nether` | Exact name of an already loaded world |
+| `cleanup.min_x/max_x` | `-200/200` | Inclusive X boundaries |
+| `cleanup.min_y/max_y` | `0/128` | Inclusive Y boundaries |
+| `cleanup.min_z/max_z` | `-200/200` | Inclusive Z boundaries |
+| `cleanup.keep_blocks` | `BEDROCK`, `BARRIER` | Bukkit Material names preserved throughout the area |
+| `updates.enabled` | `true` | Checks the official latest release at startup |
+| `updates.auto_download` | `true` | Downloads a newer JAR to Bukkit's update directory |
+| `updates.notify_latest` | `true` | Reports when the installed version is current |
+
+Official defaults are stored in `defaults/config.en_US.yml` and `defaults/config.zh_CN.yml`. Live server configuration belongs only in `plugins/WorldAreaReset/config.yml` and is excluded from the repository.
+
+### 3. Message and language logic
+
+Bundled language files are copied to:
+
+```text
+plugins/WorldAreaReset/lang/en_US.yml
+plugins/WorldAreaReset/lang/zh_CN.yml
+```
+
+The selected file supplies command feedback, broadcasts, help menus, and updater console messages. Existing `messages.*` values in an upgraded legacy `config.yml` override the same language keys for backward compatibility. To switch an old customized installation fully to English, remove the legacy `messages` section or start from `config.en_US.yml`.
+
+Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{world}`, `{time}`, `{blocks}`, `{entities}`, `{current}`, `{reason}`, and `{url}` where relevant.
+
+### 4. Automatic cleanup sequence
+
+1. The plugin loads configuration and language files.
+2. If `cleanup.enabled` is false, no recurring cleanup is scheduled.
+3. If enabled, a fixed-rate asynchronous timer waits `cleanup.interval_minutes`.
+4. The plugin broadcasts `warning` and waits `cleanup.countdown_seconds`.
+5. It broadcasts `start_cleanup` and submits one Folia Region Scheduler task per covered chunk.
+6. Each task clears blocks and removes non-player entities in that chunk.
+7. After all tasks report completion, `finish_cleanup` is broadcast with totals and elapsed time.
+
+The fixed interval starts when the plugin is enabled or reloaded, not when a cleanup finishes.
+
+### 5. Manual cleanup sequence
+
+`/war cleanup` requires `worldareareset.admin`:
+
+1. Cancel the existing recurring timer and any pending countdown.
+2. Start the same localized countdown used by automatic cleanup.
+3. Run the same cleanup engine after the delay.
+4. If automatic cleanup is enabled, start a fresh interval from command execution time.
+
+The reset duration is the configured `cleanup.interval_minutes`; it is not hardcoded to three hours.
+
+### 6. Reload sequence
+
+`/war reload` reloads `config.yml`, reloads the selected language file, cancels the recurring timer and pending countdown, then creates a new timer if enabled. Region tasks that have already begun are not cancelled.
+
+### 7. Update sequence
+
+At startup the updater requests:
+
+```text
+https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest
+```
+
+Version tags are compared numerically. If a newer release contains `WorldAreaReset-*.jar`, the updater downloads it to Bukkit's update folder under the currently running JAR filename. GitHub's SHA-256 digest is checked when present. The new JAR takes effect on the following restart.
+
+Disable the network check with `updates.enabled: false`, or keep notifications without downloading by setting `updates.auto_download: false`.
+
+### 8. Limits and operational risks
+
+- The default cuboid checks up to 20,744,529 block positions across approximately 676 chunks.
+- Chunk access can be synchronous. Large or unloaded areas can trigger Folia Watchdog warnings and region lag.
+- There is no running-cleanup lock; overlapping manual/automatic executions are possible.
+- Invalid min/max ordering is not automatically corrected.
+- Invalid Material names are logged and ignored.
+- Players are preserved but not moved to safety.
+- All non-player entity categories are removed; no entity allowlist exists.
+- WorldGuard, claims, protected regions, and ownership are not consulted.
+- Configuration updates are not merged into an existing server config automatically.
+- A failed or partial cleanup has no built-in rollback.
+
+Back up the world, pre-generate chunks, test a small range, and run large cleanups off-peak.
+
+---
+
+## 中文
+
+### 1. 运行模型
+
+WorldAreaReset 会清理一个已加载世界内、包含边界的长方体区域。所有不在 `cleanup.keep_blocks` 白名单中的非空气方块会在不触发物理更新的情况下改为空气；所有位于范围内的非玩家实体会被删除。
+
+插件不会重新生成种子地形、恢复 schematic、识别领地，也不会自动备份。
+
+### 2. 配置说明
+
+| 路径 | 默认值 | 说明 |
+| --- | --- | --- |
+| `config_version` | `2` | 公开配置格式版本 |
+| `language` | `zh_CN` | 可选 `zh_CN` 或 `en_US` |
+| `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
+| `cleanup.interval_minutes` | `180` | 自动清理固定周期，单位分钟 |
+| `cleanup.countdown_seconds` | `10` | 自动与手动清理共用倒计时 |
+| `cleanup.world` | `world_nether` | 已加载世界的准确名称 |
+| `cleanup.min_x/max_x` | `-200/200` | 包含边界的 X 范围 |
+| `cleanup.min_y/max_y` | `0/128` | 包含边界的 Y 范围 |
+| `cleanup.min_z/max_z` | `-200/200` | 包含边界的 Z 范围 |
+| `cleanup.keep_blocks` | `BEDROCK`, `BARRIER` | 整个区域内保留的 Bukkit Material |
+| `updates.enabled` | `true` | 启动时检查官方最新 Release |
+| `updates.auto_download` | `true` | 将新版 JAR 下载到 Bukkit 更新目录 |
+| `updates.notify_latest` | `true` | 当前已是最新版时在后台提示 |
+
+官方默认配置位于 `defaults/config.en_US.yml` 和 `defaults/config.zh_CN.yml`。服务器实际配置只应位于 `plugins/WorldAreaReset/config.yml`，该运行目录已排除在仓库之外。
+
+### 3. 消息与语言逻辑
+
+内置语言文件会释放到：
+
+```text
+plugins/WorldAreaReset/lang/en_US.yml
+plugins/WorldAreaReset/lang/zh_CN.yml
+```
+
+所选语言文件提供指令反馈、广播、帮助菜单和更新提示。为了兼容旧版，已有 `config.yml` 中的 `messages.*` 会覆盖同名语言项。旧服务器若要完整切换英文，应删除旧 `messages` 区块，或采用 `config.en_US.yml`。
+
+根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{world}`、`{time}`、`{blocks}`、`{entities}`、`{current}`、`{reason}` 和 `{url}` 等变量。
+
+### 4. 自动清理逻辑
+
+1. 插件读取配置与语言文件。
+2. `cleanup.enabled` 为 false 时不创建自动任务。
+3. 开启后，异步固定周期计时器等待 `cleanup.interval_minutes`。
+4. 到期后广播 `warning`，并等待 `cleanup.countdown_seconds`。
+5. 广播 `start_cleanup`，为范围内每个区块提交 Folia Region Scheduler 任务。
+6. 每个任务清除该区块内的目标方块和非玩家实体。
+7. 所有任务完成后，广播包含统计与耗时的 `finish_cleanup`。
+
+固定周期从插件启用或重载时开始计算，不是从上一次清理完成时开始计算。
+
+### 5. 手动清理逻辑
+
+`/war cleanup` 需要 `worldareareset.admin`：
+
+1. 取消现有自动周期与尚未执行的旧倒计时。
+2. 启动与自动清理完全相同的本地化倒计时。
+3. 倒计时结束后运行相同清理引擎。
+4. 自动清理开启时，从指令执行时重新计算一个完整周期。
+
+重置时长取自 `cleanup.interval_minutes`，并非固定写死 3 小时。
+
+### 6. 配置重载逻辑
+
+`/war reload` 会重载 `config.yml` 和所选语言文件，取消周期计时器与尚未执行的倒计时，再根据新配置建立任务。已经开始执行的 Region Scheduler 清理不会被取消。
+
+### 7. 自动更新逻辑
+
+服务器启动时会请求官方 GitHub 最新 Release。发现新版及 `WorldAreaReset-*.jar` 后，将文件下载到 Bukkit 更新目录；GitHub 提供 SHA-256 摘要时会进行校验。新版本在下一次服务器重启时生效。
+
+设置 `updates.enabled: false` 可完全关闭网络检查；设置 `updates.auto_download: false` 可只提示而不下载。
+
+### 8. 限制与风险
+
+- 默认范围最多检查 20,744,529 个方块位置，覆盖约 676 个区块。
+- 区块访问可能同步执行，大范围或未加载区域可能触发 Folia Watchdog 和 region 卡顿。
+- 当前没有“清理运行中”锁，手动与自动任务可能重叠。
+- 不会自动纠正错误的 min/max 顺序。
+- 无效 Material 会记录警告并忽略。
+- 玩家不会被删除，但也不会被传送到安全位置。
+- 没有实体白名单，所有非玩家实体类别都可能被删除。
+- 不识别 WorldGuard、领地、保护区或归属。
+- 已有服务器配置不会自动合并新版默认项。
+- 清理失败或只完成一部分时没有内置回滚。
+
+正式启用前必须备份世界、预生成区块、使用小范围测试，并在低峰期执行大范围清理。

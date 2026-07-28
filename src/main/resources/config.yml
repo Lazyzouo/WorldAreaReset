@@ -1,0 +1,39 @@
+# WorldAreaReset official defaults / 官方默认配置
+# Personal server settings belong in plugins/WorldAreaReset/config.yml and must not be committed.
+# 服务器个人配置应保留在 plugins/WorldAreaReset/config.yml，请勿提交到公开仓库。
+
+config_version: 2
+
+# Supported: zh_CN, en_US
+language: "zh_CN"
+
+cleanup:
+  # Disabled by default to prevent accidental world damage on first installation.
+  # 官方开源版本默认关闭，防止首次安装时误清理世界。
+  enabled: false
+  interval_minutes: 180
+  countdown_seconds: 10
+  world: "world_nether"
+
+  # Inclusive cuboid boundaries / 包含边界的长方体范围
+  min_x: -200
+  max_x: 200
+  min_y: 0
+  max_y: 128
+  min_z: -200
+  max_z: 200
+
+  keep_blocks:
+    - BEDROCK
+    - BARRIER
+
+updates:
+  # Checks the official GitHub Releases page when the server starts.
+  enabled: true
+  # Downloads a newer JAR into Bukkit's update folder for the next restart.
+  auto_download: true
+  # Prints a console message when this version is already current.
+  notify_latest: true
+
+# Optional legacy/custom overrides are supported under messages.*.
+# Language files are created in plugins/WorldAreaReset/lang/.

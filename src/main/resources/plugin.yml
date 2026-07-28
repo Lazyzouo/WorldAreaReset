@@ -1,0 +1,17 @@
+name: "${pluginName}"
+version: "${pluginVersion}"
+main: net.lazyz.worldareareset.WorldAreaResetPlugin
+api-version: "1.21"
+folia-supported: true
+author: "${pluginAuthor}"
+website: "https://github.com/Lazyzouo/WorldAreaReset"
+
+commands:
+  war:
+    description: ${pluginName} 主指令
+    usage: /war [help|cleanup|reload]
+
+permissions:
+  worldareareset.admin:
+    description: Manage cleanup and reload ${pluginName} / 管理清理与重载配置
+    default: op
