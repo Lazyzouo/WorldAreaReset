@@ -1,5 +1,7 @@
 # Security Policy / 安全政策
 
+For data handling, network access, and the no-telemetry/no-backdoor declaration, read [PRIVACY.md](PRIVACY.md). / 有关数据处理、联网行为及无遥测/无后门声明，请阅读 [PRIVACY.md](PRIVACY.md)。
+
 ## English
 
 Security fixes are provided for the latest release line. Do not disclose exploitable issues in a public Issue.
