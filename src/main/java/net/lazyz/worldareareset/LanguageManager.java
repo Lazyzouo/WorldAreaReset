@@ -40,6 +40,10 @@ public final class LanguageManager {
         if (plugin.getConfig().isString(legacyPath)) {
             return plugin.getConfig().getString(legacyPath, fallback);
         }
+        String localizedPath = "messages." + languageCode + "." + key;
+        if (plugin.getConfig().isString(localizedPath)) {
+            return plugin.getConfig().getString(localizedPath, fallback);
+        }
         return languageConfig.getString(key, fallback);
     }
 
@@ -47,6 +51,10 @@ public final class LanguageManager {
         String legacyPath = "messages." + key;
         if (plugin.getConfig().isList(legacyPath)) {
             return plugin.getConfig().getStringList(legacyPath);
+        }
+        String localizedPath = "messages." + languageCode + "." + key;
+        if (plugin.getConfig().isList(localizedPath)) {
+            return plugin.getConfig().getStringList(localizedPath);
         }
         return languageConfig.getStringList(key);
     }

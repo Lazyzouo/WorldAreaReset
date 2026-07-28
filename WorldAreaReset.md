@@ -1,21 +1,30 @@
 # WorldAreaReset Administrator Guide / 管理员配置与逻辑说明
 
-> Applies to / 适用于：`WorldAreaReset 1.1.0`<br>
+> Applies to / 适用于：`WorldAreaReset 1.1.1`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
 
-### 1. Runtime model
+### 1. Compatibility limits
+
+- Tested and supported server: Paper/Folia 1.21.11 only.
+- Required runtime: Java 21 or newer.
+- Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and are not guaranteed to work.
+- The `api-version: 1.21` value in `plugin.yml` is Bukkit API metadata; it does not mean every 1.21.x server is supported.
+
+Always include the exact server implementation and build when reporting a problem.
+
+### 2. Runtime model
 
 WorldAreaReset cleans an inclusive cuboid in one loaded world. Every non-air block not listed in `cleanup.keep_blocks` is changed to air without physics. Every non-player entity whose location is inside the cuboid is removed.
 
 It does not regenerate terrain, restore a schematic, respect claims, or keep an automatic backup.
 
-### 2. Configuration reference
+### 3. Configuration reference
 
 | Path | Default | Meaning |
 | --- | --- | --- |
-| `config_version` | `2` | Public configuration format marker |
+| `config_version` | `3` | Public configuration format marker |
 | `language` | `zh_CN` | `zh_CN` or `en_US` |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
 | `cleanup.interval_minutes` | `180` | Fixed automatic schedule interval in minutes |
@@ -31,7 +40,7 @@ It does not regenerate terrain, restore a schematic, respect claims, or keep an 
 
 Official defaults are stored in `defaults/config.en_US.yml` and `defaults/config.zh_CN.yml`. Live server configuration belongs only in `plugins/WorldAreaReset/config.yml` and is excluded from the repository.
 
-### 3. Message and language logic
+### 4. Message and language logic
 
 Bundled language files are copied to:
 
@@ -40,11 +49,13 @@ plugins/WorldAreaReset/lang/en_US.yml
 plugins/WorldAreaReset/lang/zh_CN.yml
 ```
 
-The selected file supplies command feedback, broadcasts, help menus, and updater console messages. Existing `messages.*` values in an upgraded legacy `config.yml` override the same language keys for backward compatibility. To switch an old customized installation fully to English, remove the legacy `messages` section or start from `config.en_US.yml`.
+The official configurations restore editable command feedback, broadcasts, help menus, and updater notices under `messages.en_US.*` or `messages.zh_CN.*`. The namespace matching `language` overrides the bundled language file. Existing flat `messages.*` values from older configurations still take priority for backward compatibility.
+
+Only server-specific settings such as world, boundaries, interval, allowlist, language, and updater switches use sanitized official presets. Message text and other non-server-specific presentation settings remain complete in the public templates.
 
 Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{world}`, `{time}`, `{blocks}`, `{entities}`, `{current}`, `{reason}`, and `{url}` where relevant.
 
-### 4. Automatic cleanup sequence
+### 5. Automatic cleanup sequence
 
 1. The plugin loads configuration and language files.
 2. If `cleanup.enabled` is false, no recurring cleanup is scheduled.
@@ -56,7 +67,7 @@ Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, 
 
 The fixed interval starts when the plugin is enabled or reloaded, not when a cleanup finishes.
 
-### 5. Manual cleanup sequence
+### 6. Manual cleanup sequence
 
 `/war cleanup` requires `worldareareset.admin`:
 
@@ -67,11 +78,11 @@ The fixed interval starts when the plugin is enabled or reloaded, not when a cle
 
 The reset duration is the configured `cleanup.interval_minutes`; it is not hardcoded to three hours.
 
-### 6. Reload sequence
+### 7. Reload sequence
 
 `/war reload` reloads `config.yml`, reloads the selected language file, cancels the recurring timer and pending countdown, then creates a new timer if enabled. Region tasks that have already begun are not cancelled.
 
-### 7. Update sequence
+### 8. Update sequence
 
 At startup the updater requests:
 
@@ -83,7 +94,7 @@ Version tags are compared numerically. If a newer release contains `WorldAreaRes
 
 Disable the network check with `updates.enabled: false`, or keep notifications without downloading by setting `updates.auto_download: false`.
 
-### 8. Limits and operational risks
+### 9. Limits and operational risks
 
 - The default cuboid checks up to 20,744,529 block positions across approximately 676 chunks.
 - Chunk access can be synchronous. Large or unloaded areas can trigger Folia Watchdog warnings and region lag.
@@ -102,17 +113,26 @@ Back up the world, pre-generate chunks, test a small range, and run large cleanu
 
 ## 中文
 
-### 1. 运行模型
+### 1. 版本与兼容限制
+
+- 仅测试并支持 Paper/Folia 1.21.11。
+- 运行环境必须为 Java 21 或更高版本。
+- 其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。
+- `plugin.yml` 中的 `api-version: 1.21` 是 Bukkit API 元数据，不代表所有 1.21.x 服务端都受支持。
+
+报告问题时必须提供准确的服务端实现与构建号。
+
+### 2. 运行模型
 
 WorldAreaReset 会清理一个已加载世界内、包含边界的长方体区域。所有不在 `cleanup.keep_blocks` 白名单中的非空气方块会在不触发物理更新的情况下改为空气；所有位于范围内的非玩家实体会被删除。
 
 插件不会重新生成种子地形、恢复 schematic、识别领地，也不会自动备份。
 
-### 2. 配置说明
+### 3. 配置说明
 
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
-| `config_version` | `2` | 公开配置格式版本 |
+| `config_version` | `3` | 公开配置格式版本 |
 | `language` | `zh_CN` | 可选 `zh_CN` 或 `en_US` |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
 | `cleanup.interval_minutes` | `180` | 自动清理固定周期，单位分钟 |
@@ -128,7 +148,7 @@ WorldAreaReset 会清理一个已加载世界内、包含边界的长方体区�
 
 官方默认配置位于 `defaults/config.en_US.yml` 和 `defaults/config.zh_CN.yml`。服务器实际配置只应位于 `plugins/WorldAreaReset/config.yml`，该运行目录已排除在仓库之外。
 
-### 3. 消息与语言逻辑
+### 4. 消息与语言逻辑
 
 内置语言文件会释放到：
 
@@ -137,11 +157,13 @@ plugins/WorldAreaReset/lang/en_US.yml
 plugins/WorldAreaReset/lang/zh_CN.yml
 ```
 
-所选语言文件提供指令反馈、广播、帮助菜单和更新提示。为了兼容旧版，已有 `config.yml` 中的 `messages.*` 会覆盖同名语言项。旧服务器若要完整切换英文，应删除旧 `messages` 区块，或采用 `config.en_US.yml`。
+官方配置已在 `messages.en_US.*` 或 `messages.zh_CN.*` 中恢复可编辑的指令反馈、广播、帮助菜单和更新提示。与 `language` 相同的命名空间会覆盖内置语言文件。旧配置中的扁平 `messages.*` 仍具有最高优先级，以保持向后兼容。
+
+只有世界、坐标范围、周期、白名单、语言和更新开关等服务器专用参数使用脱敏后的官方预设；消息文本及其他与服务器参数无关的显示内容会完整保留在公开模板中。
 
 根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{world}`、`{time}`、`{blocks}`、`{entities}`、`{current}`、`{reason}` 和 `{url}` 等变量。
 
-### 4. 自动清理逻辑
+### 5. 自动清理逻辑
 
 1. 插件读取配置与语言文件。
 2. `cleanup.enabled` 为 false 时不创建自动任务。
@@ -153,7 +175,7 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 
 固定周期从插件启用或重载时开始计算，不是从上一次清理完成时开始计算。
 
-### 5. 手动清理逻辑
+### 6. 手动清理逻辑
 
 `/war cleanup` 需要 `worldareareset.admin`：
 
@@ -164,17 +186,17 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 
 重置时长取自 `cleanup.interval_minutes`，并非固定写死 3 小时。
 
-### 6. 配置重载逻辑
+### 7. 配置重载逻辑
 
 `/war reload` 会重载 `config.yml` 和所选语言文件，取消周期计时器与尚未执行的倒计时，再根据新配置建立任务。已经开始执行的 Region Scheduler 清理不会被取消。
 
-### 7. 自动更新逻辑
+### 8. 自动更新逻辑
 
 服务器启动时会请求官方 GitHub 最新 Release。发现新版及 `WorldAreaReset-*.jar` 后，将文件下载到 Bukkit 更新目录；GitHub 提供 SHA-256 摘要时会进行校验。新版本在下一次服务器重启时生效。
 
 设置 `updates.enabled: false` 可完全关闭网络检查；设置 `updates.auto_download: false` 可只提示而不下载。
 
-### 8. 限制与风险
+### 9. 限制与风险
 
 - 默认范围最多检查 20,744,529 个方块位置，覆盖约 676 个区块。
 - 区块访问可能同步执行，大范围或未加载区域可能触发 Folia Watchdog 和 region 卡顿。

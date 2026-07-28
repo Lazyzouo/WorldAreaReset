@@ -2,6 +2,24 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.1.1] - 2026-07-28
+
+### English
+
+- Declared Paper/Folia 1.21.11 as the only tested and supported server version; other versions and implementations remain unsupported and unguaranteed.
+- Restored complete editable notifications, broadcasts, help menus, and updater messages to the official configuration templates.
+- Added language-scoped `messages.en_US.*` and `messages.zh_CN.*` overrides while preserving legacy flat `messages.*` compatibility.
+- Kept server-specific world, range, schedule, allowlist, and update settings on sanitized official defaults.
+- Updated the startup banner, metadata, administrator guide, support policy, contribution guide, and public documentation.
+
+### 中文
+
+- 明确仅测试并支持 Paper/Folia 1.21.11；其他版本与服务端实现不提供兼容保证。
+- 在官方配置模板中恢复完整且可编辑的通知、广播、帮助菜单和更新提示。
+- 新增按语言区分的 `messages.en_US.*` 与 `messages.zh_CN.*` 覆盖，同时保留旧版扁平 `messages.*` 兼容。
+- 世界、范围、周期、白名单和更新开关等服务器专用参数继续采用脱敏后的官方预设。
+- 同步更新启动横幅、插件元数据、管理员手册、支持政策、贡献指南与公开说明。
+
 ## [1.1.0] - 2026-07-28
 
 ### English

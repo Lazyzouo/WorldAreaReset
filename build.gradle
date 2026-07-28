@@ -3,7 +3,7 @@ plugins {
 }
 
 def pluginName = 'WorldAreaReset'
-def pluginVersion = '1.1.0'
+def pluginVersion = '1.1.1'
 def pluginAuthor = 'Lazyz'
 
 group = 'net.lazyz'
@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
 }
 
 def targetJavaVersion = 21

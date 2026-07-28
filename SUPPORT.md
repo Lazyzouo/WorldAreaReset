@@ -4,7 +4,7 @@
 
 Before opening an issue:
 
-1. Confirm Java 21 and a Paper/Folia-compatible 1.21.x server.
+1. Confirm Java 21 or newer and Paper/Folia 1.21.11. Other server versions and implementations are outside the supported compatibility range.
 2. Test the latest WorldAreaReset release.
 3. Read `README.md` and `WorldAreaReset.md`.
 4. Back up the world and reproduce with the smallest cleanup area possible.
@@ -18,7 +18,7 @@ Use GitHub Issues for reproducible bugs and feature proposals. General server ad
 
 创建 Issue 前请：
 
-1. 确认使用 Java 21 和兼容 Paper/Folia 的 1.21.x 服务端。
+1. 确认使用 Java 21 或更高版本以及 Paper/Folia 1.21.11；其他服务端版本与实现不在兼容支持范围内。
 2. 使用最新 WorldAreaReset Release 测试。
 3. 阅读 `README.md` 与 `WorldAreaReset.md`。
 4. 备份世界，并用尽可能小的范围复现。

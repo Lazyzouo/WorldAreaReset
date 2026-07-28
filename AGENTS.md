@@ -7,6 +7,7 @@
 - Keep `CHANGELOG.md`, `release-notes/vX.Y.Z.md`, `README.md`, and `WorldAreaReset.md` synchronized when behavior or administrator-facing configuration changes.
 - English content must appear before Chinese content in public-facing bilingual documentation and release notes.
 - Run `gradlew clean build` with Java 21 before publishing.
+- Treat Paper/Folia 1.21.11 as the only tested and supported server version until a later release explicitly validates another version.
 - Commit the update, push `main`, create and push the matching `vX.Y.Z` tag. The release workflow publishes the GitHub Release.
 
 ## Configuration safety

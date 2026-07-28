@@ -10,14 +10,14 @@ body:
     id: plugin-version
     attributes:
       label: Plugin version / 插件版本
-      placeholder: "1.1.0"
+      placeholder: "1.1.1"
     validations:
       required: true
   - type: input
     id: server-version
     attributes:
       label: Server build / 服务端构建
-      placeholder: "Folia 1.21.1 build ..."
+      placeholder: "Folia 1.21.11 build ..."
     validations:
       required: true
   - type: textarea
@@ -44,6 +44,8 @@ body:
       label: Checklist / 检查项
       options:
         - label: I tested the latest release. / 我已测试最新版本。
+          required: true
+        - label: I reproduced this on Paper/Folia 1.21.11. / 我已在 Paper/Folia 1.21.11 上复现。
           required: true
         - label: I removed credentials and private data. / 我已删除凭据与隐私数据。
           required: true

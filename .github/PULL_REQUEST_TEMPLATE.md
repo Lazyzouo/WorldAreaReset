@@ -5,7 +5,7 @@
 ## Verification / 验证
 
 - [ ] Built with Java 21 using `./gradlew clean build`
-- [ ] Tested on a compatible Paper/Folia server
+- [ ] Tested on Paper/Folia 1.21.11, the currently supported server version
 - [ ] Updated both language files for user-facing text
 - [ ] Updated configuration documentation when needed
 - [ ] Added English-first bilingual changelog entries

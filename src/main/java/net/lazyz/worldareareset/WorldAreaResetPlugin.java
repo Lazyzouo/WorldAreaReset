@@ -174,7 +174,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         CommandSender console = Bukkit.getConsoleSender();
         console.sendMessage(deserialize(HELP_DIVIDER));
         console.sendMessage(deserialize("&6&l  WorldAreaReset &fv" + getPluginMeta().getVersion() + " &8| &eLazyz"));
-        console.sendMessage(deserialize("&7  Paper/Folia 1.21.x &8| &a" + languageManager.code()));
+        console.sendMessage(deserialize("&7  Tested: Paper/Folia 1.21.11 &8| &a" + languageManager.code()));
         console.sendMessage(deserialize("&7  " + UpdateChecker.PROJECT_URL));
         console.sendMessage(deserialize(HELP_DIVIDER));
     }

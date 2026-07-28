@@ -3,7 +3,7 @@
 [![CI](https://github.com/Lazyzouo/WorldAreaReset/actions/workflows/ci.yml/badge.svg)](https://github.com/Lazyzouo/WorldAreaReset/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Lazyzouo/WorldAreaReset?display_name=tag)](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)
 [![License](https://img.shields.io/github/license/Lazyzouo/WorldAreaReset)](LICENSE)
-[![Paper](https://img.shields.io/badge/Paper%20%2F%20Folia-1.21.x-2ea44f)](https://papermc.io/)
+[![Paper](https://img.shields.io/badge/Tested%20Paper%20%2F%20Folia-1.21.11-2ea44f)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-21-e76f00)](https://adoptium.net/)
 
 A configurable Paper/Folia plugin for scheduled or administrator-triggered cuboid area cleanup, with bilingual messages and GitHub-based update delivery.
@@ -27,13 +27,15 @@ A configurable Paper/Folia plugin for scheduled or administrator-triggered cuboi
 
 | Component | Requirement |
 | --- | --- |
-| Server | Paper/Folia-compatible 1.21.x server |
+| Server | Paper or Folia 1.21.11 |
 | Java | 21 or newer |
 | Permission | `worldareareset.admin` for administrator commands |
 
+WorldAreaReset 1.1.1 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
+
 ## Install
 
-1. Download `WorldAreaReset-1.1.0.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
+1. Download `WorldAreaReset-1.1.1.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
 2. Place it in the server's `plugins` directory.
 3. Start the server once.
 4. Review `plugins/WorldAreaReset/config.yml` and make a world backup.
@@ -54,6 +56,8 @@ language: "zh_CN"
 ```
 
 Language files are extracted to `plugins/WorldAreaReset/lang/` and can be customized. The release also contains `config.en_US.yml` and `config.zh_CN.yml` as clean official templates.
+
+The official templates restore all editable notifications, broadcasts, and help menus under `messages.en_US` or `messages.zh_CN`. Server-specific cleanup parameters retain safe official presets. Legacy flat `messages.*` overrides remain supported.
 
 ## Commands
 
@@ -145,9 +149,13 @@ WorldAreaReset 是一个面向 Paper/Folia 的长方体区域定时清理插件�
 - Folia 区域调度与醒目的启动横幅。
 - 自动 CI、标签发布、校验文件及双语 Release 更新日志。
 
+## 版本限制
+
+WorldAreaReset 1.1.1 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
+
 ## 安装
 
-1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.1.0.jar`。
+1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.1.1.jar`。
 2. 放入服务器 `plugins` 目录。
 3. 启动一次服务器。
 4. 检查 `plugins/WorldAreaReset/config.yml` 并备份世界。
@@ -157,7 +165,7 @@ WorldAreaReset 是一个面向 Paper/Folia 的长方体区域定时清理插件�
 
 ## 语言切换
 
-在 `config.yml` 设置 `language: "zh_CN"` 或 `language: "en_US"`，然后执行 `/war reload`。语言文件位于 `plugins/WorldAreaReset/lang/`，可以自行修改。
+在 `config.yml` 设置 `language: "zh_CN"` 或 `language: "en_US"`，然后执行 `/war reload`。语言文件位于 `plugins/WorldAreaReset/lang/`，可以自行修改。官方配置已恢复 `messages.zh_CN` 或 `messages.en_US` 下的完整通知、广播与帮助菜单；清理参数仍使用安全的官方预设，旧版扁平 `messages.*` 覆盖也继续兼容。
 
 ## 自动更新
 

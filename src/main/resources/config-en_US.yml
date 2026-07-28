@@ -1,5 +1,5 @@
 # WorldAreaReset official English configuration
-config_version: 2
+config_version: 3
 language: "en_US"
 
 cleanup:
@@ -26,5 +26,63 @@ updates:
   auto_download: true
   notify_latest: true
 
-# Language files are created in plugins/WorldAreaReset/lang/.
-# Optional message overrides are supported under messages.*.
+# Tested server version: Paper/Folia 1.21.11.
+# Other Minecraft versions are not supported or guaranteed.
+# These editable messages are not server-specific parameter presets.
+messages:
+  en_US:
+    prefix: "&8[&6WorldAreaReset&8] &r"
+    reload_success: "&8[&a✔&8] &a&lSuccess &8► &7Configuration reloaded and the cleanup schedule restarted."
+    manual_cleanup_started: "&8[&a✔&8] &a&lCountdown started &8► &7The automatic cleanup timer was reset to &e{interval} &7minutes."
+    no_permission: "&8[&c✖&8] &c&lPermission denied &8► &7You cannot use this command."
+    wrong_usage: "&8[&e⚠&8] &e&lInvalid command &8► &7Use &6/war help &7to view available commands."
+    start_cleanup: "&8[&e❖&8] &e&lSystem &8► &7Area cleanup is now running. Please wait..."
+
+    warning: |-
+      &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+      &c ⚠ &c&lTerrain cleanup warning &c⚠
+        &8▪ &7World: &e{world}
+        &8▪ &7Cleanup begins in &c{time} &7seconds.
+      &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+
+    finish_cleanup: |-
+      &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+      &a ❖ &a&lArea cleanup complete &a❖
+        &8▪ &7Blocks removed: &c{blocks}
+        &8▪ &7Entities removed: &c{entities}
+        &8▪ &7Elapsed time: &a{time} &7ms
+      &6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━
+
+    help_menu_player:
+      - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+      - "&b ❖ &3&l{name} &7v{version} &8| &fAuthor: &e{author}"
+      - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+      - "&e ► &e&lCommands &e◄"
+      - "  &f/war help &8- &7Open this help menu"
+      - "&a ► &a&lCurrent schedule &a◄"
+      - "  &8▪ &7Cleanup interval: &a{interval} &7minutes"
+      - "  &8▪ &7Warning countdown: &c{countdown} &7seconds"
+      - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+
+    help_menu_admin:
+      - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+      - "&b ❖ &3&l{name} &7v{version} &8| &fAuthor: &e{author}"
+      - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+      - "&e ► &e&lCommands &e◄"
+      - "  &f/war help &8- &7Open this help menu"
+      - "&c ► &c&lAdministrator commands &c◄"
+      - "  &f/war cleanup &8- &7Run cleanup and reset the automatic timer"
+      - "  &f/war reload &8- &7Reload config.yml and restart scheduling"
+      - "&a ► &a&lCurrent schedule &a◄"
+      - "  &8▪ &7Cleanup interval: &a{interval} &7minutes"
+      - "  &8▪ &7Warning countdown: &c{countdown} &7seconds"
+      - "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━"
+
+    updater:
+      disabled: "Automatic update checks are disabled."
+      checking: "Checking the official GitHub repository for updates..."
+      latest: "WorldAreaReset {version} is already the latest version."
+      available: "WorldAreaReset {version} is available (current: {current})."
+      manual_download: "Automatic download is disabled. Download the update from {url}"
+      downloaded: "WorldAreaReset {version} was downloaded and will be installed on the next server restart."
+      failed: "Update failed: {reason}. Download it manually from {url}"

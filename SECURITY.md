@@ -4,6 +4,8 @@
 
 Security fixes are provided for the latest release line. Do not disclose exploitable issues in a public Issue.
 
+The supported security-testing environment is Java 21 or newer on Paper/Folia 1.21.11. Reports from other Minecraft versions or server implementations may require reproduction on the supported environment.
+
 Report a vulnerability through GitHub's private vulnerability reporting feature on this repository. Include the affected version, server implementation, reproduction steps, impact, and any suggested mitigation. Never include production credentials or private player data.
 
 The built-in updater only contacts the official `Lazyzouo/WorldAreaReset` GitHub Releases API. It downloads assets matching `WorldAreaReset-*.jar` and verifies GitHub's SHA-256 digest when available. Administrators may disable all checks with `updates.enabled: false`.
@@ -11,6 +13,8 @@ The built-in updater only contacts the official `Lazyzouo/WorldAreaReset` GitHub
 ## 中文
 
 安全修复面向最新发布分支。请勿在公开 Issue 中披露可被利用的漏洞。
+
+安全测试支持环境为 Java 21 或更高版本以及 Paper/Folia 1.21.11。来自其他 Minecraft 版本或服务端实现的问题可能需要先在受支持环境复现。
 
 请通过本仓库的 GitHub 私密漏洞报告功能提交，包含受影响版本、服务端实现、复现步骤、影响及建议缓解方式。不要提交生产环境凭据或玩家隐私数据。
 
