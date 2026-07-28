@@ -1,6 +1,6 @@
 # WorldAreaReset Administrator Guide / 管理员配置与逻辑说明
 
-> Applies to / 适用于：`WorldAreaReset 1.1.1`<br>
+> Applies to / 适用于：`WorldAreaReset 1.1.2`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English

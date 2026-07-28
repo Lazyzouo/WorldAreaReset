@@ -1,28 +1,56 @@
 # WorldAreaReset official English defaults
+
+# Configuration format marker. Do not change it manually.
 config_version: 3
+
+# Message language. Allowed values: zh_CN, en_US. Default: en_US.
 language: "en_US"
 
 cleanup:
-  # Disabled until an administrator confirms the world and boundaries.
+  # Enables scheduled automatic cleanup. Manual /war cleanup remains available when false.
+  # Default: false. Do not enable it before confirming the world and all boundaries.
   enabled: false
+
+  # Minutes between automatic cleanups. Must be greater than 0. Default: 180 (3 hours).
   interval_minutes: 180
+
+  # Shared automatic/manual warning countdown in seconds. Minimum: 0. Default: 10.
   countdown_seconds: 10
+
+  # Exact case-sensitive name of an existing loaded world. Default: world_nether.
+  # Common names: world, world_nether, world_the_end.
   world: "world_nether"
 
+  # All boundaries are inclusive; every min value must be <= its max value.
+  # Larger ranges require more chunk and block work and can cause region lag.
+
+  # X-axis default range: -200 through 200.
   min_x: -200
   max_x: 200
+
+  # Y-axis default range: 0 through 128. Use heights valid for the selected world.
   min_y: 0
   max_y: 128
+
+  # Z-axis default range: -200 through 200.
   min_z: -200
   max_z: 200
 
+  # Blocks preserved during cleanup. Use uppercase Bukkit Material names.
+  # Invalid names are ignored and reported in the console.
   keep_blocks:
     - BEDROCK
     - BARRIER
 
 updates:
+  # Checks the official GitHub Releases page asynchronously at startup. Default: true.
   enabled: true
+
+  # Downloads a newer JAR into Bukkit's update folder. It applies after another restart.
+  # This setting is used only when updates.enabled is true. Default: true.
   auto_download: true
+
+  # Prints a console notice when the installed version is already current. Default: true.
   notify_latest: true
 
 # Tested server version: Paper/Folia 1.21.11.

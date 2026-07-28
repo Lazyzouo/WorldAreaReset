@@ -1,28 +1,56 @@
 # WorldAreaReset 官方中文默认配置
+
+# 配置格式标记，请勿手动修改。
 config_version: 3
+
+# 消息语言。可选值：zh_CN、en_US。默认值：zh_CN。
 language: "zh_CN"
 
 cleanup:
-  # 默认关闭，管理员确认世界和范围后再开启。
+  # 是否启用定时自动清理。设为 false 时仍可使用 /war cleanup 手动清理。
+  # 默认值：false。管理员确认目标世界和全部坐标前不要开启。
   enabled: false
+
+  # 自动清理周期，单位为分钟，必须大于 0。默认值：180（3 小时）。
   interval_minutes: 180
+
+  # 自动与手动清理共用的警告倒计时，单位为秒，最小值为 0。默认值：10。
   countdown_seconds: 10
+
+  # 已存在且已加载的目标世界准确名称，区分大小写。默认值：world_nether。
+  # 常见名称：world、world_nether、world_the_end。
   world: "world_nether"
 
+  # 以下坐标组成包含边界的长方体，每一轴的 min 必须小于或等于 max。
+  # 范围越大，需要处理的区块和方块越多，可能造成 region 卡顿。
+
+  # X 轴默认范围：-200 到 200。
   min_x: -200
   max_x: 200
+
+  # Y 轴默认范围：0 到 128。必须使用目标世界的有效高度。
   min_y: 0
   max_y: 128
+
+  # Z 轴默认范围：-200 到 200。
   min_z: -200
   max_z: 200
 
+  # 清理时保留的方块。必须使用大写 Bukkit Material 名称。
+  # 无效名称会被忽略并在服务器后台记录警告。
   keep_blocks:
     - BEDROCK
     - BARRIER
 
 updates:
+  # 是否在服务器启动时异步检查官方 GitHub Release。默认值：true。
   enabled: true
+
+  # 是否把新版 JAR 下载到 Bukkit 更新目录；下载后需再次重启才会生效。
+  # 仅在 updates.enabled 为 true 时使用。默认值：true。
   auto_download: true
+
+  # 当前已是最新版时，是否在服务器后台显示提示。默认值：true。
   notify_latest: true
 
 # 已测试服务端版本：Paper/Folia 1.21.11。其他版本不提供兼容保证。

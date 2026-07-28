@@ -2,37 +2,76 @@
 # Personal server settings belong in plugins/WorldAreaReset/config.yml and must not be committed.
 # 服务器个人配置应保留在 plugins/WorldAreaReset/config.yml，请勿提交到公开仓库。
 
+# Configuration format marker. Do not change it manually.
+# 配置格式标记，请勿手动修改。
 config_version: 3
 
-# Supported: zh_CN, en_US
+# Message language / 消息语言
+# Allowed values / 可选值: zh_CN, en_US
+# Default / 默认值: zh_CN
 language: "zh_CN"
 
 cleanup:
-  # Disabled by default to prevent accidental world damage on first installation.
-  # 官方开源版本默认关闭，防止首次安装时误清理世界。
+  # Enables scheduled automatic cleanup. Manual /war cleanup remains available when false.
+  # 是否启用定时自动清理；设为 false 时管理员仍可使用 /war cleanup。
+  # Default / 默认值: false。首次确认世界与坐标前不要开启。
   enabled: false
+
+  # Minutes between automatic cleanups. Must be greater than 0.
+  # 自动清理周期，单位为分钟，必须大于 0。180 分钟 = 3 小时。
+  # Default / 默认值: 180
   interval_minutes: 180
+
+  # Shared warning countdown for automatic and manual cleanup, in seconds. Minimum: 0.
+  # 自动与手动清理共用的警告倒计时，单位为秒，最小值为 0。
+  # Default / 默认值: 10
   countdown_seconds: 10
+
+  # Exact name of an existing loaded world. Names are case-sensitive.
+  # 已存在且已加载的目标世界准确名称，区分大小写。
+  # Common examples / 常见示例: world, world_nether, world_the_end
+  # Default / 默认值: world_nether
   world: "world_nether"
 
-  # Inclusive cuboid boundaries / 包含边界的长方体范围
+  # Inclusive cuboid boundaries. Every coordinate from min through max is processed.
+  # 包含边界的长方体范围，min 到 max 的每个坐标都会被处理。
+  # Each min value must be less than or equal to its max value.
+  # 每一轴的 min 必须小于或等于 max；范围越大会产生越高负载。
+
+  # X-axis defaults / X 轴默认范围: -200 to 200
   min_x: -200
   max_x: 200
+
+  # Y-axis defaults / Y 轴默认范围: 0 to 128
+  # Use heights valid for the selected world's server version.
+  # 必须使用目标世界在当前服务端版本中的有效高度。
   min_y: 0
   max_y: 128
+
+  # Z-axis defaults / Z 轴默认范围: -200 to 200
   min_z: -200
   max_z: 200
 
+  # Blocks preserved during cleanup. Use uppercase Bukkit Material names.
+  # 清理时保留的方块，必须使用大写 Bukkit Material 名称。
+  # Invalid names are ignored with a console warning.
+  # 无效名称会被忽略并在后台记录警告。
   keep_blocks:
     - BEDROCK
     - BARRIER
 
 updates:
-  # Checks the official GitHub Releases page when the server starts.
+  # Checks the official GitHub Releases page asynchronously at startup.
+  # 是否在启动时异步检查官方 GitHub Release。Default / 默认值: true
   enabled: true
-  # Downloads a newer JAR into Bukkit's update folder for the next restart.
+
+  # Downloads a newer JAR into Bukkit's update folder when updates.enabled is true.
+  # 是否自动下载新版 JAR；下载后需再次重启服务器才会生效。
+  # Default / 默认值: true
   auto_download: true
-  # Prints a console message when this version is already current.
+
+  # Prints a console notice when the installed version is already current.
+  # 当前已是最新版时是否在后台提示。Default / 默认值: true
   notify_latest: true
 
 # Tested server version / 已测试服务端版本: Paper/Folia 1.21.11

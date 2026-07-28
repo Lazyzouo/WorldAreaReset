@@ -2,6 +2,20 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.1.2] - 2026-07-29
+
+### English
+
+- Added complete inline documentation for every official configuration parameter.
+- Documented defaults, accepted values, units, boundary rules, dependencies, and operational risks.
+- Kept all parameter values, message text, notification styling, and plugin behavior unchanged.
+
+### 中文
+
+- 为官方配置中的每个参数补充完整行内注释。
+- 说明默认值、可选值、单位、坐标规则、参数依赖及运行风险。
+- 所有参数值、消息文本、通知样式与插件逻辑均保持不变。
+
 ## [1.1.1] - 2026-07-28
 
 ### English
