@@ -2,6 +2,7 @@ package net.lazyz.worldareareset;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,7 +16,7 @@ import java.util.List;
 public class WorldAreaResetPlugin extends JavaPlugin {
 
     private static final String HELP_DIVIDER = "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━";
-    private static final int STARTUP_BANNER_WIDTH = 58;
+    private static final int STARTUP_BANNER_WIDTH = 64;
 
     private AreaCleanupTask cleanupTask;
     private LanguageManager languageManager;
@@ -188,13 +189,13 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         String platform = Bukkit.getName();
 
         logConsole("&3&l+" + "=".repeat(STARTUP_BANNER_WIDTH) + "+");
-        logConsole("&b&l" + centerBannerLine("WORLDAREARESET TERRAIN SERVICE v" + version));
-        logConsole("&3&l| &fVersion / 版本 &8: &a" + version);
-        logConsole("&3&l| &fAuthor  / 作者 &8: &e" + author);
-        logConsole("&3&l| &fTested  / 测试 &8: &aPaper & Folia 1.21.11");
-        logConsole("&3&l| &fLanguage/ 语言 &8: &b" + languageManager.code());
-        logConsole("&3&l| &fGitHub         &8: &9" + UpdateChecker.PROJECT_URL);
-        logConsole("&3&l| &aOpen source. &fNo telemetry or server-data upload.");
+        logConsole(centerBannerLine("WORLDAREARESET TERRAIN SERVICE v" + version));
+        logConsole(bannerLine("&fVersion / 版本 &8: &a" + version));
+        logConsole(bannerLine("&fAuthor  / 作者 &8: &e" + author));
+        logConsole(bannerLine("&fTested  / 测试 &8: &aPaper & Folia 1.21.11"));
+        logConsole(bannerLine("&fLanguage/ 语言 &8: &b" + languageManager.code()));
+        logConsole(bannerLine("&fGitHub         &8: &9" + UpdateChecker.PROJECT_URL));
+        logConsole(bannerLine("&aOpen source. &fNo telemetry or server-data upload."));
         logConsole("&3&l+" + "=".repeat(STARTUP_BANNER_WIDTH) + "+");
 
         String started = languageManager.code().equalsIgnoreCase("zh_CN")
@@ -209,9 +210,21 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private String centerBannerLine(String text) {
-        int leftPadding = Math.max(0, (STARTUP_BANNER_WIDTH - text.length()) / 2);
-        int rightPadding = Math.max(0, STARTUP_BANNER_WIDTH - text.length() - leftPadding);
-        return "|" + " ".repeat(leftPadding) + text + " ".repeat(rightPadding) + "|";
+        int textWidth = bannerDisplayWidth(text);
+        int leftPadding = Math.max(0, (STARTUP_BANNER_WIDTH - textWidth) / 2);
+        int rightPadding = Math.max(0, STARTUP_BANNER_WIDTH - textWidth - leftPadding);
+        return "&3&l|" + " ".repeat(leftPadding) + "&b&l" + text
+                + " ".repeat(rightPadding) + "&3&l|";
+    }
+
+    private String bannerLine(String text) {
+        int rightPadding = Math.max(1, STARTUP_BANNER_WIDTH - bannerDisplayWidth(text) - 1);
+        return "&3&l| " + text + " ".repeat(rightPadding) + "&3&l|";
+    }
+
+    private int bannerDisplayWidth(String text) {
+        String plainText = PlainTextComponentSerializer.plainText().serialize(deserialize(text));
+        return plainText.codePoints().map(codePoint -> codePoint > 0x7f ? 2 : 1).sum();
     }
 
     private String replaceVariables(String text, String... replacements) {

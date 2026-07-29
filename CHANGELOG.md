@@ -2,6 +2,22 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.2.2] - 2026-07-30
+
+### English
+
+- Expanded the startup banner interior from 58 to 64 terminal columns so the longest GitHub field has clear space before the border.
+- Added a complete right-side `|` border to every metadata and privacy row, using the same border color as the left side.
+- Made banner padding ignore legacy color codes and count Chinese characters as double-width terminal columns for consistent bilingual alignment.
+- Kept configuration values, configuration comments, cleanup behavior, scheduling, updater behavior, and in-game messages unchanged.
+
+### 中文
+
+- 将启动横幅内部宽度从 58 个终端列扩展为 64 个终端列，让最长的 GitHub 地址与边框之间保留清晰空隙。
+- 为每一行元数据与隐私声明补全右侧 `|` 边框，并与左侧边框使用相同颜色。
+- 横幅留白计算会忽略旧式颜色码，并将中文字符按双列终端宽度计算，使双语内容稳定对齐。
+- 配置值、配置注释、清理行为、排程、更新器行为与游戏内消息均保持不变。
+
 ## [1.2.1] - 2026-07-29
 
 ### English
