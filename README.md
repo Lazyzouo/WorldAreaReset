@@ -22,8 +22,9 @@ A Paper/Folia terrain-maintenance plugin designed for administrator-defined free
 
 - Scheduled terrain maintenance for administrator-defined free-for-all PvP zones.
 - Administrator cleanup through `/war cleanup`, using the same countdown as automatic cleanup.
+- Bold rendering for every in-game plugin message, with divider-based warning and completion text centered against `✦`; help-menu spacing remains unchanged.
 - Inclusive X/Y/Z cuboid boundaries and a material allowlist.
-- Ready-to-use Simplified Chinese (`WorldAreaReset-1.2.0-zh.cn.jar`) and English (`WorldAreaReset-1.2.0-en.us.jar`) packages.
+- Ready-to-use Simplified Chinese (`WorldAreaReset-1.2.1-zh.cn.jar`) and English (`WorldAreaReset-1.2.1-en.us.jar`) packages.
 - Startup GitHub Release checks with optional automatic JAR download.
 - Localized, color-coded latest-version, update-success, and update-failure console notices.
 - A gold plugin prefix shared by the startup banner and updater, with distinct colors for each status.
@@ -38,11 +39,11 @@ A Paper/Folia terrain-maintenance plugin designed for administrator-defined free
 | Java | 21 or newer |
 | Permission | `worldareareset.admin` for administrator commands |
 
-WorldAreaReset 1.2.0 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
+WorldAreaReset 1.2.1 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
 
 ## Install
 
-1. Download `WorldAreaReset-1.2.0-en.us.jar` for English defaults or `WorldAreaReset-1.2.0-zh.cn.jar` for Simplified Chinese defaults from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
+1. Download `WorldAreaReset-1.2.1-en.us.jar` for English defaults or `WorldAreaReset-1.2.1-zh.cn.jar` for Simplified Chinese defaults from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
 2. Place it in the server's `plugins` directory.
 3. Start the server once.
 4. Review `plugins/WorldAreaReset/config.yml` and make a world backup.
@@ -67,6 +68,8 @@ Language files are extracted to `plugins/WorldAreaReset/lang/` and can be custom
 Release filenames always follow `WorldAreaReset-<version>-en.us.jar` and `WorldAreaReset-<version>-zh.cn.jar`. CI and the Release workflow publish the exact files produced in `build/libs/` without renaming, relabeling, or adding other JAR assets.
 
 The official templates restore all editable notifications, broadcasts, and help menus under `messages.en_US` or `messages.zh_CN`. Server-specific cleanup parameters retain safe official presets. Legacy flat `messages.*` overrides remain supported.
+
+Player-facing text is forced bold at runtime without rewriting configured message text or colors. Multiline cleanup warning and completion broadcasts repeat the configured prefix on every line and center each content line against the divider `✦`. Help menus are bold but intentionally retain their configured spacing instead of automatic centering.
 
 ## Commands
 
@@ -127,7 +130,7 @@ WorldAreaReset does not define PvP zones or control combat permissions. Configur
 ./gradlew clean build
 ```
 
-`WorldAreaReset-1.2.0-en.us.jar` and `WorldAreaReset-1.2.0-zh.cn.jar` are written to `build/libs/`. The build verifies that each packaged `config.yml` is byte-for-byte identical to its commented official source configuration.
+`WorldAreaReset-1.2.1-en.us.jar` and `WorldAreaReset-1.2.1-zh.cn.jar` are written to `build/libs/`. The build verifies that each packaged `config.yml` is byte-for-byte identical to its commented official source configuration.
 
 ## Documentation and community
 
@@ -153,8 +156,9 @@ WorldAreaReset 是一款面向 Paper/Folia 服务器、专为管理员指定的�
 
 - 面向管理员指定自由 PvP 区域的定时地形维护。
 - `/war cleanup` 管理员手动清理，并与自动清理共用倒计时。
+- 所有插件游戏内文本均以粗体显示；带分割线的警告与完成消息按照 `✦` 居中，帮助菜单保持原有排版。
 - 包含边界的 X/Y/Z 长方体范围与材质白名单。
-- 可直接使用的简体中文默认包 (`WorldAreaReset-1.2.0-zh.cn.jar`) 与英文默认包 (`WorldAreaReset-1.2.0-en.us.jar`)。
+- 可直接使用的简体中文默认包 (`WorldAreaReset-1.2.1-zh.cn.jar`) 与英文默认包 (`WorldAreaReset-1.2.1-en.us.jar`)。
 - 启动时检查 GitHub Release，并可自动下载新版 JAR。
 - 本地化并带有状态颜色的最新版、下载成功和更新失败后台提示。
 - 启动横幅与更新器共用金色插件前缀，不同状态使用不同颜色。
@@ -163,11 +167,11 @@ WorldAreaReset 是一款面向 Paper/Folia 服务器、专为管理员指定的�
 
 ## 版本限制
 
-WorldAreaReset 1.2.0 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
+WorldAreaReset 1.2.1 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
 
 ## 安装
 
-1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载英文默认包 `WorldAreaReset-1.2.0-en.us.jar` 或简体中文默认包 `WorldAreaReset-1.2.0-zh.cn.jar`。
+1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载英文默认包 `WorldAreaReset-1.2.1-en.us.jar` 或简体中文默认包 `WorldAreaReset-1.2.1-zh.cn.jar`。
 2. 放入服务器 `plugins` 目录。
 3. 启动一次服务器。
 4. 检查 `plugins/WorldAreaReset/config.yml` 并备份世界。
@@ -178,6 +182,8 @@ WorldAreaReset 1.2.0 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持�
 ## 语言切换
 
 每个 Release 仅上传英文默认 JAR 与简体中文默认 JAR。两个包包含完全相同的插件代码与完整配置注释，仅内置的官方默认配置不同；GitHub 页面自动显示的源码 ZIP/TAR 并非项目额外上传的 Release 附件。文件名固定遵循 `WorldAreaReset-<版本>-en.us.jar` 与 `WorldAreaReset-<版本>-zh.cn.jar`；CI 和 Release 工作流必须原样上传 `build/libs/` 的构建文件，禁止改名、改标签或加入其他 JAR。在 `config.yml` 设置 `language: "zh_CN"` 或 `language: "en_US"` 后执行 `/war reload` 仍可随时切换语言。语言文件位于 `plugins/WorldAreaReset/lang/`，可以自行修改。官方配置保留 `messages.zh_CN` 或 `messages.en_US` 下的完整通知、广播与帮助菜单；清理参数继续使用安全的官方预设，旧版扁平 `messages.*` 覆盖也继续兼容。
+
+所有游戏内文本都会在运行时强制显示为粗体，不会改写配置中的消息文本或颜色。多行清理警告与完成广播会在每一行重复已配置的插件前缀，并让每行正文按照分割线的 `✦` 居中。帮助菜单同样显示为粗体，但不会自动居中，继续保留配置中的原有排版。
 
 ## 自动更新
 

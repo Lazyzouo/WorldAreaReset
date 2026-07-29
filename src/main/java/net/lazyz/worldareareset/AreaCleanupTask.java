@@ -1,7 +1,6 @@
 package net.lazyz.worldareareset;
 
 import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -83,7 +82,7 @@ public class AreaCleanupTask {
         warningMsg = warningMsg.replace("{world}", worldName)
                 .replace("{time}", String.valueOf(countdown));
 
-        Bukkit.broadcast(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix + warningMsg));
+        Bukkit.broadcast(plugin.deserializeInGame(prefix, warningMsg, true));
 
         this.delayedTask = plugin.getServer().getAsyncScheduler().runDelayed(plugin, task -> {
             synchronized (AreaCleanupTask.this) {
@@ -122,7 +121,7 @@ public class AreaCleanupTask {
 
         String prefix = plugin.message("prefix", "&8[&6WorldAreaReset&8] &r");
         String startMsg = plugin.message("start_cleanup", "&eArea cleanup has started. Please wait...");
-        Bukkit.broadcast(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix + startMsg));
+        Bukkit.broadcast(plugin.deserializeInGame(prefix, startMsg, false));
 
         long startTime = System.currentTimeMillis();
         AtomicInteger totalRemovedBlocks = new AtomicInteger(0);
@@ -191,7 +190,7 @@ public class AreaCleanupTask {
                                 .replace("{entities}", String.valueOf(totalRemovedEntities.get()))
                                 .replace("{time}", String.valueOf(timeTaken));
 
-                        Bukkit.broadcast(LegacyComponentSerializer.legacyAmpersand().deserialize(prefix + finishMsg));
+                        Bukkit.broadcast(plugin.deserializeInGame(prefix, finishMsg, true));
                     }
                 });
             }

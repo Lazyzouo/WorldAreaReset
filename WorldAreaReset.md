@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.2.0`<br>
+> Applies to / 适用于：`WorldAreaReset 1.2.1`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -28,7 +28,7 @@ It does not create regions, enable PvP, manage combat permissions, regenerate te
 | Path | Default | Meaning |
 | --- | --- | --- |
 | `config_version` | `3` | Public configuration format marker |
-| `language` | Package-specific | `en_US` in `WorldAreaReset-1.2.0-en.us.jar`; `zh_CN` in `WorldAreaReset-1.2.0-zh.cn.jar` |
+| `language` | Package-specific | `en_US` in `WorldAreaReset-1.2.1-en.us.jar`; `zh_CN` in `WorldAreaReset-1.2.1-zh.cn.jar` |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
 | `cleanup.interval_minutes` | `180` | Fixed automatic schedule interval in minutes |
 | `cleanup.countdown_seconds` | `10` | Shared warning delay for automatic and manual cleanup |
@@ -59,6 +59,8 @@ Only server-specific settings such as world, boundaries, interval, allowlist, la
 Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{world}`, `{time}`, `{blocks}`, `{entities}`, `{current}`, `{reason}`, and `{url}` where relevant.
 
 The startup banner and all updater notices use the same configured gold `WorldAreaReset` prefix. Banner fields use separate colors for labels and values; updater states use cyan for checking, green for current/downloaded, yellow for available/manual download, red for failure, and gray for disabled.
+
+Every player-facing plugin message is forced bold at runtime. Legacy color codes, hex colors, and reset codes automatically reapply bold styling, so custom configured colors do not disable it. Divider-based `warning` and `finish_cleanup` broadcasts repeat the configured prefix on every line and center each non-divider content line against the `✦` in the divider. Help menus are also bold, but they are intentionally excluded from automatic centering and retain their configured spacing.
 
 ### 5. Automatic cleanup sequence
 
@@ -142,7 +144,7 @@ WorldAreaReset 用于对管理员指定的自由 PvP 区域进行定时地形维
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
 | `config_version` | `3` | 公开配置格式版本 |
-| `language` | 按语言包决定 | `WorldAreaReset-1.2.0-en.us.jar` 为 `en_US`；`WorldAreaReset-1.2.0-zh.cn.jar` 为 `zh_CN` |
+| `language` | 按语言包决定 | `WorldAreaReset-1.2.1-en.us.jar` 为 `en_US`；`WorldAreaReset-1.2.1-zh.cn.jar` 为 `zh_CN` |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
 | `cleanup.interval_minutes` | `180` | 自动清理固定周期，单位分钟 |
 | `cleanup.countdown_seconds` | `10` | 自动与手动清理共用倒计时 |
@@ -173,6 +175,8 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{world}`、`{time}`、`{blocks}`、`{entities}`、`{current}`、`{reason}` 和 `{url}` 等变量。
 
 启动横幅和全部更新器通知共用配置中的金色 `WorldAreaReset` 前缀。横幅标签与值分别着色；更新状态依次使用青色（检查中）、绿色（最新版/下载完成）、黄色（发现更新/手动下载）、红色（失败）和灰色（已关闭）。
+
+所有插件游戏内文本都会在运行时强制显示为粗体。旧式颜色码、十六进制颜色和重置码之后会自动重新应用粗体，因此自定义颜色不会关闭粗体效果。带分割线的 `warning` 与 `finish_cleanup` 广播会在每一行重复已配置的插件前缀，并将每个非分割线正文行按照分割线的 `✦` 居中。帮助菜单同样为粗体，但明确排除在自动居中之外，继续保留配置中的原有排版。
 
 ### 5. 自动清理逻辑
 

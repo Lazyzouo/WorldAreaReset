@@ -2,6 +2,24 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.2.1] - 2026-07-29
+
+### English
+
+- Forced bold styling at runtime for every player-facing plugin message, including text that contains configured color or reset codes.
+- Centered every content line inside divider-based cleanup warning and completion broadcasts against the `✦` in the divider.
+- Kept help-menu spacing unchanged while still applying the global bold styling.
+- Repeated the configured plugin prefix on every line of multiline cleanup broadcasts so their alignment remains consistent.
+- Kept message text, colors, configuration values, comments, cleanup scheduling, and cleanup behavior unchanged.
+
+### 中文
+
+- 在运行时强制将所有插件游戏内文本设为粗体，包括含有配置颜色码或重置码的文本。
+- 将带分割线的清理警告与完成广播中的每行正文，按照分割线的 `✦` 居中对齐。
+- 帮助菜单保持原有排版、不自动居中，但仍应用全局粗体显示。
+- 多行清理广播的每一行都会补上已配置的插件前缀，以保持对齐一致。
+- 消息文本、颜色、配置值、注释、清理排程与清理行为均保持不变。
+
 ## [1.2.0] - 2026-07-29
 
 ### English

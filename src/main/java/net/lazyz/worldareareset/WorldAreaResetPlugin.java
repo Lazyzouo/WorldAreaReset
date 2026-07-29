@@ -127,6 +127,15 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         return LegacyComponentSerializer.legacyAmpersand().deserialize(text);
     }
 
+    Component deserializeInGame(String text) {
+        return deserialize(InGameTextFormatter.forceBold(text));
+    }
+
+    Component deserializeInGame(String prefix, String text, boolean centerOnDividerStar) {
+        String formatted = centerOnDividerStar ? InGameTextFormatter.centerOnDividerStar(text) : text;
+        return deserializeInGame(InGameTextFormatter.prefixEveryLine(prefix, formatted));
+    }
+
     private void sendHelp(CommandSender sender) {
         boolean isAdmin = hasAdminPermission(sender);
         List<String> helpMenu = languageManager.list(isAdmin ? "help_menu_admin" : "help_menu_player");
@@ -161,12 +170,12 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                 "{author}", author,
                 "{interval}", String.valueOf(interval),
                 "{countdown}", String.valueOf(countdown));
-        sender.sendMessage(deserialize(formattedLine));
+        sender.sendMessage(deserializeInGame(formattedLine));
     }
 
     private void sendPrefixed(CommandSender sender, String key, String fallback, String... replacements) {
         String prefix = message("prefix", "&8[&6WorldAreaReset&8] &r");
-        sender.sendMessage(deserialize(prefix + message(key, fallback, replacements)));
+        sender.sendMessage(deserializeInGame(prefix, message(key, fallback, replacements), false));
     }
 
     private boolean hasAdminPermission(CommandSender sender) {
