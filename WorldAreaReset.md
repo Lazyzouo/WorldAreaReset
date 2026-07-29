@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.2.2`<br>
+> Applies to / 适用于：`WorldAreaReset 1.2.3`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -28,7 +28,7 @@ It does not create regions, enable PvP, manage combat permissions, regenerate te
 | Path | Default | Meaning |
 | --- | --- | --- |
 | `config_version` | `3` | Public configuration format marker |
-| `language` | Package-specific | `en_US` in `WorldAreaReset-1.2.2-en.us.jar`; `zh_CN` in `WorldAreaReset-1.2.2-zh.cn.jar` |
+| `language` | Package-specific | `en_US` in `WorldAreaReset-1.2.3-en.us.jar`; `zh_CN` in `WorldAreaReset-1.2.3-zh.cn.jar` |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
 | `cleanup.interval_minutes` | `180` | Fixed automatic schedule interval in minutes |
 | `cleanup.countdown_seconds` | `10` | Shared warning delay for automatic and manual cleanup |
@@ -60,7 +60,7 @@ Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, 
 
 The startup banner and all updater notices use the same configured gold `WorldAreaReset` prefix. Banner fields use separate colors for labels and values; updater states use cyan for checking, green for current/downloaded, yellow for available/manual download, red for failure, and gray for disabled.
 
-The startup banner has a 64-column interior. Every title, metadata, project URL, and privacy row is enclosed by matching left and right borders. Padding ignores legacy color codes and counts Chinese characters as double-width terminal columns, keeping the right border aligned with space after the longest field.
+The startup banner has a 64-column interior. Its identity section contains the centered service name/version and the centered bilingual `PVP TERRAIN MAINTENANCE / PVP 地形维护` subtitle, followed by a full-width dashed separator before runtime metadata. Every title, metadata, project URL, and privacy row is enclosed by matching left and right borders. Padding ignores legacy color codes and counts Chinese characters as double-width terminal columns, keeping the right border aligned with space after the longest field.
 
 Every player-facing plugin message is forced bold at runtime. Legacy color codes, hex colors, and reset codes automatically reapply bold styling, so custom configured colors do not disable it. Divider-based `warning` and `finish_cleanup` broadcasts repeat the configured prefix on every line and center each non-divider content line against the `✦` in the divider. Help menus are also bold, but they are intentionally excluded from automatic centering and retain their configured spacing.
 
@@ -146,7 +146,7 @@ WorldAreaReset 用于对管理员指定的自由 PvP 区域进行定时地形维
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
 | `config_version` | `3` | 公开配置格式版本 |
-| `language` | 按语言包决定 | `WorldAreaReset-1.2.2-en.us.jar` 为 `en_US`；`WorldAreaReset-1.2.2-zh.cn.jar` 为 `zh_CN` |
+| `language` | 按语言包决定 | `WorldAreaReset-1.2.3-en.us.jar` 为 `en_US`；`WorldAreaReset-1.2.3-zh.cn.jar` 为 `zh_CN` |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
 | `cleanup.interval_minutes` | `180` | 自动清理固定周期，单位分钟 |
 | `cleanup.countdown_seconds` | `10` | 自动与手动清理共用倒计时 |
@@ -178,7 +178,7 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 
 启动横幅和全部更新器通知共用配置中的金色 `WorldAreaReset` 前缀。横幅标签与值分别着色；更新状态依次使用青色（检查中）、绿色（最新版/下载完成）、黄色（发现更新/手动下载）、红色（失败）和灰色（已关闭）。
 
-启动横幅内部宽度为 64 个终端列。标题、元数据、项目地址和隐私声明各行均由同色左右边框完整包围。留白计算会忽略旧式颜色码，并将中文字符按双列终端宽度计算，使右侧边框保持对齐，并与最长字段保留空隙。
+启动横幅内部宽度为 64 个终端列。身份标题区包含居中的服务名称与版本，以及居中的双语副标题 `PVP TERRAIN MAINTENANCE / PVP 地形维护`，随后使用整行虚线将标题区与运行信息分隔。标题、元数据、项目地址和隐私声明各行均由同色左右边框完整包围。留白计算会忽略旧式颜色码，并将中文字符按双列终端宽度计算，使右侧边框保持对齐，并与最长字段保留空隙。
 
 所有插件游戏内文本都会在运行时强制显示为粗体。旧式颜色码、十六进制颜色和重置码之后会自动重新应用粗体，因此自定义颜色不会关闭粗体效果。带分割线的 `warning` 与 `finish_cleanup` 广播会在每一行重复已配置的插件前缀，并将每个非分割线正文行按照分割线的 `✦` 居中。帮助菜单同样为粗体，但明确排除在自动居中之外，继续保留配置中的原有排版。
 

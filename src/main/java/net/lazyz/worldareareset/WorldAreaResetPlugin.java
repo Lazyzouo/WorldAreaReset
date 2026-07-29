@@ -190,6 +190,8 @@ public class WorldAreaResetPlugin extends JavaPlugin {
 
         logConsole("&3&l+" + "=".repeat(STARTUP_BANNER_WIDTH) + "+");
         logConsole(centerBannerLine("WORLDAREARESET TERRAIN SERVICE v" + version));
+        logConsole(centerBannerLine("PVP TERRAIN MAINTENANCE / PVP 地形维护", "&f&l"));
+        logConsole("&3&l+" + "-".repeat(STARTUP_BANNER_WIDTH) + "+");
         logConsole(bannerLine("&fVersion / 版本 &8: &a" + version));
         logConsole(bannerLine("&fAuthor  / 作者 &8: &e" + author));
         logConsole(bannerLine("&fTested  / 测试 &8: &aPaper & Folia 1.21.11"));
@@ -210,10 +212,14 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private String centerBannerLine(String text) {
+        return centerBannerLine(text, "&b&l");
+    }
+
+    private String centerBannerLine(String text, String textColor) {
         int textWidth = bannerDisplayWidth(text);
         int leftPadding = Math.max(0, (STARTUP_BANNER_WIDTH - textWidth) / 2);
         int rightPadding = Math.max(0, STARTUP_BANNER_WIDTH - textWidth - leftPadding);
-        return "&3&l|" + " ".repeat(leftPadding) + "&b&l" + text
+        return "&3&l|" + " ".repeat(leftPadding) + textColor + text
                 + " ".repeat(rightPadding) + "&3&l|";
     }
 

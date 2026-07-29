@@ -2,6 +2,22 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.2.3] - 2026-07-30
+
+### English
+
+- Added a centered bilingual `PVP TERRAIN MAINTENANCE / PVP 地形维护` subtitle beneath the startup banner title.
+- Added a full-width dashed separator between the banner identity section and runtime metadata.
+- Kept the 64-column display-width alignment, complete side borders, field colors, and GitHub spacing introduced in 1.2.2.
+- Kept configuration, cleanup behavior, scheduling, updater behavior, and in-game messages unchanged.
+
+### 中文
+
+- 在启动横幅主标题下新增居中的双语副标题 `PVP TERRAIN MAINTENANCE / PVP 地形维护`。
+- 在横幅身份标题区与运行信息之间新增整行虚线分隔线。
+- 保留 1.2.2 加入的 64 列显示宽度对齐、完整左右边框、字段颜色及 GitHub 地址留白。
+- 配置、清理行为、排程、更新器行为与游戏内消息均保持不变。
+
 ## [1.2.2] - 2026-07-30
 
 ### English
