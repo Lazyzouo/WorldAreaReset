@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.1.3`<br>
+> Applies to / 适用于：`WorldAreaReset 1.1.4`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -17,11 +17,11 @@
 
 Always include the exact server implementation and build when reporting a problem.
 
-### 2. Runtime model
+### 2. Purpose and runtime model
 
-WorldAreaReset cleans an inclusive cuboid in one loaded world. Every non-air block not listed in `cleanup.keep_blocks` is changed to air without physics. Every non-player entity whose location is inside the cuboid is removed.
+WorldAreaReset provides scheduled terrain maintenance for administrator-defined free-for-all PvP zones. It cleans an inclusive cuboid in one loaded world: every non-air block not listed in `cleanup.keep_blocks` is changed to air without physics, and every non-player entity inside the cuboid is removed.
 
-It does not regenerate terrain, restore a schematic, respect claims, or keep an automatic backup.
+It does not create regions, enable PvP, manage combat permissions, regenerate terrain, restore a schematic, respect claims, or keep an automatic backup. Configure the same boundaries separately in the server's region or PvP-management system.
 
 ### 3. Configuration reference
 
@@ -125,11 +125,11 @@ Back up the world, pre-generate chunks, test a small range, and run large cleanu
 
 报告问题时必须提供准确的服务端实现与构建号。
 
-### 2. 运行模型
+### 2. 用途与运行模型
 
-WorldAreaReset 会清理一个已加载世界内、包含边界的长方体区域。所有不在 `cleanup.keep_blocks` 白名单中的非空气方块会在不触发物理更新的情况下改为空气；所有位于范围内的非玩家实体会被删除。
+WorldAreaReset 用于对管理员指定的自由 PvP 区域进行定时地形维护。插件会清理一个已加载世界内、包含边界的长方体区域：所有不在 `cleanup.keep_blocks` 白名单中的非空气方块会在不触发物理更新的情况下改为空气；所有位于范围内的非玩家实体会被删除。
 
-插件不会重新生成种子地形、恢复 schematic、识别领地，也不会自动备份。
+插件不会创建区域、开启 PvP、管理战斗权限、重新生成种子地形、恢复 schematic、识别领地或自动备份。请在服务器的区域或 PvP 管理系统中另行配置相同边界。
 
 ### 3. 配置说明
 

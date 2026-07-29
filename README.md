@@ -13,14 +13,14 @@
 [![Paper](https://img.shields.io/badge/Tested%20Paper%20%2F%20Folia-1.21.11-2ea44f)](https://papermc.io/)
 [![Java](https://img.shields.io/badge/Java-21-e76f00)](https://adoptium.net/)
 
-A configurable Paper/Folia plugin for scheduled or administrator-triggered cuboid area cleanup, with bilingual messages and GitHub-based update delivery.
+A Paper/Folia terrain-maintenance plugin designed for administrator-defined free-for-all PvP zones. WorldAreaReset periodically clears non-allowlisted blocks and non-player entities inside a configured cuboid so heavily used combat areas remain clean and reusable; administrators can trigger the same process manually. It does not create regions, enable PvP, or manage combat permissions.
 
 > [!CAUTION]
 > “Reset” means replacing non-allowlisted blocks with air and removing non-player entities. It does not regenerate terrain from the world seed and provides no rollback. Back up your world first.
 
 ## Features
 
-- Scheduled cleanup with a configurable interval and warning countdown.
+- Scheduled terrain maintenance for administrator-defined free-for-all PvP zones.
 - Administrator cleanup through `/war cleanup`, using the same countdown as automatic cleanup.
 - Inclusive X/Y/Z cuboid boundaries and a material allowlist.
 - Simplified Chinese (`zh_CN`) and English (`en_US`) language packs.
@@ -38,11 +38,11 @@ A configurable Paper/Folia plugin for scheduled or administrator-triggered cuboi
 | Java | 21 or newer |
 | Permission | `worldareareset.admin` for administrator commands |
 
-WorldAreaReset 1.1.3 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
+WorldAreaReset 1.1.4 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
 
 ## Install
 
-1. Download `WorldAreaReset-1.1.3.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
+1. Download `WorldAreaReset-1.1.4.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
 2. Place it in the server's `plugins` directory.
 3. Start the server once.
 4. Review `plugins/WorldAreaReset/config.yml` and make a world backup.
@@ -117,6 +117,8 @@ The updater only accepts a release asset named `WorldAreaReset-*.jar`. When GitH
 
 The current cleanup engine submits one task per covered chunk and may synchronously load chunks. Large areas can block a Folia region long enough to trigger Watchdog warnings. Pre-generate chunks, use conservative boundaries, test off-peak, and read the [administrator guide](WorldAreaReset.md) before production use.
 
+WorldAreaReset does not define PvP zones or control combat permissions. Configure the same boundaries separately in the server's region or PvP-management system.
+
 ## Build
 
 ```bash
@@ -140,14 +142,14 @@ Licensed under the [MIT License](LICENSE). Copyright © 2026 Lazyz.
 
 ## 中文说明
 
-WorldAreaReset 是一个面向 Paper/Folia 的长方体区域定时清理插件，支持管理员手动清理、中英双语消息以及基于 GitHub Releases 的更新下载。
+WorldAreaReset 是一款面向 Paper/Folia 服务器、专为管理员指定的自由 PvP 区域设计的定时地形维护插件。插件会周期性清除配置长方体范围内的非白名单方块与非玩家实体，使频繁使用的战斗区域保持整洁并可继续使用；管理员也可手动触发相同流程。插件不负责创建区域、开启 PvP 或管理战斗权限。
 
 > [!CAUTION]
 > “重置”实际是把非白名单方块替换为空气，并删除非玩家实体。插件不会根据世界种子重新生成地形，也没有回滚功能。启用前必须备份世界。
 
 ## 功能
 
-- 可配置周期与警告倒计时的自动清理。
+- 面向管理员指定自由 PvP 区域的定时地形维护。
 - `/war cleanup` 管理员手动清理，并与自动清理共用倒计时。
 - 包含边界的 X/Y/Z 长方体范围与材质白名单。
 - 简体中文 (`zh_CN`) 与英文 (`en_US`) 语言包。
@@ -159,11 +161,11 @@ WorldAreaReset 是一个面向 Paper/Folia 的长方体区域定时清理插件�
 
 ## 版本限制
 
-WorldAreaReset 1.1.3 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
+WorldAreaReset 1.1.4 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
 
 ## 安装
 
-1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.1.3.jar`。
+1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.1.4.jar`。
 2. 放入服务器 `plugins` 目录。
 3. 启动一次服务器。
 4. 检查 `plugins/WorldAreaReset/config.yml` 并备份世界。
@@ -182,5 +184,7 @@ WorldAreaReset 1.1.3 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持�
 ## 已知限制
 
 当前清理引擎会为范围内每个区块提交任务，并可能同步加载区块。范围过大时可能阻塞 Folia region 并触发 Watchdog。正式使用前请预生成区块、缩小范围、避开高峰并阅读 [管理员配置与逻辑说明](WorldAreaReset.md)。
+
+WorldAreaReset 不会划分 PvP 区域或控制战斗权限；请在服务器的区域或 PvP 管理系统中另行配置相同边界。
 
 项目采用 [MIT License](LICENSE)，作者：Lazyz。

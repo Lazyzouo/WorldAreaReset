@@ -2,6 +2,22 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.1.4] - 2026-07-29
+
+### English
+
+- Refined the official project positioning around scheduled terrain maintenance for administrator-defined free-for-all PvP zones.
+- Explained that scheduled and manual cleanup remove non-allowlisted blocks and non-player entities within the configured cuboid.
+- Clarified that WorldAreaReset does not create regions, enable PvP, or manage combat permissions.
+- Updated the plugin metadata and GitHub project description while keeping cleanup behavior and configuration unchanged.
+
+### 中文
+
+- 将官方项目定位完善为面向管理员指定自由 PvP 区域的定时地形维护插件。
+- 说明自动与手动清理会移除配置长方体范围内的非白名单方块和非玩家实体。
+- 明确 WorldAreaReset 不负责创建区域、开启 PvP 或管理战斗权限。
+- 同步更新插件元数据与 GitHub 项目介绍，清理逻辑和配置保持不变。
+
 ## [1.1.3] - 2026-07-29
 
 ### English
