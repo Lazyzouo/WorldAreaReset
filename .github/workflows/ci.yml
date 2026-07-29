@@ -34,11 +34,19 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build --no-daemon
 
-      - name: Upload build artifact
+      - name: Read project version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(sed -n "s/def pluginVersion = '\([^']*\)'/\1/p" build.gradle)
+          test -n "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Upload exact build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: WorldAreaReset-language-jars
+          name: WorldAreaReset-${{ steps.version.outputs.version }}-language-jars
           path: |
-            build/libs/WorldAreaReset-en.us.jar
-            build/libs/WorldAreaReset-zh.cn.jar
+            build/libs/WorldAreaReset-${{ steps.version.outputs.version }}-en.us.jar
+            build/libs/WorldAreaReset-${{ steps.version.outputs.version }}-zh.cn.jar
           if-no-files-found: error

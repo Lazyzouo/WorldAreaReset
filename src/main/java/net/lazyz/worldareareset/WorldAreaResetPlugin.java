@@ -11,11 +11,11 @@ import org.bukkit.util.StringUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 
 public class WorldAreaResetPlugin extends JavaPlugin {
 
     private static final String HELP_DIVIDER = "&6━━━━━━&e━━━━━━&a━━━━━━ &f✦ &a━━━━━━&e━━━━━━&6━━━━━━";
+    private static final int STARTUP_BANNER_WIDTH = 58;
 
     private AreaCleanupTask cleanupTask;
     private LanguageManager languageManager;
@@ -113,11 +113,14 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     void logLocalized(String key, String fallback, String... replacements) {
-        getLogger().info(stripLegacyFormatting(message(key, fallback, replacements)));
-    }
-
-    void logLocalized(Level level, String key, String fallback, String... replacements) {
-        getLogger().log(level, stripLegacyFormatting(message(key, fallback, replacements)));
+        String statusColor = switch (key) {
+            case "updater.checking" -> "&b";
+            case "updater.latest", "updater.downloaded" -> "&a";
+            case "updater.available", "updater.manual_download" -> "&e";
+            case "updater.failed" -> "&c";
+            default -> "&7";
+        };
+        logConsole(statusColor + message(key, fallback, replacements));
     }
 
     Component deserialize(String text) {
@@ -171,12 +174,35 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private void printStartupBanner() {
-        CommandSender console = Bukkit.getConsoleSender();
-        console.sendMessage(deserialize(HELP_DIVIDER));
-        console.sendMessage(deserialize("&6&l  WorldAreaReset &fv" + getPluginMeta().getVersion() + " &8| &eLazyz"));
-        console.sendMessage(deserialize("&7  Tested: Paper/Folia 1.21.11 &8| &a" + languageManager.code()));
-        console.sendMessage(deserialize("&7  " + UpdateChecker.PROJECT_URL));
-        console.sendMessage(deserialize(HELP_DIVIDER));
+        String version = getPluginMeta().getVersion();
+        String author = getPluginMeta().getAuthors().isEmpty() ? "Lazyz" : getPluginMeta().getAuthors().get(0);
+        String platform = Bukkit.getName();
+
+        logConsole("&3&l+" + "=".repeat(STARTUP_BANNER_WIDTH) + "+");
+        logConsole("&b&l" + centerBannerLine("WORLDAREARESET TERRAIN SERVICE v" + version));
+        logConsole("&3&l| &fVersion / 版本 &8: &a" + version);
+        logConsole("&3&l| &fAuthor  / 作者 &8: &e" + author);
+        logConsole("&3&l| &fTested  / 测试 &8: &aPaper & Folia 1.21.11");
+        logConsole("&3&l| &fLanguage/ 语言 &8: &b" + languageManager.code());
+        logConsole("&3&l| &fGitHub         &8: &9" + UpdateChecker.PROJECT_URL);
+        logConsole("&3&l| &aOpen source. &fNo telemetry or server-data upload.");
+        logConsole("&3&l+" + "=".repeat(STARTUP_BANNER_WIDTH) + "+");
+
+        String started = languageManager.code().equalsIgnoreCase("zh_CN")
+                ? "&a&l» &fWorldAreaReset v" + version + " by " + author + " &a已在 " + platform + " 核心上成功启动！"
+                : "&a&l» &fWorldAreaReset v" + version + " by " + author + " &astarted successfully on " + platform + "!";
+        logConsole(started);
+    }
+
+    private void logConsole(String text) {
+        String prefix = message("prefix", "&8[&6WorldAreaReset&8] &r");
+        Bukkit.getConsoleSender().sendMessage(deserialize(prefix + text));
+    }
+
+    private String centerBannerLine(String text) {
+        int leftPadding = Math.max(0, (STARTUP_BANNER_WIDTH - text.length()) / 2);
+        int rightPadding = Math.max(0, STARTUP_BANNER_WIDTH - text.length() - leftPadding);
+        return "|" + " ".repeat(leftPadding) + text + " ".repeat(rightPadding) + "|";
     }
 
     private String replaceVariables(String text, String... replacements) {
@@ -187,7 +213,4 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         return result;
     }
 
-    private String stripLegacyFormatting(String text) {
-        return text.replaceAll("&[0-9A-FK-ORa-fk-or]", "");
-    }
 }

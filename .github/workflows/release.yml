@@ -39,6 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
         shell: bash
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
@@ -72,26 +73,31 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build --no-daemon
 
-      - name: Verify language packages
+      - name: Verify exact versioned language packages
         if: steps.release_check.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
         shell: bash
         run: |
-          test -f build/libs/WorldAreaReset-en.us.jar
-          test -f build/libs/WorldAreaReset-zh.cn.jar
+          EN_JAR="build/libs/WorldAreaReset-${VERSION}-en.us.jar"
+          ZH_JAR="build/libs/WorldAreaReset-${VERSION}-zh.cn.jar"
+          test -f "$EN_JAR"
+          test -f "$ZH_JAR"
           test "$(find build/libs -maxdepth 1 -type f -name '*.jar' | wc -l)" -eq 2
-          unzip -p build/libs/WorldAreaReset-en.us.jar config.yml | cmp - src/main/resources/config-en_US.yml
-          unzip -p build/libs/WorldAreaReset-zh.cn.jar config.yml | cmp - src/main/resources/config.yml
+          unzip -p "$EN_JAR" config.yml | cmp - src/main/resources/config-en_US.yml
+          unzip -p "$ZH_JAR" config.yml | cmp - src/main/resources/config.yml
 
       - name: Create GitHub Release
         if: steps.release_check.outputs.publish == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
         shell: bash
         run: |
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
             --title "WorldAreaReset $TAG" \
             --notes-file "release-notes/$TAG.md" \
-            build/libs/WorldAreaReset-en.us.jar \
-            build/libs/WorldAreaReset-zh.cn.jar
+            "build/libs/WorldAreaReset-${VERSION}-en.us.jar" \
+            "build/libs/WorldAreaReset-${VERSION}-zh.cn.jar"

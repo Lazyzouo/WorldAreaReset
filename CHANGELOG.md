@@ -2,6 +2,26 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.2.0] - 2026-07-29
+
+### English
+
+- Added the plugin version to both official package names: `WorldAreaReset-1.2.0-en.us.jar` and `WorldAreaReset-1.2.0-zh.cn.jar`.
+- Updated the automatic updater to select `WorldAreaReset-<latest-version>-<language>.jar` dynamically while retaining safe next-restart installation behavior.
+- Reworked the startup console banner with a consistent gold plugin prefix, bilingual metadata, tested-platform information, project URL, privacy statement, and localized success line.
+- Added status colors to update checking, current-version, available-version, manual-download, downloaded, disabled, and failure console notices.
+- Strengthened CI, Release automation, and repository rules so the two versioned build outputs must be uploaded under their original filenames without aliases or extra JARs.
+- Kept all cleanup parameters, official defaults, configuration comments, and cleanup behavior unchanged.
+
+### 中文
+
+- 为两个官方语言包加入插件版本号：`WorldAreaReset-1.2.0-en.us.jar` 与 `WorldAreaReset-1.2.0-zh.cn.jar`。
+- 自动更新器改为动态选择 `WorldAreaReset-<最新版本>-<语言>.jar`，并保留下一次重启时安全安装的逻辑。
+- 重新设计服务器后台启动横幅，统一使用金色插件前缀，并显示双语元数据、测试平台、项目地址、隐私声明和本地化启动成功提示。
+- 为检查更新、已是最新版、发现新版、手动下载、下载完成、更新关闭和更新失败通知加入对应状态颜色。
+- 强化 CI、Release 自动化和仓库维护规则，两个版本化构建产物必须保持原名上传，禁止别名、改名或额外 JAR。
+- 所有清理参数、官方默认值、配置注释及清理行为保持不变。
+
 ## [1.1.5] - 2026-07-29
 
 ### English

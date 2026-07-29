@@ -22,8 +22,9 @@ import java.util.concurrent.CompletionException;
 public final class UpdateChecker {
 
     public static final String PROJECT_URL = "https://github.com/Lazyzouo/WorldAreaReset";
-    private static final String ENGLISH_ASSET_NAME = "WorldAreaReset-en.us.jar";
-    private static final String CHINESE_ASSET_NAME = "WorldAreaReset-zh.cn.jar";
+    private static final String ASSET_PREFIX = "WorldAreaReset-";
+    private static final String ENGLISH_ASSET_SUFFIX = "-en.us.jar";
+    private static final String CHINESE_ASSET_SUFFIX = "-zh.cn.jar";
     private static final URI LATEST_RELEASE_API = URI.create(
             "https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest");
 
@@ -79,10 +80,10 @@ public final class UpdateChecker {
             return;
         }
 
-        JsonObject jarAsset = findJarAsset(release.getAsJsonArray("assets"));
+        JsonObject jarAsset = findJarAsset(release.getAsJsonArray("assets"), latestVersion);
         if (jarAsset == null) {
             throw new IllegalStateException("The latest release does not contain the expected "
-                    + expectedAssetName() + " asset");
+                    + expectedAssetName(latestVersion) + " asset");
         }
 
         URI downloadUrl = URI.create(jarAsset.get("browser_download_url").getAsString());
@@ -128,8 +129,8 @@ public final class UpdateChecker {
         }
     }
 
-    private JsonObject findJarAsset(JsonArray assets) {
-        String expectedName = expectedAssetName();
+    private JsonObject findJarAsset(JsonArray assets, String version) {
+        String expectedName = expectedAssetName(version);
         for (JsonElement element : assets) {
             JsonObject asset = element.getAsJsonObject();
             String name = asset.get("name").getAsString();
@@ -140,12 +141,12 @@ public final class UpdateChecker {
         return null;
     }
 
-    private String expectedAssetName() {
+    private String expectedAssetName(String version) {
         String language = plugin.getConfig().getString("language", "zh_CN");
         if (language != null && language.replace('-', '_').equalsIgnoreCase("en_US")) {
-            return ENGLISH_ASSET_NAME;
+            return ASSET_PREFIX + version + ENGLISH_ASSET_SUFFIX;
         }
-        return CHINESE_ASSET_NAME;
+        return ASSET_PREFIX + version + CHINESE_ASSET_SUFFIX;
     }
 
     private void verifyDigest(byte[] bytes, String expectedDigest) throws Exception {

@@ -3,7 +3,7 @@ plugins {
 }
 
 def pluginName = 'WorldAreaReset'
-def pluginVersion = '1.1.5'
+def pluginVersion = '1.2.0'
 def pluginAuthor = 'Lazyz'
 
 group = 'net.lazyz'
@@ -53,7 +53,7 @@ tasks.named('jar') {
 }
 
 def englishJar = tasks.register('englishJar', Jar) {
-    archiveFileName = "${pluginName}-en.us.jar"
+    archiveFileName = "${pluginName}-${pluginVersion}-en.us.jar"
     from(sourceSets.main.output) {
         exclude 'config.yml'
     }
@@ -63,7 +63,7 @@ def englishJar = tasks.register('englishJar', Jar) {
 }
 
 def chineseJar = tasks.register('chineseJar', Jar) {
-    archiveFileName = "${pluginName}-zh.cn.jar"
+    archiveFileName = "${pluginName}-${pluginVersion}-zh.cn.jar"
     from sourceSets.main.output
 }
 

@@ -9,6 +9,8 @@
 - Run `gradlew clean build` with Java 21 before publishing.
 - Treat Paper/Folia 1.21.11 as the only tested and supported server version until a later release explicitly validates another version.
 - Commit the update, push `main`, create and push the matching `vX.Y.Z` tag. The release workflow publishes the GitHub Release.
+- Release JARs must be named exactly `WorldAreaReset-X.Y.Z-en.us.jar` and `WorldAreaReset-X.Y.Z-zh.cn.jar`, using the same `pluginVersion` value.
+- Never rename, relabel, or alias built JARs during upload. The Release workflow must publish the two `build/libs/` files under their original filenames and fail on any missing, extra, or mismatched JAR.
 
 ## Configuration safety
 

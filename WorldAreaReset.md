@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.1.5`<br>
+> Applies to / 适用于：`WorldAreaReset 1.2.0`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -28,7 +28,7 @@ It does not create regions, enable PvP, manage combat permissions, regenerate te
 | Path | Default | Meaning |
 | --- | --- | --- |
 | `config_version` | `3` | Public configuration format marker |
-| `language` | Package-specific | `en_US` in `WorldAreaReset-en.us.jar`; `zh_CN` in `WorldAreaReset-zh.cn.jar` |
+| `language` | Package-specific | `en_US` in `WorldAreaReset-1.2.0-en.us.jar`; `zh_CN` in `WorldAreaReset-1.2.0-zh.cn.jar` |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
 | `cleanup.interval_minutes` | `180` | Fixed automatic schedule interval in minutes |
 | `cleanup.countdown_seconds` | `10` | Shared warning delay for automatic and manual cleanup |
@@ -57,6 +57,8 @@ The official configurations restore editable command feedback, broadcasts, help 
 Only server-specific settings such as world, boundaries, interval, allowlist, language, and updater switches use sanitized official presets. Message text and other non-server-specific presentation settings remain complete in the public templates.
 
 Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{world}`, `{time}`, `{blocks}`, `{entities}`, `{current}`, `{reason}`, and `{url}` where relevant.
+
+The startup banner and all updater notices use the same configured gold `WorldAreaReset` prefix. Banner fields use separate colors for labels and values; updater states use cyan for checking, green for current/downloaded, yellow for available/manual download, red for failure, and gray for disabled.
 
 ### 5. Automatic cleanup sequence
 
@@ -93,9 +95,11 @@ At startup the updater requests:
 https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest
 ```
 
-Version tags are compared numerically. The updater selects `WorldAreaReset-en.us.jar` for `language: en_US` and `WorldAreaReset-zh.cn.jar` otherwise, then downloads it to Bukkit's update folder under the currently running JAR filename. GitHub's SHA-256 digest is checked when present. The new JAR takes effect on the following restart.
+Version tags are compared numerically. The updater selects `WorldAreaReset-<latest-version>-en.us.jar` for `language: en_US` and `WorldAreaReset-<latest-version>-zh.cn.jar` otherwise, then downloads it to Bukkit's update folder under the currently running JAR filename. GitHub's SHA-256 digest is checked when present. The new JAR takes effect on the following restart.
 
 Each GitHub Release has exactly these two uploaded JAR assets. GitHub's automatically generated source archives remain visible separately and cannot be removed from the Release page.
+
+The required filename template is `WorldAreaReset-<version>-<language>.jar`, concretely `en.us` and `zh.cn`. CI and Release automation upload the exact build outputs without renaming, relabeling, or adding another JAR.
 
 Disable the network check with `updates.enabled: false`, or keep notifications without downloading by setting `updates.auto_download: false`.
 
@@ -138,7 +142,7 @@ WorldAreaReset 用于对管理员指定的自由 PvP 区域进行定时地形维
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
 | `config_version` | `3` | 公开配置格式版本 |
-| `language` | 按语言包决定 | `WorldAreaReset-en.us.jar` 为 `en_US`；`WorldAreaReset-zh.cn.jar` 为 `zh_CN` |
+| `language` | 按语言包决定 | `WorldAreaReset-1.2.0-en.us.jar` 为 `en_US`；`WorldAreaReset-1.2.0-zh.cn.jar` 为 `zh_CN` |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
 | `cleanup.interval_minutes` | `180` | 自动清理固定周期，单位分钟 |
 | `cleanup.countdown_seconds` | `10` | 自动与手动清理共用倒计时 |
@@ -167,6 +171,8 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 只有世界、坐标范围、周期、白名单、语言和更新开关等服务器专用参数使用脱敏后的官方预设；消息文本及其他与服务器参数无关的显示内容会完整保留在公开模板中。
 
 根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{world}`、`{time}`、`{blocks}`、`{entities}`、`{current}`、`{reason}` 和 `{url}` 等变量。
+
+启动横幅和全部更新器通知共用配置中的金色 `WorldAreaReset` 前缀。横幅标签与值分别着色；更新状态依次使用青色（检查中）、绿色（最新版/下载完成）、黄色（发现更新/手动下载）、红色（失败）和灰色（已关闭）。
 
 ### 5. 自动清理逻辑
 
@@ -197,9 +203,11 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 
 ### 8. 自动更新逻辑
 
-服务器启动时会请求官方 GitHub 最新 Release。`language: en_US` 会选择 `WorldAreaReset-en.us.jar`，其他情况会选择 `WorldAreaReset-zh.cn.jar`，随后下载到 Bukkit 更新目录；GitHub 提供 SHA-256 摘要时会进行校验。新版本在下一次服务器重启时生效。
+服务器启动时会请求官方 GitHub 最新 Release。`language: en_US` 会选择 `WorldAreaReset-<最新版本>-en.us.jar`，其他情况会选择 `WorldAreaReset-<最新版本>-zh.cn.jar`，随后下载到 Bukkit 更新目录；GitHub 提供 SHA-256 摘要时会进行校验。新版本在下一次服务器重启时生效。
 
 每个 GitHub Release 只上传这两个 JAR。GitHub 自动生成且无法从 Release 页面移除的源码压缩包会单独显示，不属于项目额外上传附件。
+
+强制文件名模板为 `WorldAreaReset-<版本>-<语言>.jar`，语言后缀仅为 `en.us` 与 `zh.cn`。CI 和 Release 自动化必须原样上传构建产物，禁止改名、改标签或加入其他 JAR。
 
 设置 `updates.enabled: false` 可完全关闭网络检查；设置 `updates.auto_download: false` 可只提示而不下载。
 
