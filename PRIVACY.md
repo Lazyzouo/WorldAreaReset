@@ -4,7 +4,7 @@
 
 ### Open-source assurance
 
-WorldAreaReset is released in full under the MIT License. Its public repository contains the source code used to build official releases, together with the build configuration, release workflow, checksums, and documentation. Administrators and independent reviewers may audit the code and build the plugin themselves.
+WorldAreaReset is released in full under the MIT License. Its public repository contains the source code used to build official releases, together with the build configuration, release workflow, GitHub asset digests, and documentation. Administrators and independent reviewers may audit the code and build the plugin themselves.
 
 WorldAreaReset contains no backdoor, telemetry, analytics, advertising, remote administration, remote command execution, hidden data collection, account system, webhook reporting, or developer-operated backend service.
 
@@ -28,7 +28,7 @@ The only runtime network feature is the optional updater. When `updates.enabled:
 https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest
 ```
 
-If a newer version exists and `updates.auto_download: true`, it downloads the matching `WorldAreaReset-*.jar` asset from the official GitHub Release and verifies the GitHub-provided SHA-256 digest when available.
+If a newer version exists and `updates.auto_download: true`, it downloads `WorldAreaReset-en.us.jar` or `WorldAreaReset-zh.cn.jar` according to the active language and verifies the GitHub-provided SHA-256 digest when available.
 
 No server content is included in these requests. However, GitHub necessarily receives standard network metadata associated with any HTTPS connection, including the server's public IP address, request time, and the plugin User-Agent. GitHub processes that metadata under GitHub's own privacy and logging policies; it is not collected by the WorldAreaReset author.
 
@@ -41,7 +41,7 @@ updates:
 
 ### Verification
 
-Official releases are created by the public GitHub Actions workflow from the corresponding public commit and tag. Release assets include SHA-256 checksums. Administrators who require independent assurance should review the tagged source, inspect the workflow, build the JAR locally, and compare behavior before production deployment.
+Official releases are created by the public GitHub Actions workflow from the corresponding public commit and tag. GitHub exposes a SHA-256 digest for uploaded assets. Administrators who require independent assurance should review the tagged source, inspect the workflow, build the JAR locally, and compare behavior before production deployment.
 
 ---
 
@@ -73,7 +73,7 @@ WorldAreaReset 不包含后门、遥测、统计分析、广告、远程管理�
 https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest
 ```
 
-若存在新版本且 `updates.auto_download: true`，插件会从官方 GitHub Release 下载匹配的 `WorldAreaReset-*.jar`，并在 GitHub 提供 SHA-256 摘要时进行校验。
+若存在新版本且 `updates.auto_download: true`，插件会根据当前语言从官方 GitHub Release 下载 `WorldAreaReset-en.us.jar` 或 `WorldAreaReset-zh.cn.jar`，并在 GitHub 提供 SHA-256 摘要时进行校验。
 
 这些请求不会包含任何服务器内容。但是，与所有 HTTPS 连接相同，GitHub 必然会接收服务器公网 IP、请求时间和插件 User-Agent 等标准网络元数据。相关元数据由 GitHub 按其自身隐私及日志政策处理，并非由 WorldAreaReset 作者收集。
 
@@ -86,4 +86,4 @@ updates:
 
 ### 自主验证
 
-官方版本由公开的 GitHub Actions 工作流根据对应公开提交和标签构建，Release 同时提供 SHA-256 校验文件。需要独立保证的管理员应审查标签源代码和发布工作流，在本地自行构建 JAR，并在生产部署前验证其行为。
+官方版本由公开的 GitHub Actions 工作流根据对应公开提交和标签构建，GitHub 会为上传资源提供 SHA-256 摘要。需要独立保证的管理员应审查标签源代码和发布工作流，在本地自行构建 JAR，并在生产部署前验证其行为。
