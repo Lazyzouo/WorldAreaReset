@@ -3,7 +3,7 @@ plugins {
 }
 
 def pluginName = 'WorldAreaReset'
-def pluginVersion = '1.1.4'
+def pluginVersion = '1.1.5'
 def pluginAuthor = 'Lazyz'
 
 group = 'net.lazyz'
@@ -46,4 +46,48 @@ processResources {
     filesMatching('plugin.yml') {
         expand props
     }
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+def englishJar = tasks.register('englishJar', Jar) {
+    archiveFileName = "${pluginName}-en.us.jar"
+    from(sourceSets.main.output) {
+        exclude 'config.yml'
+    }
+    from('src/main/resources/config-en_US.yml') {
+        rename { 'config.yml' }
+    }
+}
+
+def chineseJar = tasks.register('chineseJar', Jar) {
+    archiveFileName = "${pluginName}-zh.cn.jar"
+    from sourceSets.main.output
+}
+
+tasks.register('verifyLanguageJars') {
+    dependsOn englishJar, chineseJar
+    doLast {
+        def variants = [
+                (englishJar.get().archiveFile.get().asFile): file('src/main/resources/config-en_US.yml'),
+                (chineseJar.get().archiveFile.get().asFile): file('src/main/resources/config.yml')
+        ]
+
+        variants.each { jarFile, expectedConfig ->
+            def packagedConfig = zipTree(jarFile).matching { include 'config.yml' }.singleFile
+            if (!Arrays.equals(packagedConfig.bytes, expectedConfig.bytes)) {
+                throw new GradleException("${jarFile.name} does not contain the unchanged official ${expectedConfig.name}")
+            }
+        }
+    }
+}
+
+tasks.named('assemble') {
+    dependsOn englishJar, chineseJar
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyLanguageJars')
 }

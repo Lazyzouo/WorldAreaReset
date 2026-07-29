@@ -2,6 +2,24 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.1.5] - 2026-07-29
+
+### English
+
+- Replaced the single generic release JAR with `WorldAreaReset-en.us.jar` and `WorldAreaReset-zh.cn.jar`.
+- Bundled complete, commented official English or Simplified Chinese defaults without changing plugin behavior or removing source configuration content.
+- Changed automatic updates to select the release JAR matching the active `language` setting.
+- Limited project-uploaded GitHub Release assets to the two language JARs; standalone configuration, documentation, privacy, and checksum attachments are no longer uploaded.
+- Added build and release checks that compare each packaged `config.yml` byte-for-byte with its official source configuration.
+
+### 中文
+
+- 将原有单一通用 Release JAR 改为 `WorldAreaReset-en.us.jar` 与 `WorldAreaReset-zh.cn.jar`。
+- 分别内置保留完整注释的官方英文或简体中文默认配置，不改变插件行为，也不删除任何源配置内容。
+- 自动更新改为根据当前 `language` 设置选择对应 Release JAR。
+- 项目上传至 GitHub Release 的附件仅保留两个语言 JAR，不再上传独立配置、说明、隐私声明或校验文件。
+- 新增构建与发布校验，逐字节比较包内 `config.yml` 和对应官方源配置。
+
 ## [1.1.4] - 2026-07-29
 
 ### English
@@ -25,14 +43,14 @@ All notable changes are documented here. English is listed before Chinese for ev
 - Added a prominent English-first bilingual open-source and privacy statement to the top of the project README and administrator guide.
 - Added `PRIVACY.md` with an auditable description of local data handling, updater network requests, third-party connection metadata, and the opt-out setting.
 - Declared that the plugin contains no backdoor, telemetry, analytics, remote administration, hidden collection, or server-data upload functionality.
-- Added the privacy statement to future GitHub Release assets.
+- Added the privacy statement to the public release documentation.
 
 ### 中文
 
 - 在项目 README 与管理员手册顶部新增英文优先的双语开源与隐私声明。
 - 新增 `PRIVACY.md`，完整说明本地数据处理、更新器联网请求、第三方连接元数据以及关闭联网的方法。
 - 明确插件不含后门、遥测、统计分析、远程管理、隐藏收集或服务器资料上传功能。
-- 后续 GitHub Release 会同时附带隐私声明文件。
+- 将隐私声明加入公开发布文档。
 
 ## [1.1.2] - 2026-07-29
 

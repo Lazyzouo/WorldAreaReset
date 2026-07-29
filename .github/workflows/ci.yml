@@ -37,6 +37,8 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WorldAreaReset-dev
-          path: build/libs/*.jar
+          name: WorldAreaReset-language-jars
+          path: |
+            build/libs/WorldAreaReset-en.us.jar
+            build/libs/WorldAreaReset-zh.cn.jar
           if-no-files-found: error

@@ -10,7 +10,7 @@ The supported security-testing environment is Java 21 or newer on Paper/Folia 1.
 
 Report a vulnerability through GitHub's private vulnerability reporting feature on this repository. Include the affected version, server implementation, reproduction steps, impact, and any suggested mitigation. Never include production credentials or private player data.
 
-The built-in updater only contacts the official `Lazyzouo/WorldAreaReset` GitHub Releases API. It downloads assets matching `WorldAreaReset-*.jar` and verifies GitHub's SHA-256 digest when available. Administrators may disable all checks with `updates.enabled: false`.
+The built-in updater only contacts the official `Lazyzouo/WorldAreaReset` GitHub Releases API. It downloads the language-matched `WorldAreaReset-en.us.jar` or `WorldAreaReset-zh.cn.jar` asset and verifies GitHub's SHA-256 digest when available. Administrators may disable all checks with `updates.enabled: false`.
 
 ## 中文
 
@@ -20,4 +20,4 @@ The built-in updater only contacts the official `Lazyzouo/WorldAreaReset` GitHub
 
 请通过本仓库的 GitHub 私密漏洞报告功能提交，包含受影响版本、服务端实现、复现步骤、影响及建议缓解方式。不要提交生产环境凭据或玩家隐私数据。
 
-内置更新器只访问官方 `Lazyzouo/WorldAreaReset` GitHub Releases API，只下载匹配 `WorldAreaReset-*.jar` 的资源，并在 GitHub 提供 SHA-256 摘要时进行校验。管理员可设置 `updates.enabled: false` 完全关闭检查。
+内置更新器只访问官方 `Lazyzouo/WorldAreaReset` GitHub Releases API，只下载与当前语言匹配的 `WorldAreaReset-en.us.jar` 或 `WorldAreaReset-zh.cn.jar`，并在 GitHub 提供 SHA-256 摘要时进行校验。管理员可设置 `updates.enabled: false` 完全关闭检查。
