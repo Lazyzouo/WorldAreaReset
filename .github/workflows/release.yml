@@ -72,13 +72,15 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build --no-daemon
 
-      - name: Prepare checksums
+      - name: Verify language packages
         if: steps.release_check.outputs.publish == 'true'
         shell: bash
         run: |
-          cp defaults/config.en_US.yml config.en_US.yml
-          cp defaults/config.zh_CN.yml config.zh_CN.yml
-          sha256sum build/libs/*.jar config.en_US.yml config.zh_CN.yml > SHA256SUMS
+          test -f build/libs/WorldAreaReset-en.us.jar
+          test -f build/libs/WorldAreaReset-zh.cn.jar
+          test "$(find build/libs -maxdepth 1 -type f -name '*.jar' | wc -l)" -eq 2
+          unzip -p build/libs/WorldAreaReset-en.us.jar config.yml | cmp - src/main/resources/config-en_US.yml
+          unzip -p build/libs/WorldAreaReset-zh.cn.jar config.yml | cmp - src/main/resources/config.yml
 
       - name: Create GitHub Release
         if: steps.release_check.outputs.publish == 'true'
@@ -91,9 +93,5 @@ jobs:
             --target "$GITHUB_SHA" \
             --title "WorldAreaReset $TAG" \
             --notes-file "release-notes/$TAG.md" \
-            build/libs/*.jar \
-            config.en_US.yml \
-            config.zh_CN.yml \
-            WorldAreaReset.md \
-            PRIVACY.md \
-            SHA256SUMS
+            build/libs/WorldAreaReset-en.us.jar \
+            build/libs/WorldAreaReset-zh.cn.jar
