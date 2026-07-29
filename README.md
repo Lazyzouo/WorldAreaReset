@@ -1,5 +1,12 @@
 # WorldAreaReset
 
+> [!IMPORTANT]
+> **Open Source & Privacy Statement / 开源与隐私声明**
+>
+> WorldAreaReset is a fully open-source project whose published source code can be independently audited and built. The plugin contains no telemetry, analytics, remote administration, hidden data collection, or backdoor functionality. It does not upload server configurations, worlds, logs, player data, credentials, or other server content. Files created by the plugin are stored only on the administrator's server. Its only runtime network activity is the optional outbound HTTPS update check and download against the official `Lazyzouo/WorldAreaReset` GitHub Releases. As with any HTTPS request, GitHub necessarily receives standard connection metadata such as the server's public IP address and User-Agent under GitHub's own policies. Administrators can disable all update network access with `updates.enabled: false`. See the [full privacy statement](PRIVACY.md).
+>
+> WorldAreaReset 是一个完全开源的项目，公开源代码可供任何人独立审查与构建。插件不包含遥测、统计分析、远程管理、隐藏数据收集或后门功能，也不会上传服务器配置、世界文件、日志、玩家资料、凭据或其他服务器内容。插件创建的文件只会保存在管理员自己的服务器上。插件运行时唯一的联网行为，是按配置向官方 `Lazyzouo/WorldAreaReset` GitHub Releases 发起出站 HTTPS 更新检查与下载请求。与所有 HTTPS 请求相同，GitHub 会依据其自身政策接收服务器公网 IP、User-Agent 等必要连接元数据。管理员可设置 `updates.enabled: false` 完全关闭更新联网。详见[完整隐私声明](PRIVACY.md)。
+
 [![CI](https://github.com/Lazyzouo/WorldAreaReset/actions/workflows/ci.yml/badge.svg)](https://github.com/Lazyzouo/WorldAreaReset/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Lazyzouo/WorldAreaReset?display_name=tag)](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)
 [![License](https://img.shields.io/github/license/Lazyzouo/WorldAreaReset)](LICENSE)
@@ -31,11 +38,11 @@ A configurable Paper/Folia plugin for scheduled or administrator-triggered cuboi
 | Java | 21 or newer |
 | Permission | `worldareareset.admin` for administrator commands |
 
-WorldAreaReset 1.1.2 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
+WorldAreaReset 1.1.3 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
 
 ## Install
 
-1. Download `WorldAreaReset-1.1.2.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
+1. Download `WorldAreaReset-1.1.3.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest).
 2. Place it in the server's `plugins` directory.
 3. Start the server once.
 4. Review `plugins/WorldAreaReset/config.yml` and make a world backup.
@@ -125,6 +132,7 @@ The JAR is written to `build/libs/`.
 - [Contributing / 贡献指南](CONTRIBUTING.md)
 - [Support / 支持](SUPPORT.md)
 - [Security policy / 安全政策](SECURITY.md)
+- [Privacy statement / 隐私声明](PRIVACY.md)
 
 Licensed under the [MIT License](LICENSE). Copyright © 2026 Lazyz.
 
@@ -151,11 +159,11 @@ WorldAreaReset 是一个面向 Paper/Folia 的长方体区域定时清理插件�
 
 ## 版本限制
 
-WorldAreaReset 1.1.2 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
+WorldAreaReset 1.1.3 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
 
 ## 安装
 
-1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.1.2.jar`。
+1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.1.3.jar`。
 2. 放入服务器 `plugins` 目录。
 3. 启动一次服务器。
 4. 检查 `plugins/WorldAreaReset/config.yml` 并备份世界。

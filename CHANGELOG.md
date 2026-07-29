@@ -2,6 +2,22 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.1.3] - 2026-07-29
+
+### English
+
+- Added a prominent English-first bilingual open-source and privacy statement to the top of the project README and administrator guide.
+- Added `PRIVACY.md` with an auditable description of local data handling, updater network requests, third-party connection metadata, and the opt-out setting.
+- Declared that the plugin contains no backdoor, telemetry, analytics, remote administration, hidden collection, or server-data upload functionality.
+- Added the privacy statement to future GitHub Release assets.
+
+### 中文
+
+- 在项目 README 与管理员手册顶部新增英文优先的双语开源与隐私声明。
+- 新增 `PRIVACY.md`，完整说明本地数据处理、更新器联网请求、第三方连接元数据以及关闭联网的方法。
+- 明确插件不含后门、遥测、统计分析、远程管理、隐藏收集或服务器资料上传功能。
+- 后续 GitHub Release 会同时附带隐私声明文件。
+
 ## [1.1.2] - 2026-07-29
 
 ### English

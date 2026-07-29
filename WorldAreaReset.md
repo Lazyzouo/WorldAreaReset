@@ -1,6 +1,9 @@
 # WorldAreaReset Administrator Guide / 管理员配置与逻辑说明
 
-> Applies to / 适用于：`WorldAreaReset 1.1.2`<br>
+> [!IMPORTANT]
+> WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
+
+> Applies to / 适用于：`WorldAreaReset 1.1.3`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
