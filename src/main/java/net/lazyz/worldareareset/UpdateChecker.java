@@ -22,6 +22,8 @@ import java.util.concurrent.CompletionException;
 public final class UpdateChecker {
 
     public static final String PROJECT_URL = "https://github.com/Lazyzouo/WorldAreaReset";
+    private static final String ENGLISH_ASSET_NAME = "WorldAreaReset-en.us.jar";
+    private static final String CHINESE_ASSET_NAME = "WorldAreaReset-zh.cn.jar";
     private static final URI LATEST_RELEASE_API = URI.create(
             "https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest");
 
@@ -79,7 +81,8 @@ public final class UpdateChecker {
 
         JsonObject jarAsset = findJarAsset(release.getAsJsonArray("assets"));
         if (jarAsset == null) {
-            throw new IllegalStateException("The latest release does not contain a WorldAreaReset JAR asset");
+            throw new IllegalStateException("The latest release does not contain the expected "
+                    + expectedAssetName() + " asset");
         }
 
         URI downloadUrl = URI.create(jarAsset.get("browser_download_url").getAsString());
@@ -126,14 +129,23 @@ public final class UpdateChecker {
     }
 
     private JsonObject findJarAsset(JsonArray assets) {
+        String expectedName = expectedAssetName();
         for (JsonElement element : assets) {
             JsonObject asset = element.getAsJsonObject();
             String name = asset.get("name").getAsString();
-            if (name.startsWith("WorldAreaReset-") && name.endsWith(".jar")) {
+            if (name.equals(expectedName)) {
                 return asset;
             }
         }
         return null;
+    }
+
+    private String expectedAssetName() {
+        String language = plugin.getConfig().getString("language", "zh_CN");
+        if (language != null && language.replace('-', '_').equalsIgnoreCase("en_US")) {
+            return ENGLISH_ASSET_NAME;
+        }
+        return CHINESE_ASSET_NAME;
     }
 
     private void verifyDigest(byte[] bytes, String expectedDigest) throws Exception {
