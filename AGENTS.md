@@ -11,6 +11,7 @@
 - Commit the update, push `main`, create and push the matching `vX.Y.Z` tag. The release workflow publishes the GitHub Release.
 - Release JARs must be named exactly `WorldAreaReset-X.Y.Z-en.us.jar` and `WorldAreaReset-X.Y.Z-zh.cn.jar`, using the same `pluginVersion` value.
 - Never rename, relabel, or alias built JARs during upload. The Release workflow must publish the two `build/libs/` files under their original filenames and fail on any missing, extra, or mismatched JAR.
+- Treat `v1.2.4` as the permanent release-retention floor. Keep the `v1.2.4` GitHub Release and tag, and keep every later Release and matching tag when publishing newer versions; do not delete or replace them unless the user explicitly reverses this policy.
 
 ## Configuration safety
 
