@@ -2,6 +2,22 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.2.4] - 2026-07-30
+
+### English
+
+- Replaced divider-star centering and retained Help indentation with consistent left alignment for every player-facing in-game message.
+- Removed leading whitespace independently from every displayed line while preserving leading legacy color/style codes and hex colors.
+- Kept forced bold styling and the configured plugin prefix on every line of multiline broadcasts.
+- Kept configuration files, message text, colors, cleanup behavior, scheduling, updater behavior, and the centered console startup banner unchanged.
+
+### 中文
+
+- 将按分割线星号居中及 Help 保留缩进的旧规则，改为所有面向玩家的游戏内消息统一左对齐。
+- 逐行移除显示文本的行首空白，同时保留行首旧式颜色/样式码与十六进制颜色码。
+- 保留强制粗体效果，以及多行广播每一行的已配置插件前缀。
+- 配置文件、消息文本、颜色、清理行为、排程、更新器行为及居中的后台启动横幅均保持不变。
+
 ## [1.2.3] - 2026-07-30
 
 ### English

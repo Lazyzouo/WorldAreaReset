@@ -82,7 +82,7 @@ public class AreaCleanupTask {
         warningMsg = warningMsg.replace("{world}", worldName)
                 .replace("{time}", String.valueOf(countdown));
 
-        Bukkit.broadcast(plugin.deserializeInGame(prefix, warningMsg, true));
+        Bukkit.broadcast(plugin.deserializeInGame(prefix, warningMsg));
 
         this.delayedTask = plugin.getServer().getAsyncScheduler().runDelayed(plugin, task -> {
             synchronized (AreaCleanupTask.this) {
@@ -121,7 +121,7 @@ public class AreaCleanupTask {
 
         String prefix = plugin.message("prefix", "&8[&6WorldAreaReset&8] &r");
         String startMsg = plugin.message("start_cleanup", "&eArea cleanup has started. Please wait...");
-        Bukkit.broadcast(plugin.deserializeInGame(prefix, startMsg, false));
+        Bukkit.broadcast(plugin.deserializeInGame(prefix, startMsg));
 
         long startTime = System.currentTimeMillis();
         AtomicInteger totalRemovedBlocks = new AtomicInteger(0);
@@ -190,7 +190,7 @@ public class AreaCleanupTask {
                                 .replace("{entities}", String.valueOf(totalRemovedEntities.get()))
                                 .replace("{time}", String.valueOf(timeTaken));
 
-                        Bukkit.broadcast(plugin.deserializeInGame(prefix, finishMsg, true));
+                        Bukkit.broadcast(plugin.deserializeInGame(prefix, finishMsg));
                     }
                 });
             }

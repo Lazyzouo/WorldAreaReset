@@ -129,12 +129,15 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     Component deserializeInGame(String text) {
-        return deserialize(InGameTextFormatter.forceBold(text));
+        String leftAligned = InGameTextFormatter.leftAlign(text);
+        return deserialize(InGameTextFormatter.forceBold(leftAligned));
     }
 
-    Component deserializeInGame(String prefix, String text, boolean centerOnDividerStar) {
-        String formatted = centerOnDividerStar ? InGameTextFormatter.centerOnDividerStar(text) : text;
-        return deserializeInGame(InGameTextFormatter.prefixEveryLine(prefix, formatted));
+    Component deserializeInGame(String prefix, String text) {
+        String leftAlignedPrefix = InGameTextFormatter.leftAlign(prefix);
+        String leftAlignedText = InGameTextFormatter.leftAlign(text);
+        return deserialize(InGameTextFormatter.forceBold(
+                InGameTextFormatter.prefixEveryLine(leftAlignedPrefix, leftAlignedText)));
     }
 
     private void sendHelp(CommandSender sender) {
@@ -176,7 +179,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
 
     private void sendPrefixed(CommandSender sender, String key, String fallback, String... replacements) {
         String prefix = message("prefix", "&8[&6WorldAreaReset&8] &r");
-        sender.sendMessage(deserializeInGame(prefix, message(key, fallback, replacements), false));
+        sender.sendMessage(deserializeInGame(prefix, message(key, fallback, replacements)));
     }
 
     private boolean hasAdminPermission(CommandSender sender) {
