@@ -2,6 +2,24 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.2.5] - 2026-07-30
+
+### English
+
+- Removed the configured plugin prefix from decorative divider rows in prefixed multiline in-game messages, preventing full-width dividers from wrapping.
+- Kept the configured prefix on every content row, with the existing bold and left-aligned rendering unchanged.
+- Added formatting-aware divider detection for the bundled `━ ... ✦ ... ━` pattern and common ASCII/box-drawing separators.
+- Moved the permanent GitHub Release/tag retention floor to `v1.2.5`; `v1.2.4` and earlier are removed only after this release is verified.
+- Kept configuration files, language files, message text, colors, cleanup behavior, scheduling, updater behavior, and the console startup banner unchanged.
+
+### 中文
+
+- 带前缀的多行游戏内消息不再为装饰分割线添加插件前缀，避免完整宽度的分割线发生折行。
+- 所有正文行继续显示已配置的插件前缀，现有粗体与左对齐效果保持不变。
+- 新增忽略格式码的分割线识别，支持内置的 `━ ... ✦ ... ━` 模板及常见 ASCII/框线分隔字符。
+- GitHub Release/标签的永久保留起点调整为 `v1.2.5`；仅在本版本验证成功后删除 `v1.2.4` 及更早版本。
+- 配置文件、语言文件、消息文本、颜色、清理行为、排程、更新器行为及后台启动横幅均保持不变。
+
 ## [1.2.4] - 2026-07-30
 
 ### English

@@ -28,7 +28,7 @@ final class InGameTextFormatter {
         return result.toString();
     }
 
-    static String prefixEveryLine(String prefix, String text) {
+    static String prefixContentLines(String prefix, String text) {
         String[] lines = text.split("\\R", -1);
         StringBuilder result = new StringBuilder(text.length() + prefix.length() * lines.length);
 
@@ -36,7 +36,10 @@ final class InGameTextFormatter {
             if (index > 0) {
                 result.append('\n');
             }
-            result.append(prefix).append(lines[index]);
+            if (!isDividerLine(lines[index])) {
+                result.append(prefix);
+            }
+            result.append(lines[index]);
         }
 
         return result.toString();
@@ -69,6 +72,36 @@ final class InGameTextFormatter {
         }
 
         return formattingCodes.append(line, index, line.length()).toString();
+    }
+
+    private static boolean isDividerLine(String line) {
+        boolean hasDividerCharacter = false;
+
+        for (int index = 0; index < line.length();) {
+            int codeLength = legacyCodeLength(line, index);
+            if (codeLength > 0) {
+                index += codeLength;
+                continue;
+            }
+
+            int codePoint = line.codePointAt(index);
+            if (!Character.isWhitespace(codePoint)) {
+                if (!isDividerCharacter(codePoint)) {
+                    return false;
+                }
+                hasDividerCharacter = true;
+            }
+            index += Character.charCount(codePoint);
+        }
+
+        return hasDividerCharacter;
+    }
+
+    private static boolean isDividerCharacter(int codePoint) {
+        return switch (codePoint) {
+            case '-', '_', '=', 0x2014, 0x2500, 0x2501, 0x2550, 0x2726 -> true;
+            default -> false;
+        };
     }
 
     private static int legacyCodeLength(String text, int index) {

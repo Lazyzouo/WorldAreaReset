@@ -137,7 +137,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         String leftAlignedPrefix = InGameTextFormatter.leftAlign(prefix);
         String leftAlignedText = InGameTextFormatter.leftAlign(text);
         return deserialize(InGameTextFormatter.forceBold(
-                InGameTextFormatter.prefixEveryLine(leftAlignedPrefix, leftAlignedText)));
+                InGameTextFormatter.prefixContentLines(leftAlignedPrefix, leftAlignedText)));
     }
 
     private void sendHelp(CommandSender sender) {
