@@ -1,7 +1,8 @@
 # WorldAreaReset 官方中文默认配置
 
 # 配置格式标记，请勿手动修改。
-config_version: 3
+# 插件更新会自动补充缺失选项，不会覆盖管理员已有参数。
+config_version: 4
 
 # 消息语言。可选值：zh_CN、en_US。默认值：zh_CN。
 language: "zh_CN"

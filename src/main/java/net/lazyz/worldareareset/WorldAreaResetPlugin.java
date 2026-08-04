@@ -9,9 +9,16 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 public class WorldAreaResetPlugin extends JavaPlugin {
 
@@ -25,6 +32,9 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        if (!updateConfiguration()) {
+            return;
+        }
         languageManager = new LanguageManager(this);
 
         cleanupTask = new AreaCleanupTask(this);
@@ -37,6 +47,57 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         printStartupBanner();
         updateChecker = new UpdateChecker(this);
         updateChecker.checkOnStartup();
+    }
+
+    private boolean updateConfiguration() {
+        try (InputStream defaultsStream = getResource("config.yml")) {
+            if (defaultsStream == null) {
+                throw new IllegalStateException("Bundled config.yml is missing");
+            }
+
+            try (Reader defaultsReader = new InputStreamReader(defaultsStream, StandardCharsets.UTF_8)) {
+                ConfigurationUpdater.UpdateResult result = ConfigurationUpdater.mergeMissingValues(
+                        new File(getDataFolder(), "config.yml").toPath(), defaultsReader,
+                        "config_version", getPluginMeta().getVersion());
+                if (result.blocked()) {
+                    getLogger().severe("Configuration update stopped because existing values conflict with the official structure: "
+                            + String.join(", ", result.conflicts()));
+                    getServer().getPluginManager().disablePlugin(this);
+                    return false;
+                }
+
+                reloadConfig();
+                logConfigurationUpdate("config.yml", result);
+                return true;
+            }
+        } catch (Exception error) {
+            getLogger().log(Level.SEVERE,
+                    "Could not safely update config.yml. The original file was left unchanged; plugin startup is stopped.",
+                    error);
+            getServer().getPluginManager().disablePlugin(this);
+            return false;
+        }
+    }
+
+    void logConfigurationUpdate(String resourceName, ConfigurationUpdater.UpdateResult result) {
+        if (result.blocked()) {
+            getLogger().warning("Skipped automatic update for " + resourceName + " because of conflicting values: "
+                    + String.join(", ", result.conflicts()));
+            return;
+        }
+        if (!result.changed()) {
+            return;
+        }
+
+        Path backup = result.backupFile();
+        String backupName = backup == null
+                ? "none"
+                : getDataFolder().toPath().toAbsolutePath().normalize()
+                .relativize(backup.toAbsolutePath().normalize()).toString();
+        getLogger().info("Configuration update / 配置自动更新: " + resourceName
+                + ", added missing keys: " + result.addedKeys()
+                + ", version marker updated: " + result.versionUpdated()
+                + ", backup: " + backupName);
     }
 
     @Override

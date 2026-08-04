@@ -2,6 +2,28 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.3.0] - 2026-08-04
+
+### English
+
+- Added automatic structured migration for existing `config.yml` files, eliminating the need to delete configuration after plugin updates.
+- Preserved all existing administrator values, custom messages, unknown keys, explicit false/zero values, empty strings/lists, language selection, and parsed comments while adding only missing default paths.
+- Added the same missing-key migration and bundled runtime fallback to customized `lang/en_US.yml` and `lang/zh_CN.yml` files.
+- Added exact pre-migration backups named `<file>.before-v<version>.bak` plus flushed same-directory temporary files and atomic replacement when supported.
+- Added fail-closed validation: malformed YAML and incompatible section/value types are never overwritten; an unsafe main config stops startup before cleanup scheduling.
+- Advanced the configuration format marker to `4` and added focused automated tests for preservation, backups, idempotence, conflicts, malformed YAML, and language merging.
+- Kept cleanup behavior, scheduling, updater networking, in-game formatting, official safe defaults, and the `v1.2.5` release-retention floor unchanged.
+
+### 中文
+
+- 为已有 `config.yml` 新增结构化自动迁移，插件更新后不再需要删除配置文件。
+- 只补充缺失默认路径，并保留管理员全部已有值、自定义消息、未知键、明确设置的 false/零值、空字符串/列表、语言选择及已解析注释。
+- 自定义的 `lang/en_US.yml` 与 `lang/zh_CN.yml` 同样支持缺失键迁移，并在运行时挂载内置默认消息作为后备。
+- 迁移前按 `<文件>.before-v<版本>.bak` 精确备份原始文件；合并结果通过同目录临时文件刷新到磁盘，并在支持时原子替换。
+- 新增失败关闭验证：YAML 损坏或配置节/值类型不兼容时绝不覆盖原文件；主配置不安全时会在创建清理排程前停止启动。
+- 配置格式标记升级至 `4`，并新增参数保留、备份、幂等、冲突、损坏 YAML 与语言合并专项测试。
+- 清理行为、排程、更新器联网、游戏内格式、官方安全默认值及从 `v1.2.5` 开始的版本保留规则均保持不变。
+
 ## [1.2.5] - 2026-07-30
 
 ### English

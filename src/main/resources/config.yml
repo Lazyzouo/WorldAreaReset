@@ -4,7 +4,9 @@
 
 # Configuration format marker. Do not change it manually.
 # 配置格式标记，请勿手动修改。
-config_version: 3
+# Plugin updates automatically add missing options without replacing existing values.
+# 插件更新会自动补充缺失选项，不会覆盖管理员已有参数。
+config_version: 4
 
 # Message language / 消息语言
 # Allowed values / 可选值: zh_CN, en_US

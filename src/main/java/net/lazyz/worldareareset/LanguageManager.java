@@ -4,9 +4,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.logging.Level;
 
 public final class LanguageManager {
 
@@ -32,7 +37,19 @@ public final class LanguageManager {
 
         this.languageCode = requested;
         File languageFile = new File(plugin.getDataFolder(), "lang/" + languageCode + ".yml");
-        this.languageConfig = YamlConfiguration.loadConfiguration(languageFile);
+        YamlConfiguration loaded = YamlConfiguration.loadConfiguration(languageFile);
+        String resourcePath = "lang/" + languageCode + ".yml";
+        try (InputStream defaultsStream = plugin.getResource(resourcePath)) {
+            if (defaultsStream != null) {
+                try (Reader defaultsReader = new InputStreamReader(defaultsStream, StandardCharsets.UTF_8)) {
+                    loaded.setDefaults(YamlConfiguration.loadConfiguration(defaultsReader));
+                }
+            }
+        } catch (Exception error) {
+            plugin.getLogger().log(Level.WARNING,
+                    "Could not load bundled language defaults for " + languageCode + ".", error);
+        }
+        this.languageConfig = loaded;
     }
 
     public String text(String key, String fallback) {
@@ -71,8 +88,25 @@ public final class LanguageManager {
 
         for (String language : SUPPORTED_LANGUAGES) {
             File target = new File(langDirectory, language + ".yml");
+            String resourcePath = "lang/" + language + ".yml";
             if (!target.exists()) {
-                plugin.saveResource("lang/" + language + ".yml", false);
+                plugin.saveResource(resourcePath, false);
+                continue;
+            }
+
+            try (InputStream defaultsStream = plugin.getResource(resourcePath)) {
+                if (defaultsStream == null) {
+                    plugin.getLogger().warning("Bundled language resource is missing: " + resourcePath);
+                    continue;
+                }
+                try (Reader defaultsReader = new InputStreamReader(defaultsStream, StandardCharsets.UTF_8)) {
+                    ConfigurationUpdater.UpdateResult result = ConfigurationUpdater.mergeMissingValues(
+                            target.toPath(), defaultsReader, null, plugin.getPluginMeta().getVersion());
+                    plugin.logConfigurationUpdate(resourcePath, result);
+                }
+            } catch (Exception error) {
+                plugin.getLogger().log(Level.WARNING,
+                        "Could not safely update " + resourcePath + "; the existing file remains in use.", error);
             }
         }
     }

@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.2.5`<br>
+> Applies to / 适用于：`WorldAreaReset 1.3.0`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -27,8 +27,8 @@ It does not create regions, enable PvP, manage combat permissions, regenerate te
 
 | Path | Default | Meaning |
 | --- | --- | --- |
-| `config_version` | `3` | Public configuration format marker |
-| `language` | Package-specific | `en_US` in `WorldAreaReset-1.2.5-en.us.jar`; `zh_CN` in `WorldAreaReset-1.2.5-zh.cn.jar` |
+| `config_version` | `4` | Automatically maintained public configuration format marker |
+| `language` | Package-specific | `en_US` in `WorldAreaReset-1.3.0-en.us.jar`; `zh_CN` in `WorldAreaReset-1.3.0-zh.cn.jar` |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
 | `cleanup.interval_minutes` | `180` | Fixed automatic schedule interval in minutes |
 | `cleanup.countdown_seconds` | `10` | Shared warning delay for automatic and manual cleanup |
@@ -42,6 +42,10 @@ It does not create regions, enable PvP, manage combat permissions, regenerate te
 | `updates.notify_latest` | `true` | Reports when the installed version is current |
 
 Official defaults are stored in `src/main/resources/config-en_US.yml`, `src/main/resources/config.yml`, and `defaults/`. Both release JARs contain identical code and preserve the complete comments from the corresponding source configuration; only the bundled official defaults differ. Live server configuration belongs only in `plugins/WorldAreaReset/config.yml` and is excluded from the repository.
+
+At every startup, the plugin parses the live `config.yml` and the matching bundled default as structured YAML. It adds only paths absent from the live file. Existing values, unknown custom keys, explicit `false`, zero values, empty strings/lists, selected language, custom messages, and parsed comments are retained. Customized `lang/en_US.yml` and `lang/zh_CN.yml` files receive the same missing-key merge. Deprecated or unknown keys are deliberately retained because the plugin cannot assume they are unused by an administrator or extension.
+
+Before a changed file is replaced, its exact original bytes are copied beside it as `<file>.before-v<plugin-version>.bak`. The merged file is saved to a same-directory temporary file, flushed, and then moved over the live file atomically when the filesystem supports it. `config_version` advances only after the entire structure is compatible. Invalid YAML, a scalar where a section is required, a section where a value is required, or incompatible value types block the merge without modifying the original. A blocked main configuration stops plugin startup before cleanup scheduling; a blocked language file stays unchanged and receives bundled defaults in memory for missing messages.
 
 ### 4. Message and language logic
 
@@ -66,7 +70,7 @@ Every player-facing plugin message is forced bold and left aligned at runtime. L
 
 ### 5. Automatic cleanup sequence
 
-1. The plugin loads configuration and language files.
+1. The plugin safely migrates configuration and language files, then loads them.
 2. If `cleanup.enabled` is false, no recurring cleanup is scheduled.
 3. If enabled, a fixed-rate asynchronous timer waits `cleanup.interval_minutes`.
 4. The plugin broadcasts `warning` and waits `cleanup.countdown_seconds`.
@@ -89,7 +93,7 @@ The reset duration is the configured `cleanup.interval_minutes`; it is not hardc
 
 ### 7. Reload sequence
 
-`/war reload` reloads `config.yml`, reloads the selected language file, cancels the recurring timer and pending countdown, then creates a new timer if enabled. Region tasks that have already begun are not cancelled.
+`/war reload` reloads `config.yml`, reloads the selected language file, cancels the recurring timer and pending countdown, then creates a new timer if enabled. Automatic schema migration runs during plugin startup; replacing the JAR always requires a normal server restart. Region tasks that have already begun are not cancelled.
 
 ### 8. Update sequence
 
@@ -117,7 +121,7 @@ Disable the network check with `updates.enabled: false`, or keep notifications w
 - Players are preserved but not moved to safety.
 - All non-player entity categories are removed; no entity allowlist exists.
 - WorldGuard, claims, protected regions, and ownership are not consulted.
-- Configuration updates are not merged into an existing server config automatically.
+- Automatic migration adds missing keys but intentionally does not delete renamed, deprecated, or unknown custom keys.
 - A failed or partial cleanup has no built-in rollback.
 
 Back up the world, pre-generate chunks, test a small range, and run large cleanups off-peak.
@@ -145,8 +149,8 @@ WorldAreaReset 用于对管理员指定的自由 PvP 区域进行定时地形维
 
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
-| `config_version` | `3` | 公开配置格式版本 |
-| `language` | 按语言包决定 | `WorldAreaReset-1.2.5-en.us.jar` 为 `en_US`；`WorldAreaReset-1.2.5-zh.cn.jar` 为 `zh_CN` |
+| `config_version` | `4` | 由插件自动维护的公开配置格式版本 |
+| `language` | 按语言包决定 | `WorldAreaReset-1.3.0-en.us.jar` 为 `en_US`；`WorldAreaReset-1.3.0-zh.cn.jar` 为 `zh_CN` |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
 | `cleanup.interval_minutes` | `180` | 自动清理固定周期，单位分钟 |
 | `cleanup.countdown_seconds` | `10` | 自动与手动清理共用倒计时 |
@@ -160,6 +164,10 @@ WorldAreaReset 用于对管理员指定的自由 PvP 区域进行定时地形维
 | `updates.notify_latest` | `true` | 当前已是最新版时在后台提示 |
 
 官方默认配置位于 `src/main/resources/config-en_US.yml`、`src/main/resources/config.yml` 与 `defaults/`。两个 Release JAR 的插件代码完全相同，并原样保留对应源配置的全部注释；差异仅限内置的官方默认配置。服务器实际配置只应位于 `plugins/WorldAreaReset/config.yml`，该运行目录已排除在仓库之外。
+
+插件每次启动都会把服务器实际 `config.yml` 与对应语言包的内置默认配置作为结构化 YAML 解析，只向实际文件加入缺失路径。管理员已有值、未知自定义键、明确设置的 `false`、零值、空字符串/列表、语言选择、自定义消息和已解析注释都会保留。经过自定义的 `lang/en_US.yml` 与 `lang/zh_CN.yml` 也会按相同规则补充缺失消息。废弃键或未知键会刻意保留，因为插件不能假定管理员或其他扩展已不再使用它们。
+
+文件需要变化时，会先把原始字节完整复制到同目录的 `<文件>.before-v<插件版本>.bak`，再将合并结果写入同目录临时文件、刷新到磁盘，并在文件系统支持时原子替换正式文件。只有整体结构兼容时才推进 `config_version`。YAML 无效、应为配置节的位置出现标量、应为值的位置出现配置节或值类型不兼容时，迁移会停止且不会修改原文件。主配置迁移受阻时，插件会在创建清理排程前停止启动；语言文件迁移受阻时保持原样，并在内存中使用内置默认消息补足缺失项。
 
 ### 4. 消息与语言逻辑
 
@@ -184,7 +192,7 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 
 ### 5. 自动清理逻辑
 
-1. 插件读取配置与语言文件。
+1. 插件安全迁移配置与语言文件，然后加载它们。
 2. `cleanup.enabled` 为 false 时不创建自动任务。
 3. 开启后，异步固定周期计时器等待 `cleanup.interval_minutes`。
 4. 到期后广播 `warning`，并等待 `cleanup.countdown_seconds`。
@@ -207,7 +215,7 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 
 ### 7. 配置重载逻辑
 
-`/war reload` 会重载 `config.yml` 和所选语言文件，取消周期计时器与尚未执行的倒计时，再根据新配置建立任务。已经开始执行的 Region Scheduler 清理不会被取消。
+`/war reload` 会重载 `config.yml` 和所选语言文件，取消周期计时器与尚未执行的倒计时，再根据新配置建立任务。配置格式自动迁移发生在插件启动阶段；更换 JAR 后仍必须正常重启服务器。已经开始执行的 Region Scheduler 清理不会被取消。
 
 ### 8. 自动更新逻辑
 
@@ -229,7 +237,7 @@ plugins/WorldAreaReset/lang/zh_CN.yml
 - 玩家不会被删除，但也不会被传送到安全位置。
 - 没有实体白名单，所有非玩家实体类别都可能被删除。
 - 不识别 WorldGuard、领地、保护区或归属。
-- 已有服务器配置不会自动合并新版默认项。
+- 自动迁移会补充缺失键，但不会自动删除已改名、废弃或未知的自定义键。
 - 清理失败或只完成一部分时没有内置回滚。
 
 正式启用前必须备份世界、预生成区块、使用小范围测试，并在低峰期执行大范围清理。

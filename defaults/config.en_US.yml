@@ -1,7 +1,8 @@
 # WorldAreaReset official English defaults
 
 # Configuration format marker. Do not change it manually.
-config_version: 3
+# Plugin updates automatically add missing options without replacing existing values.
+config_version: 4
 
 # Message language. Allowed values: zh_CN, en_US. Default: en_US.
 language: "en_US"
