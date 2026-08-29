@@ -2,6 +2,18 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.14.2] - 2026-08-30
+
+### English
+
+- Match KitLoader's console prefix colors for WorldAreaReset plugin information and important messages.
+- Strip configured gradients and legacy color tags from console message bodies before applying fixed severity colors.
+
+### 中文
+
+- 让 WorldAreaReset 后台插件信息和重要消息使用与 KitLoader 一致的前缀颜色。
+- 在应用固定 severity 颜色前清理配置渐变和旧式颜色标签，避免后台消息继续显示渐变色。
+
 ## [1.14.1] - 2026-08-30
 
 ### English

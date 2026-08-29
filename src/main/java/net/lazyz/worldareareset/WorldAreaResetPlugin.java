@@ -31,12 +31,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 public class WorldAreaResetPlugin extends JavaPlugin {
 
     private static final String HELP_DIVIDER = "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>";
     private static final int MIN_STARTUP_BANNER_WIDTH = 60;
     private static final String DEFAULT_PREFIX = "<color:#8A2387><bold>[</bold><color:#E62028><bold>WorldAreaReset</bold></color><color:#8A2387><bold>]</bold></color> <color:#555555><bold>»</bold></color> <color:#B9E7FF>";
+    private static final String PREFIX_BRACKET_COLOR = "<#8A2387>";
+    private static final String PREFIX_NAME_COLOR = "<#E62028>";
+    private static final String PREFIX_ARROW_COLOR = "<#555555>";
+    private static final String PREFIX_MESSAGE_COLOR = "<#B9E7FF>";
+    private static final String CONSOLE_INFO_COLOR = "<#D7C7FF>";
+    private static final String CONSOLE_SUCCESS_COLOR = "<#B9E7FF>";
+    private static final String CONSOLE_WARNING_COLOR = "<#FFB7D5>";
+    private static final String CONSOLE_ERROR_COLOR = "<#E62028>";
     private static final String BANNER_BORDER_COLOR = "<#8A2387>";
     private static final String BANNER_SEPARATOR_COLOR = "<#D7C7FF>";
     private static final String BANNER_TITLE_COLOR = "<#E62028>";
@@ -45,6 +54,9 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     private static final String BANNER_NOTICE_COLOR = "<#FF69B4>";
     private static final List<String> DEFAULT_GRADIENT = List.of(
             "#FFB7D5", "#D7C7FF", "#B9E7FF", "#D7C7FF", "#FFB7D5");
+    private static final Pattern CONSOLE_COLOR_TAG = Pattern.compile(
+            "(?i)</?gradient(?::[^>]+)?>|</?color(?::[^>]+)?>|<#[0-9a-f]{6}>"
+                    + "|(?:&|§)(?:#[0-9a-f]{6}|x(?:&?[0-9a-f]){6}|[0-9a-fk-or])");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('&').hexColors().build();
@@ -341,16 +353,27 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     void logLocalized(String key, String fallback, String... replacements) {
+        String body = message(key, fallback, replacements)
+                .replace("{version}", getPluginMeta().getVersion())
+                .replace("{author}", getPluginMeta().getAuthors().isEmpty()
+                        ? "Unknown"
+                        : getPluginMeta().getAuthors().get(0))
+                .replace("{prefix}", "");
+        // Console output has its own severity channel. Strip message-local
+        // colors first so legacy custom configurations cannot reintroduce a
+        // gradient or override the documented severity color.
+        body = stripConsoleColorTags(body);
         String statusColor = switch (key) {
-            case "updater.checking" -> "<#D7C7FF>";
-            case "updater.latest", "updater.downloaded" -> "<#B9E7FF>";
-            case "updater.available", "updater.manual_download" -> "<#FFB7D5><bold>";
-            case "updater.failed" -> "<#E62028><bold>";
-            default -> "<#B9E7FF>";
+            case "updater.checking" -> CONSOLE_INFO_COLOR;
+            case "updater.latest", "updater.downloaded" -> CONSOLE_SUCCESS_COLOR;
+            case "updater.available", "updater.manual_download" -> CONSOLE_WARNING_COLOR;
+            case "updater.failed" -> CONSOLE_ERROR_COLOR;
+            default -> PREFIX_MESSAGE_COLOR;
         };
-        String body = PlainTextComponentSerializer.plainText().serialize(
-                deserialize(message(key, fallback, replacements)));
-        logConsole(statusColor + body);
+        boolean emphasize = key.equals("updater.available")
+                || key.equals("updater.manual_download")
+                || key.equals("updater.failed");
+        logConsole(statusColor + (emphasize ? "<bold>" + body + "</bold>" : body));
     }
 
     Component deserialize(String text) {
@@ -512,8 +535,16 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private void logConsole(String text) {
-        String prefix = message("prefix", DEFAULT_PREFIX);
+        String prefix = PREFIX_BRACKET_COLOR + "<bold>[</bold>"
+                + PREFIX_NAME_COLOR + "<bold>WorldAreaReset</bold>"
+                + PREFIX_BRACKET_COLOR + "<bold>]</bold> "
+                + PREFIX_ARROW_COLOR + "<bold>»</bold> "
+                + PREFIX_MESSAGE_COLOR;
         Bukkit.getConsoleSender().sendMessage(deserialize(prefix + text));
+    }
+
+    private String stripConsoleColorTags(String text) {
+        return CONSOLE_COLOR_TAG.matcher(text).replaceAll("");
     }
 
     private void logBanner(String text) {
