@@ -58,7 +58,17 @@ public class WorldAreaResetPlugin extends JavaPlugin {
             "(?i)</?gradient(?::[^>]+)?>|</?color(?::[^>]+)?>|<#[0-9a-f]{6}>"
                     + "|(?:&|§)(?:#[0-9a-f]{6}|x(?:&?[0-9a-f]){6}|[0-9a-fk-or])");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
-    private static final LegacyComponentSerializer CONSOLE_SERIALIZER = LegacyComponentSerializer.legacySection();
+    /**
+     * Preserve RGB colors when handing components to Bukkit's string-based
+     * console sender. The plain legacy serializer silently quantizes colors
+     * such as the warning pink to white, which makes panel output appear
+     * unstyled. Paper's section-code parser understands the repeated-x form.
+     */
+    private static final LegacyComponentSerializer CONSOLE_SERIALIZER = LegacyComponentSerializer.builder()
+            .character('\u00a7')
+            .hexColors()
+            .useUnusualXRepeatedCharacterHexFormat()
+            .build();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('&').hexColors().build();
 
@@ -589,7 +599,11 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private void sendConsoleComponent(Component component) {
-        Bukkit.getConsoleSender().sendMessage(CONSOLE_SERIALIZER.serialize(component));
+        Bukkit.getConsoleSender().sendMessage(serializeConsole(component));
+    }
+
+    static String serializeConsole(Component component) {
+        return CONSOLE_SERIALIZER.serialize(component);
     }
 
     private String stripConsoleColorTags(String text) {

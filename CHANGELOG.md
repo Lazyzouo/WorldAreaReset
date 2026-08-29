@@ -2,6 +2,18 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.14.5] - 2026-08-30
+
+### English
+
+- Preserve the full KitLoader Hex palette when serializing console and server-panel output, including the light-pink cleanup warning color.
+- Add a regression test so future console serialization changes cannot quantize Hex colors to white or another legacy color.
+
+### 中文
+
+- 后台和服务器面板输出保留完整的 KitLoader Hex 调色板，包括浅粉色的清理警告，不再被降级为白色。
+- 增加回归测试，防止后续控制台序列化再次把 Hex 颜色量化为白色或其它旧版颜色。
+
 ## [1.14.4] - 2026-08-30
 
 ### English
