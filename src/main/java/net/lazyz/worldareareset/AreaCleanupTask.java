@@ -36,8 +36,7 @@ public class AreaCleanupTask {
 
     private static final int MAX_RESTORE_CHUNK_LOADS = 32;
     private static final int MAX_CLEANUP_CHUNK_LOADS = 16;
-    private static final int ONLINE_RESTORE_CHUNK_CONCURRENCY = 2;
-    private static final int ONLINE_RESTORE_BLOCK_BUDGET = 512;
+    private static final int ONLINE_RESTORE_CHUNK_CONCURRENCY = 4;
     private static final int DEFAULT_RESTORE_BLOCK_BUDGET = 4096;
     private static final int MAX_RESTORE_BLOCK_BUDGET = 16384;
     private static final int ONLINE_CLEANUP_BLOCK_BUDGET = 1024;
@@ -1135,8 +1134,9 @@ public class AreaCleanupTask {
             int chunkZ = chunkKeyZ(entry.getKey());
             Runnable chunkDone = () -> {
                 try {
-                    plugin.getServer().getRegionScheduler().runDelayed(
-                            plugin, targetWorld, chunkX, chunkZ, task -> scheduleNext[0].run(), 1L);
+                    // The completed chunk already yielded to its region scheduler. Queue the
+                    // next load immediately so large restores do not add a full tick per chunk.
+                    scheduleNext[0].run();
                 } catch (RuntimeException error) {
                     batch.failedChunks.incrementAndGet();
                     plugin.getLogger().log(Level.WARNING,
@@ -1220,8 +1220,6 @@ public class AreaCleanupTask {
             if (!progress.initialized) {
                 progress.snapshot = progress.chunk.getChunkSnapshot(false, false, false, false);
                 progress.overlappingPlans = plansOverlap(progress.plans);
-                progress.simplePath = players.isEmpty() && !batch.options.filtersEnabled()
-                        && !progress.overlappingPlans;
                 progress.appliedBlocks = progress.overlappingPlans ? new HashSet<>() : null;
                 if (!players.isEmpty()) {
                     for (RestorePlan plan : progress.plans) {
@@ -1229,12 +1227,15 @@ public class AreaCleanupTask {
                                 plan.startZ, plan.endZ, plan.minY, plan.maxY, protectionRadius));
                     }
                 }
+                progress.simplePath = progress.playerBlocks.isEmpty() && !batch.options.filtersEnabled()
+                        && !progress.overlappingPlans;
                 progress.initialized = true;
             }
 
-            boolean playersOnline = !players.isEmpty() || targetWorldHasPlayers(targetWorld);
-            int budget = !playersOnline ? batch.blocksPerTick
-                    : Math.min(batch.blocksPerTick, ONLINE_RESTORE_BLOCK_BUDGET);
+            // Player protection is calculated per chunk during the scan above. The configured
+            // budget already bounds region-thread work, so do not throttle every chunk merely
+            // because a player exists elsewhere in the target world.
+            int budget = batch.blocksPerTick;
             int processed = 0;
             while (processed++ < budget && progress.hasNext()) {
                 RestorePlan plan = progress.currentPlan();
@@ -1283,10 +1284,10 @@ public class AreaCleanupTask {
         batch.ignoredBlocks.addAndGet(ignoredInBatch);
         if (!failed && progress.hasNext()) {
             try {
-                plugin.getServer().getRegionScheduler().runDelayed(plugin, targetWorld, chunkX, chunkZ,
+                plugin.getServer().getRegionScheduler().run(plugin, targetWorld, chunkX, chunkZ,
                         task -> processRestoreChunk(targetWorld, chunkX, chunkZ, progress, batch, completion,
                                 blockDataCache, invalidStates, players, protectionRadius,
-                                chunksProcessed, totalChunks, chunkDone), 1L);
+                                chunksProcessed, totalChunks, chunkDone));
                 return;
             } catch (RuntimeException error) {
                 batch.failedChunks.incrementAndGet();

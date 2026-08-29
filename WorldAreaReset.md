@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.14.6`<br>
+> Applies to / 适用于：`WorldAreaReset 1.14.7`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -78,7 +78,7 @@ The bundled English and Chinese administrator help menus must contain every comm
 | Path | Default | Meaning |
 | --- | --- | --- |
 | `config_version` | `24` | Automatically maintained public configuration format marker |
-| `language` | `en_US` | The single `WorldAreaReset-1.14.6.jar` starts with English defaults; set `zh_CN` to apply the Simplified Chinese configuration template |
+| `language` | `en_US` | The single `WorldAreaReset-1.14.7.jar` starts with English defaults; set `zh_CN` to apply the Simplified Chinese configuration template |
 | `language-applied` | Selected language | Plugin-maintained marker; change `language` only, then reload or restart |
 | `messages` | Flat selected-language messages | The active language is written directly to `messages`; legacy nested language sections and retired formatting settings are removed during format 23 migration |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
@@ -91,7 +91,7 @@ The bundled English and Chinese administrator help menus must contain every comm
 | `recreate.interval` / `recreate.interval_unit` | `3` / `hours` | Automatic recreate cycle in hours or days |
 | `recreate.countdown_seconds` | `10` | Recreate-mode warning delay for automatic and manual restoration |
 | `recreate.player_protection_radius` | `2` | Spherical block radius protected around players during restoration; reload to apply changes |
-| `recreate.blocks_per_tick` | `4096` | Maximum blocks written per Region tick; online-player worlds automatically use a safer lower cap |
+| `recreate.blocks_per_tick` | `4096` | Maximum blocks written per Region tick; the configured budget is used consistently and player protection remains local to nearby blocks |
 | `recreate.ignore_liquids` | `false` | Leaves template water, lava, and bubble columns unchanged in the target world |
 | `recreate.ignore_blocks` | `[]` | Bukkit Material names whose saved template states are ignored; target blocks remain unchanged |
 | `recreate.worlds` | One `arena_world` module | World modules containing `name` and `regions`; empty regions use all stored template chunks |
@@ -269,7 +269,7 @@ recreate:
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
 | `config_version` | `24` | 由插件自动维护的公开配置格式版本 |
-| `language` | `en_US` | 单个 `WorldAreaReset-1.14.6.jar` 默认使用英文；设为 `zh_CN` 后重载即可应用简体中文配置模板 |
+| `language` | `en_US` | 单个 `WorldAreaReset-1.14.7.jar` 默认使用英文；设为 `zh_CN` 后重载即可应用简体中文配置模板 |
 | `language-applied` | 当前语言 | 插件自动维护的最近应用语言标记；只修改 `language`，然后 reload 或重启 |
 | `messages` | 当前语言扁平消息 | 运行时配置只保留 `messages` 下当前语言的一份消息；旧的双语命名空间和 formatting 设置会在格式 23 清理 |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
@@ -282,7 +282,7 @@ recreate:
 | `recreate.interval` / `recreate.interval_unit` | `3` / `hours` | 自动热恢复周期，单位为小时或天 |
 | `recreate.countdown_seconds` | `10` | 热恢复自动倒计时与 `/war recreate` 倒计时 |
 | `recreate.player_protection_radius` | `2` | 热恢复时保护玩家周围的球形方块半径，修改后重载生效 |
-| `recreate.blocks_per_tick` | `4096` | 每个 Region tick 的最大恢复方块数；在线玩家世界会自动使用更低的安全批次 |
+| `recreate.blocks_per_tick` | `4096` | 每个 Region tick 的最大恢复方块数；有无玩家使用同一配置值，玩家保护只作用于附近方块 |
 | `recreate.ignore_liquids` | `false` | 忽略模板中的水、岩浆和气泡柱，目标世界对应方块保持不变 |
 | `recreate.ignore_blocks` | `[]` | 忽略模板中指定的 Bukkit Material，目标世界对应方块保持不变 |
 | `recreate.worlds` | 一个 `arena_world` 模块 | 世界模块列表；每项含 `name` 和 `regions`，空区域使用模板中实际存在的全部区块 |

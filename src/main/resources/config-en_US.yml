@@ -7,7 +7,7 @@
 #                                                                        |__/                |__/     #
 #                                                                                                     #
 # =================================================================================================== #
-# Author: Lazyz | Version: 1.14.6
+# Author: Lazyz | Version: 1.14.7
 # Feedback: https://github.com/Lazyzouo/WorldAreaReset/issues
 # This plugin uses Hex color codes. Color code lookup: https://htmlcolorcodes.com/color-picker/
 # Format: <#RRGGBB>color, <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5>text</gradient>
@@ -56,7 +56,8 @@ recreate:
   countdown_seconds: 10
   # Spherical block radius protected around every player; 0 disables protection, 2 is recommended.
   player_protection_radius: 2
-  # Maximum blocks written per Region tick; online-player worlds use a safer lower cap automatically.
+  # Maximum blocks written per Region tick; the same value is used with or without players.
+  # Player protection is limited to nearby blocks, so players elsewhere do not throttle the restore.
   # Lower values are smoother; higher values restore faster but send more chunk update packets.
   blocks_per_tick: 4096
   # Ignore water, lava, and bubble columns saved in the template; target liquids remain unchanged.
