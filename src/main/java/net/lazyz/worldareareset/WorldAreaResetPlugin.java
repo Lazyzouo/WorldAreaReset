@@ -376,6 +376,48 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         logConsole(statusColor + (emphasize ? "<bold>" + body + "</bold>" : body));
     }
 
+    void broadcastInfo(String prefix, String message) {
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_INFO_COLOR, false);
+    }
+
+    void broadcastSuccess(String prefix, String message) {
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_SUCCESS_COLOR, false);
+    }
+
+    void broadcastWarning(String prefix, String message) {
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_WARNING_COLOR, true);
+    }
+
+    void broadcastError(String prefix, String message) {
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_ERROR_COLOR, true);
+    }
+
+    private void broadcastToPlayersAndConsole(String prefix, String message,
+                                              String consoleColor, boolean emphasize) {
+        Component playerMessage = deserializeInGame(prefix, message);
+        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(playerMessage));
+
+        String consoleBody = PlainTextComponentSerializer.plainText().serialize(deserialize(message));
+        consoleBody = stripConsoleColorTags(consoleBody);
+        StringBuilder coloredBody = new StringBuilder(consoleBody.length() + 32);
+        String[] lines = consoleBody.split("\\R", -1);
+        for (int index = 0; index < lines.length; index++) {
+            if (index > 0) {
+                coloredBody.append('\n');
+            }
+            coloredBody.append(consoleColor);
+            if (emphasize) {
+                coloredBody.append("<bold>");
+            }
+            coloredBody.append(lines[index]);
+            if (emphasize) {
+                coloredBody.append("</bold>");
+            }
+        }
+        String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), coloredBody.toString());
+        Bukkit.getConsoleSender().sendMessage(deserialize(prefixedBody));
+    }
+
     Component deserialize(String text) {
         String source = legacyToMiniMessage(text)
                 .replace("{gradient}", "<gradient:" + String.join(":", DEFAULT_GRADIENT) + ">")
@@ -535,12 +577,14 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private void logConsole(String text) {
-        String prefix = PREFIX_BRACKET_COLOR + "<bold>[</bold>"
+        Bukkit.getConsoleSender().sendMessage(deserialize(consolePrefix() + PREFIX_MESSAGE_COLOR + text));
+    }
+
+    private String consolePrefix() {
+        return PREFIX_BRACKET_COLOR + "<bold>[</bold>"
                 + PREFIX_NAME_COLOR + "<bold>WorldAreaReset</bold>"
                 + PREFIX_BRACKET_COLOR + "<bold>]</bold> "
-                + PREFIX_ARROW_COLOR + "<bold>»</bold> "
-                + PREFIX_MESSAGE_COLOR;
-        Bukkit.getConsoleSender().sendMessage(deserialize(prefix + text));
+                + PREFIX_ARROW_COLOR + "<bold>»</bold> ";
     }
 
     private String stripConsoleColorTags(String text) {

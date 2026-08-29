@@ -311,7 +311,7 @@ public class AreaCleanupTask {
         String warningMsg = plugin.replaceVariables(plugin.message("warning",
                         "<color:#FFB7D5><bold>Warning: {world} will be cleaned in {time} seconds.</bold></color>"),
                 "{world}", worldLabel, "{worlds}", worldLabel, "{time}", String.valueOf(countdown));
-        Bukkit.broadcast(plugin.deserializeInGame(prefix, warningMsg));
+        plugin.broadcastWarning(prefix, warningMsg);
 
         cleanupDelayedTask = plugin.getServer().getAsyncScheduler().runDelayed(plugin, task -> {
             synchronized (AreaCleanupTask.this) {
@@ -330,7 +330,7 @@ public class AreaCleanupTask {
         String warningMsg = plugin.replaceVariables(plugin.message("restore_warning",
                         "<color:#FFB7D5><bold>Warning: {world} will be restored in {time} seconds.</bold></color>"),
                 "{world}", worldLabel, "{worlds}", worldLabel, "{time}", String.valueOf(countdown));
-        Bukkit.broadcast(plugin.deserializeInGame(prefix, warningMsg));
+        plugin.broadcastWarning(prefix, warningMsg);
         recreateDelayedTask = plugin.getServer().getAsyncScheduler().runDelayed(plugin, task -> {
             synchronized (AreaCleanupTask.this) { recreateDelayedTask = null; }
             runTerrainRestore(plugin.getConfig());
@@ -369,7 +369,7 @@ public class AreaCleanupTask {
                 left + ", " + right).orElse("");
         String startMessage = replaceWorldVariables(plugin.message("start_cleanup",
                 "<color:#B9E7FF>Area cleanup has started in {world}. Please wait...</color>"), worldLabel);
-        Bukkit.broadcast(plugin.deserializeInGame(prefix, startMessage));
+        plugin.broadcastInfo(prefix, startMessage);
 
         CleanupBatch batch = new CleanupBatch(worldLabel, prefix,
                 plans.stream().mapToInt(plan -> plan.bounds().chunkCount()).sum(),
@@ -612,7 +612,7 @@ public class AreaCleanupTask {
                     "{protected}", String.valueOf(batch.protectedBlocks.get()),
                     "{entities}", String.valueOf(batch.removedEntities.get()),
                     "{time}", String.valueOf(System.currentTimeMillis() - batch.startTime));
-            Bukkit.broadcast(plugin.deserializeInGame(batch.prefix, message));
+            plugin.broadcastSuccess(batch.prefix, message);
         }
         chunkDone.run();
     }
@@ -716,7 +716,7 @@ public class AreaCleanupTask {
         String prefix = plugin.message("prefix", "<color:#8A2387><bold>[</bold><color:#E62028><bold>WorldAreaReset</bold></color><color:#8A2387><bold>]</bold></color> <color:#555555><bold>»</bold></color> <color:#B9E7FF>");
         String startMessage = replaceWorldVariables(plugin.message("start_restore",
                 "<color:#B9E7FF>Terrain restoration is now running in {world}. Please wait...</color>"), worldLabel);
-        Bukkit.broadcast(plugin.deserializeInGame(prefix, startMessage));
+        plugin.broadcastInfo(prefix, startMessage);
         RestoreBatch batch = new RestoreBatch(worldLabel, prefix, targets.size(), restoreOptions(config),
                 restoreBlockBudget(config));
 
@@ -1602,7 +1602,7 @@ public class AreaCleanupTask {
                 "{entities}", String.valueOf(batch.removedEntities.get()),
                 "{failed}", String.valueOf(batch.failedChunks.get()),
                 "{time}", String.valueOf(System.currentTimeMillis() - batch.startTime));
-        Bukkit.broadcast(plugin.deserializeInGame(batch.prefix, message));
+        plugin.broadcastSuccess(batch.prefix, message);
         restoreRunning.set(false);
     }
 

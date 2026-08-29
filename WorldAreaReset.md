@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.14.2`<br>
+> Applies to / 适用于：`WorldAreaReset 1.14.3`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -78,7 +78,7 @@ The bundled English and Chinese administrator help menus must contain every comm
 | Path | Default | Meaning |
 | --- | --- | --- |
 | `config_version` | `24` | Automatically maintained public configuration format marker |
-| `language` | `en_US` | The single `WorldAreaReset-1.14.2.jar` starts with English defaults; set `zh_CN` to apply the Simplified Chinese configuration template |
+| `language` | `en_US` | The single `WorldAreaReset-1.14.3.jar` starts with English defaults; set `zh_CN` to apply the Simplified Chinese configuration template |
 | `language-applied` | Selected language | Plugin-maintained marker; change `language` only, then reload or restart |
 | `messages` | Flat selected-language messages | The active language is written directly to `messages`; legacy nested language sections and retired formatting settings are removed during format 23 migration |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
@@ -119,7 +119,7 @@ Only server-specific settings such as world, boundaries, interval, allowlist, la
 
 Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{cleanup_interval}`, `{cleanup_interval_unit}`, `{cleanup_remaining}`, `{cleanup_countdown}`, `{recreate_interval}`, `{recreate_interval_unit}`, `{recreate_remaining}`, `{recreate_countdown}`, `{world}`, `{worlds}`, `{time}`, `{blocks}`, `{protected}`, `{ignored}`, `{entities}`, `{failed}`, `{current}`, `{reason}`, and `{url}` where relevant. `{cleanup_remaining}` and `{recreate_remaining}` show a live countdown with seconds, using the configured minutes, hours, or days as the largest unit. Their help rows remain visible when a schedule is disabled and show `not scheduled` (or `未排程`). In a restore completion message, a line containing `{ignored}` is omitted when no template blocks were ignored. For multi-world cleanup or restoration, `{world}` and `{worlds}` both contain the comma-separated world list.
 
-The startup banner is prefix-free and follows the selected language; all other updater notices use the fixed KitLoader-style purple/red `WorldAreaReset` prefix. Banner fields use border `#8A2387`, title `#E62028`, labels/separators `#D7C7FF`, values `#B9E7FF`, and open-source rows `#FF69B4`. Updater states use `#D7C7FF` for checking, `#B9E7FF` for current/downloaded, bold `#FFB7D5` for available/manual download, and bold `#E62028` for failures. These console notices are single-color severity messages and are never wrapped in the five-color gradient.
+The startup banner is prefix-free and follows the selected language; all other updater notices and cleanup/restoration broadcasts use the fixed KitLoader-style purple/red `WorldAreaReset` prefix. Banner fields use border `#8A2387`, title `#E62028`, labels/separators `#D7C7FF`, values `#B9E7FF`, and open-source rows `#FF69B4`. Updater states use `#D7C7FF` for checking, `#B9E7FF` for current/downloaded, bold `#FFB7D5` for available/manual download, and bold `#E62028` for failures. These console notices are single-color severity messages and are never wrapped in the five-color gradient; player cleanup/restoration broadcasts retain their configured styling.
 
 The startup banner uses a dynamic interior width: at least 60 columns, or one column wider than the widest visible content line. Its identity section contains the centered service name/version and a centered subtitle in the selected language, followed by a full-width dashed separator before runtime metadata. Every title, metadata, project URL, and privacy row is enclosed by matching left and right borders. Padding ignores legacy color codes and counts Chinese characters as double-width terminal columns, keeping the right border aligned with space after the longest field.
 
@@ -269,7 +269,7 @@ recreate:
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
 | `config_version` | `24` | 由插件自动维护的公开配置格式版本 |
-| `language` | `en_US` | 单个 `WorldAreaReset-1.14.2.jar` 默认使用英文；设为 `zh_CN` 后重载即可应用简体中文配置模板 |
+| `language` | `en_US` | 单个 `WorldAreaReset-1.14.3.jar` 默认使用英文；设为 `zh_CN` 后重载即可应用简体中文配置模板 |
 | `language-applied` | 当前语言 | 插件自动维护的最近应用语言标记；只修改 `language`，然后 reload 或重启 |
 | `messages` | 当前语言扁平消息 | 运行时配置只保留 `messages` 下当前语言的一份消息；旧的双语命名空间和 formatting 设置会在格式 23 清理 |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
@@ -306,7 +306,7 @@ recreate:
 
 根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{cleanup_interval}`、`{cleanup_interval_unit}`、`{cleanup_remaining}`、`{cleanup_countdown}`、`{recreate_interval}`、`{recreate_interval_unit}`、`{recreate_remaining}`、`{recreate_countdown}`、`{world}`、`{worlds}`、`{time}`、`{blocks}`、`{protected}`、`{ignored}`、`{entities}`、`{failed}`、`{current}`、`{reason}` 和 `{url}` 等变量。`{cleanup_remaining}` 与 `{recreate_remaining}` 会按配置的分钟、小时或天作为最大单位并精确到秒；对应计划关闭时，帮助菜单仍显示状态行并显示“未排程”。恢复完成消息中，未忽略模板方块时会自动省略含 `{ignored}` 的整行。多世界清理或恢复时，`{world}` 与 `{worlds}` 都会得到逗号分隔的世界列表。
 
-启动横幅之外的全部更新器通知共用固定的 KitLoader 风格紫红色 `WorldAreaReset` 前缀；横幅本身不添加前缀并遵循当前语言。横幅边框使用 `#8A2387`，标题使用 `#E62028`，标签/分隔线使用 `#D7C7FF`，值使用 `#B9E7FF`，开源行使用 `#FF69B4`；更新状态依次使用 `#D7C7FF`（检查中）、`#B9E7FF`（最新版/下载完成）、粗体 `#FFB7D5`（发现更新/手动下载）和粗体 `#E62028`（失败）。这些后台提示只使用对应单色状态色，不套用五色渐变。
+启动横幅之外的全部更新器通知以及清理/热恢复广播共用固定的 KitLoader 风格紫红色 `WorldAreaReset` 前缀；横幅本身不添加前缀并遵循当前语言。横幅边框使用 `#8A2387`，标题使用 `#E62028`，标签/分隔线使用 `#D7C7FF`，值使用 `#B9E7FF`，开源行使用 `#FF69B4`；更新状态依次使用 `#D7C7FF`（检查中）、`#B9E7FF`（最新版/下载完成）、粗体 `#FFB7D5`（发现更新/手动下载）和粗体 `#E62028`（失败）。这些后台提示只使用对应单色状态色，不套用五色渐变；玩家端清理/热恢复消息仍保留配置样式。
 
 启动横幅内部宽度动态计算：最小 60 列，并至少比最长可见内容行多 1 列。身份标题区包含居中的服务名称与版本，以及遵循当前语言的居中 PvP 地形维护副标题，随后使用整行虚线将标题区与运行信息分隔。标题、元数据、项目地址和隐私声明各行均由同色左右边框完整包围。留白计算会忽略旧式颜色码，并将中文字符按双列终端宽度计算，使右侧边框保持对齐，并与最长字段保留空隙。
 
