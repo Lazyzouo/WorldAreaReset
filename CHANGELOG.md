@@ -2,6 +2,16 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.14.4] - 2026-08-30
+
+### English
+
+- Serialize console messages through the same Legacy section-code path as KitLoader so every fixed severity color is rendered by server panels.
+
+### 中文
+
+- 后台消息改用与 KitLoader 相同的 Legacy 分节颜色码序列化路径，确保服务器面板能渲染所有固定 severity 颜色。
+
 ## [1.14.3] - 2026-08-30
 
 ### English

@@ -58,6 +58,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
             "(?i)</?gradient(?::[^>]+)?>|</?color(?::[^>]+)?>|<#[0-9a-f]{6}>"
                     + "|(?:&|§)(?:#[0-9a-f]{6}|x(?:&?[0-9a-f]){6}|[0-9a-fk-or])");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final LegacyComponentSerializer CONSOLE_SERIALIZER = LegacyComponentSerializer.legacySection();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('&').hexColors().build();
 
@@ -415,7 +416,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
             }
         }
         String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), coloredBody.toString());
-        Bukkit.getConsoleSender().sendMessage(deserialize(prefixedBody));
+        sendConsoleComponent(deserialize(prefixedBody));
     }
 
     Component deserialize(String text) {
@@ -577,7 +578,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private void logConsole(String text) {
-        Bukkit.getConsoleSender().sendMessage(deserialize(consolePrefix() + PREFIX_MESSAGE_COLOR + text));
+        sendConsoleComponent(deserialize(consolePrefix() + PREFIX_MESSAGE_COLOR + text));
     }
 
     private String consolePrefix() {
@@ -587,12 +588,16 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                 + PREFIX_ARROW_COLOR + "<bold>»</bold> ";
     }
 
+    private void sendConsoleComponent(Component component) {
+        Bukkit.getConsoleSender().sendMessage(CONSOLE_SERIALIZER.serialize(component));
+    }
+
     private String stripConsoleColorTags(String text) {
         return CONSOLE_COLOR_TAG.matcher(text).replaceAll("");
     }
 
     private void logBanner(String text) {
-        Bukkit.getConsoleSender().sendMessage(deserialize(text));
+        sendConsoleComponent(deserialize(text));
     }
 
     private String bannerBorder(char fill) {

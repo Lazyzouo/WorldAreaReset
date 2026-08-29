@@ -3,7 +3,7 @@ plugins {
 }
 
 def pluginName = 'WorldAreaReset'
-def pluginVersion = '1.14.3'
+def pluginVersion = '1.14.4'
 def pluginAuthor = 'Lazyz'
 
 group = 'net.lazyz'
