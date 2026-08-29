@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.14.0`<br>
+> Applies to / 适用于：`WorldAreaReset 1.14.1`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -49,7 +49,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-The first newly created `config.yml` contains copy-ready world modules for both modes. Upgrading to configuration format 15 converts the retired world, bounds, switches, and global region lists into these modules and removes those retired fields. Format 18 adds cleanup interval units; format 22 migrates plugin-owned legacy message formatting; format 23 flattens the selected language, removes retired formatting/replacement settings, and applies the fixed KitLoader palette and `✧` divider.
+The first newly created `config.yml` contains copy-ready world modules for both modes. Upgrading to configuration format 15 converts the retired world, bounds, switches, and global region lists into these modules and removes those retired fields. Format 18 adds cleanup interval units; format 22 migrates plugin-owned legacy message formatting; format 23 flattens the selected language and removes retired formatting/replacement settings; format 24 splits the official help metadata row into separate plugin name, author, and version rows.
 
 Sparse template data is merged per block position. A template state that exists, including explicit `minecraft:air`, replaces the target state; an omitted template section has no state and preserves the target block. Omitted data does not claim an overlap, so another configured region can still supply a saved state there. This layered `world_nether` configuration therefore preserves the outer area's lower terrain while restoring its saved upper layer:
 
@@ -77,8 +77,8 @@ The bundled English and Chinese administrator help menus must contain every comm
 
 | Path | Default | Meaning |
 | --- | --- | --- |
-| `config_version` | `23` | Automatically maintained public configuration format marker |
-| `language` | `en_US` | The single `WorldAreaReset-1.14.0.jar` starts with English defaults; set `zh_CN` to apply the Simplified Chinese configuration template |
+| `config_version` | `24` | Automatically maintained public configuration format marker |
+| `language` | `en_US` | The single `WorldAreaReset-1.14.1.jar` starts with English defaults; set `zh_CN` to apply the Simplified Chinese configuration template |
 | `language-applied` | Selected language | Plugin-maintained marker; change `language` only, then reload or restart |
 | `messages` | Flat selected-language messages | The active language is written directly to `messages`; legacy nested language sections and retired formatting settings are removed during format 23 migration |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
@@ -101,7 +101,7 @@ The bundled English and Chinese administrator help menus must contain every comm
 
 Official defaults and first-creation examples are stored in `src/main/resources/config-en_US.yml`, `src/main/resources/config.yml`, and `defaults/`. The single release JAR contains identical code, the English `config.yml`, and the Chinese `config-zh_CN.yml` template; live server configuration belongs only in `plugins/WorldAreaReset/config.yml` and is excluded from the repository. When `language` changes, plugin-owned comments, the configuration header, and flat `messages.*` values are refreshed to the selected template while administrator parameters and unknown keys remain unchanged.
 
-At every startup, the plugin parses the live `config.yml` and matching bundled default as structured YAML. Existing parameters, unknown custom keys, selected language, and parsed comments are retained. Format 15 migrates retired world and region fields, format 18 converts cleanup interval units, format 22 migrates legacy message formatting, and format 23 flattens the selected language, removes `formatting`, `inline-replacements`, and root `gradient-colors`, and applies the fixed KitLoader palette and `✧` divider. Legacy `lang` files are removed after migration.
+At every startup, the plugin parses the live `config.yml` and matching bundled default as structured YAML. Existing parameters, unknown custom keys, selected language, and parsed comments are retained. Format 15 migrates retired world and region fields, format 18 converts cleanup interval units, format 22 migrates legacy message formatting, format 23 flattens the selected language and removes `formatting`, `inline-replacements`, and root `gradient-colors`, and format 24 splits the official help metadata row. Legacy `lang` files are removed after migration.
 
 Before changing the main `config.yml`, the plugin creates `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`; it then writes a same-directory temporary file, flushes it, and atomically replaces the original. `config_version` advances only after the entire structure is compatible. Invalid YAML, a scalar where a section is required, a section where a value is required, or incompatible value types block the merge without modifying the original. A blocked main configuration stops plugin startup before cleanup scheduling.
 
@@ -117,9 +117,9 @@ The official configurations keep editable command feedback, broadcasts, help men
 
 Only server-specific settings such as world, boundaries, interval, allowlist, language, and updater switches use sanitized official presets. Message text and other non-server-specific presentation settings remain complete in the public templates.
 
-Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{cleanup_interval}`, `{cleanup_interval_unit}`, `{cleanup_remaining}`, `{cleanup_countdown}`, `{recreate_interval}`, `{recreate_interval_unit}`, `{recreate_remaining}`, `{recreate_countdown}`, `{world}`, `{worlds}`, `{time}`, `{blocks}`, `{protected}`, `{ignored}`, `{entities}`, `{failed}`, `{current}`, `{reason}`, and `{url}` where relevant. `{cleanup_remaining}` and `{recreate_remaining}` show a live countdown in the configured minutes, hours, or days unit. Their help rows are omitted when the corresponding `cleanup.enabled` or `recreate.enabled` switch is false. In a restore completion message, a line containing `{ignored}` is omitted when no template blocks were ignored. For multi-world cleanup or restoration, `{world}` and `{worlds}` both contain the comma-separated world list.
+Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{cleanup_interval}`, `{cleanup_interval_unit}`, `{cleanup_remaining}`, `{cleanup_countdown}`, `{recreate_interval}`, `{recreate_interval_unit}`, `{recreate_remaining}`, `{recreate_countdown}`, `{world}`, `{worlds}`, `{time}`, `{blocks}`, `{protected}`, `{ignored}`, `{entities}`, `{failed}`, `{current}`, `{reason}`, and `{url}` where relevant. `{cleanup_remaining}` and `{recreate_remaining}` show a live countdown with seconds, using the configured minutes, hours, or days as the largest unit. Their help rows remain visible when a schedule is disabled and show `not scheduled` (or `未排程`). In a restore completion message, a line containing `{ignored}` is omitted when no template blocks were ignored. For multi-world cleanup or restoration, `{world}` and `{worlds}` both contain the comma-separated world list.
 
-The startup banner is prefix-free and follows the selected language; all other updater notices use the configured purple/red `WorldAreaReset` prefix. Banner fields use border `#8A2387`, title `#E62028`, labels/separators `#D7C7FF`, values `#B9E7FF`, and open-source rows `#FF69B4`. Updater states use `#D7C7FF` for checking, `#B9E7FF` for current/downloaded, bold `#FFB7D5` for available/manual download, and bold `#E62028` for failures.
+The startup banner is prefix-free and follows the selected language; all other updater notices use the configured purple/red `WorldAreaReset` prefix. Banner fields use border `#8A2387`, title `#E62028`, labels/separators `#D7C7FF`, values `#B9E7FF`, and open-source rows `#FF69B4`. Updater states use `#D7C7FF` for checking, `#B9E7FF` for current/downloaded, bold `#FFB7D5` for available/manual download, and bold `#E62028` for failures. These console notices are single-color severity messages and are never wrapped in the five-color gradient.
 
 The startup banner uses a dynamic interior width: at least 60 columns, or one column wider than the widest visible content line. Its identity section contains the centered service name/version and a centered subtitle in the selected language, followed by a full-width dashed separator before runtime metadata. Every title, metadata, project URL, and privacy row is enclosed by matching left and right borders. Padding ignores legacy color codes and counts Chinese characters as double-width terminal columns, keeping the right border aligned with space after the longest field.
 
@@ -228,7 +228,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-首次新建的 `config.yml` 会直接包含两种模式的可复制世界模块。升级到配置格式 15 时，旧世界、坐标、开关和全局区域列表会转换为这些模块并被移除；格式 16 会补充恢复速度参数，格式 17 会补充模板方块过滤参数。
+首次新建的 `config.yml` 会直接包含两种模式的可复制世界模块。升级到配置格式 15 时，旧世界、坐标、开关和全局区域列表会转换为这些模块并被移除；格式 16 会补充恢复速度参数，格式 17 会补充模板方块过滤参数；格式 24 会拆分官方帮助菜单的名称、作者和版本元数据行。
 
 稀疏模板会按方块位置融合。模板明确保存的状态（包括 `minecraft:air`）会覆盖目标；模板缺失的 section 没有状态，会保留目标方块。缺失数据不会占用重叠坐标，因此其他配置区域仍可在该位置提供已保存状态。下面的 `world_nether` 分层配置会恢复外层已保存的高层，同时保留外层下方原有地形：
 
@@ -268,8 +268,8 @@ recreate:
 
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
-| `config_version` | `23` | 由插件自动维护的公开配置格式版本 |
-| `language` | `en_US` | 单个 `WorldAreaReset-1.14.0.jar` 默认使用英文；设为 `zh_CN` 后重载即可应用简体中文配置模板 |
+| `config_version` | `24` | 由插件自动维护的公开配置格式版本 |
+| `language` | `en_US` | 单个 `WorldAreaReset-1.14.1.jar` 默认使用英文；设为 `zh_CN` 后重载即可应用简体中文配置模板 |
 | `language-applied` | 当前语言 | 插件自动维护的最近应用语言标记；只修改 `language`，然后 reload 或重启 |
 | `messages` | 当前语言扁平消息 | 运行时配置只保留 `messages` 下当前语言的一份消息；旧的双语命名空间和 formatting 设置会在格式 23 清理 |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
@@ -292,7 +292,7 @@ recreate:
 
 官方默认配置和首次创建时的参数示例位于 `src/main/resources/config-en_US.yml`、`src/main/resources/config.yml` 与 `defaults/`。发布 JAR 使用英文 `config.yml`，同时包含中文 `config-zh_CN.yml` 模板和完整配置注释；服务器实际配置只应位于 `plugins/WorldAreaReset/config.yml`，该运行目录已排除在仓库之外。修改 `language` 后重载会刷新插件官方配置头、注释和扁平消息；旧版 `lang` 文件会自动删除。
 
-插件每次启动都会把服务器实际 `config.yml` 与内置默认配置作为结构化 YAML 解析。管理员已有参数、未知自定义键、语言选择和已解析注释都会保留。格式 15 会把旧世界与区域字段迁移为模块列表，格式 18 会将旧的 `cleanup.interval_minutes` 转换为 `cleanup.interval` 与 `cleanup.interval_unit`，格式 22 迁移旧消息格式，格式 23 会清理双语消息、`formatting`、`inline-replacements` 和 root `gradient-colors`，写入当前语言的扁平消息并统一 KitLoader 五色渐变和 `✧` 分割线。
+插件每次启动都会把服务器实际 `config.yml` 与内置默认配置作为结构化 YAML 解析。管理员已有参数、未知自定义键、语言选择和已解析注释都会保留。格式 15 会把旧世界与区域字段迁移为模块列表，格式 18 会将旧的 `cleanup.interval_minutes` 转换为 `cleanup.interval` 与 `cleanup.interval_unit`，格式 22 迁移旧消息格式，格式 23 会清理双语消息、`formatting`、`inline-replacements` 和 root `gradient-colors`，格式 24 会拆分官方帮助菜单元数据行。
 
 主 `config.yml` 需要变化时，会先创建 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件、刷新到磁盘，并在支持时原子替换正式文件。只有整体结构兼容时才推进 `config_version`。YAML 无效、应为配置节的位置出现标量、应为值的位置出现配置节或值类型不兼容时，迁移会停止且不会修改原文件。
 
@@ -304,9 +304,9 @@ recreate:
 
 只有世界、坐标范围、周期、白名单、语言和更新开关等服务器专用参数使用脱敏后的官方预设；消息文本及其他与服务器参数无关的显示内容会完整保留在公开模板中。
 
-根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{cleanup_interval}`、`{cleanup_interval_unit}`、`{cleanup_remaining}`、`{cleanup_countdown}`、`{recreate_interval}`、`{recreate_interval_unit}`、`{recreate_remaining}`、`{recreate_countdown}`、`{world}`、`{worlds}`、`{time}`、`{blocks}`、`{protected}`、`{ignored}`、`{entities}`、`{failed}`、`{current}`、`{reason}` 和 `{url}` 等变量。`{cleanup_remaining}` 与 `{recreate_remaining}` 会按配置的分钟、小时或天显示距离下次自动任务的实时倒计时；对应的 `cleanup.enabled` 或 `recreate.enabled` 关闭时，帮助菜单会隐藏对应行。恢复完成消息中，未忽略模板方块时会自动省略含 `{ignored}` 的整行。多世界清理或恢复时，`{world}` 与 `{worlds}` 都会得到逗号分隔的世界列表。
+根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{cleanup_interval}`、`{cleanup_interval_unit}`、`{cleanup_remaining}`、`{cleanup_countdown}`、`{recreate_interval}`、`{recreate_interval_unit}`、`{recreate_remaining}`、`{recreate_countdown}`、`{world}`、`{worlds}`、`{time}`、`{blocks}`、`{protected}`、`{ignored}`、`{entities}`、`{failed}`、`{current}`、`{reason}` 和 `{url}` 等变量。`{cleanup_remaining}` 与 `{recreate_remaining}` 会按配置的分钟、小时或天作为最大单位并精确到秒；对应计划关闭时，帮助菜单仍显示状态行并显示“未排程”。恢复完成消息中，未忽略模板方块时会自动省略含 `{ignored}` 的整行。多世界清理或恢复时，`{world}` 与 `{worlds}` 都会得到逗号分隔的世界列表。
 
-启动横幅之外的全部更新器通知共用配置中的紫红色 `WorldAreaReset` 前缀；横幅本身不添加前缀并遵循当前语言。横幅边框使用 `#8A2387`，标题使用 `#E62028`，标签/分隔线使用 `#D7C7FF`，值使用 `#B9E7FF`，开源行使用 `#FF69B4`；更新状态依次使用 `#D7C7FF`（检查中）、`#B9E7FF`（最新版/下载完成）、粗体 `#FFB7D5`（发现更新/手动下载）和粗体 `#E62028`（失败）。
+启动横幅之外的全部更新器通知共用配置中的紫红色 `WorldAreaReset` 前缀；横幅本身不添加前缀并遵循当前语言。横幅边框使用 `#8A2387`，标题使用 `#E62028`，标签/分隔线使用 `#D7C7FF`，值使用 `#B9E7FF`，开源行使用 `#FF69B4`；更新状态依次使用 `#D7C7FF`（检查中）、`#B9E7FF`（最新版/下载完成）、粗体 `#FFB7D5`（发现更新/手动下载）和粗体 `#E62028`（失败）。这些后台提示只使用对应单色状态色，不套用五色渐变。
 
 启动横幅内部宽度动态计算：最小 60 列，并至少比最长可见内容行多 1 列。身份标题区包含居中的服务名称与版本，以及遵循当前语言的居中 PvP 地形维护副标题，随后使用整行虚线将标题区与运行信息分隔。标题、元数据、项目地址和隐私声明各行均由同色左右边框完整包围。留白计算会忽略旧式颜色码，并将中文字符按双列终端宽度计算，使右侧边框保持对齐，并与最长字段保留空隙。
 

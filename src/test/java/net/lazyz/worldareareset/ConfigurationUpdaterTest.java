@@ -553,13 +553,51 @@ class ConfigurationUpdaterTest {
                 "defaults/config.zh_CN.yml");
         for (String bundledFile : bundledFiles) {
             YamlConfiguration configuration = loadWithComments(Path.of(bundledFile));
-            assertEquals(23, configuration.getInt("config_version"), bundledFile);
+            assertEquals(24, configuration.getInt("config_version"), bundledFile);
             assertFalse(configuration.contains("formatting", true), bundledFile);
             assertFalse(configuration.contains("inline-replacements", true), bundledFile);
             assertFalse(configuration.contains("messages.en_US", true), bundledFile);
             assertFalse(configuration.contains("messages.zh_CN", true), bundledFile);
             assertTrue(configuration.isString("messages.reload_success"), bundledFile);
         }
+    }
+
+    @Test
+    void splitsThePreviousHelpMetadataRowDuringFormat24Migration() throws Exception {
+        Path configFile = temporaryDirectory.resolve("config.yml");
+        Files.writeString(configFile, """
+                config_version: 23
+                language: en_US
+                messages:
+                  help_menu_player:
+                    - "divider"
+                    - "<#FF69B4><bold>Plugin name: {name} | Author: {author} | Version: {version}</bold>"
+                    - "commands"
+                """, StandardCharsets.UTF_8);
+        String defaults = """
+                config_version: 24
+                language: en_US
+                messages:
+                  help_menu_player:
+                    - "divider"
+                    - "<#FF69B4><bold>Plugin name: {name}</bold>"
+                    - "<#D7C7FF><bold>Author: {author}</bold>"
+                    - "<#D7C7FF><bold>Version: {version}</bold>"
+                    - "commands"
+                """;
+
+        ConfigurationUpdater.UpdateResult result = ConfigurationUpdater.mergeMissingValues(
+                configFile, new StringReader(defaults), "config_version", "1.14.1", false);
+
+        assertTrue(result.changed());
+        YamlConfiguration updated = loadWithComments(configFile);
+        assertEquals(List.of("divider",
+                        "<#FF69B4><bold>Plugin name: {name}</bold>",
+                        "<#D7C7FF><bold>Author: {author}</bold>",
+                        "<#D7C7FF><bold>Version: {version}</bold>",
+                        "commands"),
+                updated.getStringList("messages.help_menu_player"));
+        assertEquals(24, updated.getInt("config_version"));
     }
 
     private YamlConfiguration loadWithComments(Path file) throws Exception {

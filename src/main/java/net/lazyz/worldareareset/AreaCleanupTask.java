@@ -169,27 +169,41 @@ public class AreaCleanupTask {
         }
         long remainingMillis = Math.max(0L, nextRunAtMillis - System.currentTimeMillis());
         long seconds = Math.max(1L, ceilSeconds(remainingMillis));
-        long amount = switch (unit) {
-            case "days" -> Math.max(1L, (seconds + 86_399L) / 86_400L);
-            case "hours" -> Math.max(1L, (seconds + 3_599L) / 3_600L);
-            case "minutes" -> Math.max(1L, (seconds + 59L) / 60L);
-            default -> seconds;
-        };
-        if (chinese) {
-            return amount + switch (unit) {
-                case "days" -> "天";
-                case "hours" -> "小时";
-                case "minutes" -> "分钟";
-                default -> "秒";
-            };
+        return formatDuration(seconds, unit, chinese);
+    }
+
+    static String formatDuration(long seconds, String unit, boolean chinese) {
+        seconds = Math.max(0L, seconds);
+        long days = seconds / 86_400L;
+        long hours = "days".equals(unit) ? (seconds % 86_400L) / 3_600L : seconds / 3_600L;
+        long minutes = "minutes".equals(unit) ? seconds / 60L : (seconds % 3_600L) / 60L;
+        long remainingSeconds = seconds % 60L;
+
+        StringBuilder result = new StringBuilder();
+        if ("days".equals(unit) && days > 0L) {
+            appendDurationPart(result, days, chinese, "天", "day", "days");
         }
-        String label = switch (unit) {
-            case "days" -> amount == 1 ? "day" : "days";
-            case "hours" -> amount == 1 ? "hour" : "hours";
-            case "minutes" -> amount == 1 ? "minute" : "minutes";
-            default -> amount == 1 ? "second" : "seconds";
-        };
-        return amount + " " + label;
+        if (("days".equals(unit) || "hours".equals(unit)) && hours > 0L) {
+            appendDurationPart(result, hours, chinese, "小时", "hour", "hours");
+        }
+        if (("days".equals(unit) || "hours".equals(unit) || "minutes".equals(unit))
+                && minutes > 0L) {
+            appendDurationPart(result, minutes, chinese, "分钟", "minute", "minutes");
+        }
+        appendDurationPart(result, remainingSeconds, chinese, "秒", "second", "seconds");
+        return result.toString();
+    }
+
+    private static void appendDurationPart(StringBuilder result, long value, boolean chinese,
+                                           String chineseLabel, String singularLabel, String pluralLabel) {
+        if (result.length() > 0 && !chinese) {
+            result.append(' ');
+        }
+        if (chinese) {
+            result.append(value).append(chineseLabel);
+        } else {
+            result.append(value).append(' ').append(value == 1L ? singularLabel : pluralLabel);
+        }
     }
 
     private long ceilSeconds(long milliseconds) {

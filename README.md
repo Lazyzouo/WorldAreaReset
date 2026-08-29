@@ -34,7 +34,7 @@ A Paper/Folia terrain-maintenance plugin designed for administrator-defined free
 - Restore writes reuse one current-state snapshot per target chunk and run in scheduled Folia Region batches; online-player worlds use a smaller packet-safe budget.
 - Optional template filters can leave liquids or selected Bukkit Material blocks unchanged with `recreate.ignore_liquids` and `recreate.ignore_blocks`.
 - Cleanup and restoration each have their own world list, bounds, countdown, timer, and notification.
-- One release JAR (`WorldAreaReset-1.14.0.jar`) with English defaults, a Chinese configuration template, and built-in language support.
+- One release JAR (`WorldAreaReset-1.14.1.jar`) with English defaults, a Chinese configuration template, and built-in language support.
 - Startup GitHub Release checks with optional automatic JAR download.
 - Localized, color-coded latest-version, update-success, and update-failure console notices.
 - A wider, fully enclosed startup banner with a language-specific PvP terrain-maintenance subtitle and dashed title separator; banner rows are prefix-free while updater notices use the purple/red plugin prefix and distinct status colors.
@@ -49,11 +49,11 @@ A Paper/Folia terrain-maintenance plugin designed for administrator-defined free
 | Java | 21 or newer |
 | Permission | `worldareareset.admin` for administrator commands |
 
-WorldAreaReset 1.14.0 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
+WorldAreaReset 1.14.1 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
 
 ## Install
 
-1. Download `WorldAreaReset-1.14.0.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest). It starts with English defaults; set `language: "zh_CN"` to apply the Simplified Chinese configuration template.
+1. Download `WorldAreaReset-1.14.1.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest). It starts with English defaults; set `language: "zh_CN"` to apply the Simplified Chinese configuration template.
 2. Place it in the server's `plugins` directory.
 3. Start the server once.
 4. Review `plugins/WorldAreaReset/config.yml` and make a world backup.
@@ -110,7 +110,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-The first newly created `config.yml` contains copy-ready world modules for cleanup and hot restoration. A recreate module with an empty `regions` list restores every chunk actually stored in that world's template region files; this scope does not depend on loaded chunks or online players. Existing world, bounds, and global-region fields are migrated once into the module list when upgrading to configuration format 15. Format 18 adds cleanup interval units, format 22 migrates legacy message formatting, and format 23 flattens the selected language, removes retired formatting/replacement settings, and applies the fixed KitLoader palette and `✧` divider. Use explicit regions when only part of a template should be restored.
+The first newly created `config.yml` contains copy-ready world modules for cleanup and hot restoration. A recreate module with an empty `regions` list restores every chunk actually stored in that world's template region files; this scope does not depend on loaded chunks or online players. Existing world, bounds, and global-region fields are migrated once into the module list when upgrading to configuration format 15. Format 18 adds cleanup interval units, format 22 migrates legacy message formatting, format 23 flattens the selected language and removes retired formatting/replacement settings, and format 24 updates the help metadata layout. Use explicit regions when only part of a template should be restored.
 
 ## Language
 
@@ -128,13 +128,13 @@ language: "zh_CN"
 
 Messages accept MiniMessage tags such as `<#RRGGBB>`, `<gradient:...>`, `<bold>`, `<italic>`, `<underlined>`, `<strikethrough>`, `<obfuscated>`, `<reset>`, and `<br>`; existing `&` color codes remain compatible.
 
-The help menus expose `{cleanup_remaining}` and `{recreate_remaining}` as live countdowns in the configured minutes, hours, or days unit. Each row is shown only while its corresponding `cleanup.enabled` or `recreate.enabled` setting is true.
+The help menus expose `{cleanup_remaining}` and `{recreate_remaining}` as live countdowns with seconds, using the configured minutes, hours, or days as the largest unit. The rows remain visible when a schedule is disabled and show `not scheduled` (or `未排程`) until that schedule is enabled.
 
 Language files are no longer generated. Each release has exactly one uploaded plugin asset: `WorldAreaReset-<version>.jar`, containing the English default configuration and the Chinese configuration template; the active language is stored directly in `config.yml`.
 
 Release filenames always follow `WorldAreaReset-<version>.jar`. CI and the Release workflow publish the exact file produced in `build/libs/` without renaming, relabeling, or adding other JAR assets.
 
-The official templates keep one flat `messages` section containing only the selected language. Server-specific cleanup parameters retain safe official presets. Legacy nested language sections, `formatting`, `inline-replacements`, and root `gradient-colors` are removed during format 23 migration. Ordinary messages use the fixed KitLoader gradient, with the documented banner, severity, and help-heading color exceptions.
+The official templates keep one flat `messages` section containing only the selected language. Server-specific cleanup parameters retain safe official presets. Legacy nested language sections, `formatting`, `inline-replacements`, and root `gradient-colors` are removed during format 23 migration. Ordinary messages use the fixed KitLoader gradient, with the documented banner, severity, and help-heading color exceptions; console updater notices use only their single severity color and never a gradient.
 
 Player-facing text is forced bold and left aligned at runtime without rewriting configured message text or colors. Leading spaces are removed independently from every line while leading legacy and hex formatting codes are preserved. Help menus, command feedback, countdown warnings, cleanup broadcasts, and completion messages use the same alignment and fixed KitLoader five-color gradient. In prefixed multiline messages, content rows keep the configured plugin prefix while decorative divider rows render without it, preventing the divider from wrapping. Every divider uses the KitLoader-style `✧` format; divider rows remain decorative and are not centering anchors.
 
@@ -144,7 +144,7 @@ The top of every bundled configuration uses the exact 103-column ASCII layout. T
 
 Administrators no longer need to delete `plugins/WorldAreaReset/config.yml` after an update. During startup or `/war reload`, WorldAreaReset recreates a missing file from bundled defaults, then parses the configuration and adds only missing paths. Existing values, custom messages, unknown extension keys, explicit `false` values, empty lists, comments, and the selected language are preserved. A reload error keeps the current plugin state running; startup stops safely when the configuration is invalid. Legacy generated language files are removed automatically.
 
-When the main `config.yml` changes, it is copied first to `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`, then written through a same-directory temporary file and atomically replaced. `config_version` is updated only after a compatible merge. Malformed YAML, parent/child structure conflicts, or incompatible value types are never overwritten. Unknown custom keys remain intact; format 23 also removes legacy language files and retired formatting/replacement settings.
+When the main `config.yml` changes, it is copied first to `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`, then written through a same-directory temporary file and atomically replaced. `config_version` is updated only after a compatible merge. Malformed YAML, parent/child structure conflicts, or incompatible value types are never overwritten. Unknown custom keys remain intact; format 23 also removes legacy language files and retired formatting/replacement settings, while format 24 splits the official help metadata row into separate plugin name, author, and version rows.
 
 ## Commands
 
@@ -217,7 +217,7 @@ WorldAreaReset does not define PvP zones or control combat permissions. Configur
 ./gradlew clean build
 ```
 
-`WorldAreaReset-1.14.0.jar` is written to `build/libs/`. The build verifies that its packaged English `config.yml` and Chinese `config-zh_CN.yml` match the official source configurations.
+`WorldAreaReset-1.14.1.jar` is written to `build/libs/`. The build verifies that its packaged English `config.yml` and Chinese `config-zh_CN.yml` match the official source configurations.
 
 ## Documentation and community
 
@@ -252,7 +252,7 @@ WorldAreaReset 是一款面向 Paper/Folia 服务器、专为管理员指定的�
 - 支持 MiniMessage/Hex/渐变消息解析；五色调色板仅用于明确写入渐变标签的文本，并兼容旧 Legacy 色码。
 - 所有插件游戏内文本均以粗体、左对齐显示；运行时会移除配置中的行首缩进，并让装饰分割线不显示插件前缀，以保留完整宽度。
 - 包含边界的 X/Y/Z 长方体范围与材质白名单。
-- 单个通用发布包 (`WorldAreaReset-1.14.0.jar`) 内置英文默认配置和中文配置模板，运行时只保留当前语言。
+- 单个通用发布包 (`WorldAreaReset-1.14.1.jar`) 内置英文默认配置和中文配置模板，运行时只保留当前语言。
 - 可从 `templates/<世界名>/region/` 外部模板执行地形热恢复，支持多个世界、指定区域或模板中实际存在的全部区块；目标区块会异步加载，因此世界内没有玩家时也能恢复，并保护配置的玩家周围方块半径。
 - 稀疏或分层模板会融合恢复：模板明确保存的方块状态（包含空气）会写入，模板未保存的 section 会保留目标地形。
 - 恢复写入会合并同一区块内的多个配置区域，复用一次当前状态快照，并通过 Folia Region 分批调度；在线玩家世界自动使用更小的数据包安全批次。
@@ -265,11 +265,11 @@ WorldAreaReset 是一款面向 Paper/Folia 服务器、专为管理员指定的�
 
 ## 版本限制
 
-WorldAreaReset 1.14.0 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
+WorldAreaReset 1.14.1 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
 
 ## 安装
 
-1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.14.0.jar`。默认使用英文；将 `language` 设为 `zh_CN` 后重载即可应用简体中文配置模板。
+1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.14.1.jar`。默认使用英文；将 `language` 设为 `zh_CN` 后重载即可应用简体中文配置模板。
 2. 放入服务器 `plugins` 目录。
 3. 启动一次服务器。
 4. 检查 `plugins/WorldAreaReset/config.yml` 并备份世界。
@@ -326,7 +326,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-首次新建的 `config.yml` 会直接包含 cleanup 与 recreate 的可复制世界模块。recreate 世界模块的 `regions` 留空时，按模板 region 文件中实际存在的区块恢复，不依赖当前已加载区块或在线玩家；只需恢复模板的一部分时请填写明确区域。升级到配置格式 15 时，旧世界、边界和全局区域字段会一次性迁移为模块列表，格式 18 增加清理周期单位参数，格式 22 迁移旧消息格式；格式 23 将当前语言消息扁平化、移除旧的 formatting 与 inline-replacements 设置，并统一使用 KitLoader 五色渐变和 `✧` 分割线。
+首次新建的 `config.yml` 会直接包含 cleanup 与 recreate 的可复制世界模块。recreate 世界模块的 `regions` 留空时，按模板 region 文件中实际存在的区块恢复，不依赖当前已加载区块或在线玩家；只需恢复模板的一部分时请填写明确区域。升级到配置格式 15 时，旧世界、边界和全局区域字段会一次性迁移为模块列表，格式 18 增加清理周期单位参数，格式 22 迁移旧消息格式；格式 23 将当前语言消息扁平化并移除旧的 formatting 与 inline-replacements 设置，格式 24 将帮助菜单元数据拆分为名称、作者和版本三行。
 
 ## 语言切换
 
@@ -334,7 +334,7 @@ recreate:
 
 所有默认消息统一使用 KitLoader 五色渐变 `#FFB7D5`、`#D7C7FF`、`#B9E7FF`、`#D7C7FF`、`#FFB7D5` 和 `✧` 分割线。消息支持 `<#RRGGBB>`、`<gradient:...>`、`<bold>`、`<italic>`、`<underlined>`、`<strikethrough>`、`<obfuscated>`、`<reset>` 和 `<br>`，旧版 `&` 色码仍可使用。
 
-帮助菜单中的 `{cleanup_remaining}` 与 `{recreate_remaining}` 会按配置的分钟、小时或天显示距离下次自动清理或热恢复的实时倒计时；只有对应的 `cleanup.enabled` 或 `recreate.enabled` 开启时才显示该行。
+帮助菜单中的 `{cleanup_remaining}` 与 `{recreate_remaining}` 会按配置的分钟、小时或天作为最大单位，并精确显示到秒；对应计划关闭时仍保留状态行并显示“未排程”。
 
 所有游戏内文本都会在运行时强制显示为粗体并统一左对齐，不会改写配置中的消息文本或颜色。每一行的行首空格都会被移除，同时保留行首旧式颜色码与十六进制颜色码。帮助菜单、指令反馈、清理倒计时、清理广播和完成消息均使用相同对齐规则；带前缀的多行消息仅在正文行显示已配置的插件前缀，装饰分割线不显示前缀，从而避免分割线折行。所有分割线统一使用与 Kitloader 相同的可见文本 `---------------- ✧ ----------------`（两侧各 16 个连字符），分割线仍仅用于装饰，不作为居中基准。每个内置配置顶部均采用精确的 103 列 ASCII 版式，品牌包含在多行符号拼凑图案中，不再添加独立的普通品牌行。
 
@@ -342,7 +342,7 @@ recreate:
 
 更新后不再需要删除 `plugins/WorldAreaReset/config.yml`。服务器启动或执行 `/war reload` 时，如果文件缺失，插件会先从内置默认值恢复，再解析配置并补充缺失路径；格式 23 会把旧的双语消息、`formatting`、`inline-replacements` 和 root `gradient-colors` 清理并写入当前语言的扁平消息，同时统一 KitLoader 五色渐变和 `✧` 分割线。其他已有参数、未知扩展键、明确设置的 `false`、注释及语言选择都会保留。
 
-主 `config.yml` 需要更新时，会先备份到 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件并原子替换正式文件。只有兼容合并成功后才更新 `config_version`；YAML 损坏或结构冲突时不会覆盖原文件。未知自定义键会保留，格式 23 会移除旧语言文件和已废弃的显示设置。
+主 `config.yml` 需要更新时，会先备份到 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件并原子替换正式文件。只有兼容合并成功后才更新 `config_version`；YAML 损坏或结构冲突时不会覆盖原文件。未知自定义键会保留，格式 23 会移除旧语言文件和已废弃的显示设置，格式 24 会拆分官方帮助菜单元数据行。
 
 ## 自动更新
 

@@ -7,14 +7,14 @@
 #                                                                        |__/                |__/     #
 #                                                                                                     #
 # =================================================================================================== #
-# Author: Lazyz | Version: 1.14.0
+# Author: Lazyz | Version: 1.14.1
 # Feedback: https://github.com/Lazyzouo/WorldAreaReset/issues
 # This plugin uses Hex color codes. Color code lookup: https://htmlcolorcodes.com/color-picker/
 # Format: <#RRGGBB>color, <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5>text</gradient>
 #        <bold>bold</bold>, <italic>italic</italic>, <underlined>underline</underlined>,
 #        <strikethrough>strike</strikethrough>, <obfuscated>obfuscated</obfuscated>, <br>line break
 # After editing this file, run /war reload in game to reload all config.
-config_version: 23
+config_version: 24
 # Message language. Allowed values: zh_CN, en_US. Default: en_US.
 language: "en_US"
 # Language most recently applied to runtime configuration. Change language only; do not edit language-applied manually. Reload or restart after changing language.
@@ -128,7 +128,9 @@ messages:
     <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
   help_menu_player:
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
-    - "<#FF69B4><bold>Plugin name: {name} | Author: {author} | Version: {version}</bold>"
+    - "<#FF69B4><bold>Plugin name: {name}</bold>"
+    - "<#D7C7FF><bold>Author: {author}</bold>"
+    - "<#D7C7FF><bold>Version: {version}</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
     - "<#FF69B4><bold>- Player commands</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  /war help - Open this help menu</bold></gradient>"
@@ -140,7 +142,9 @@ messages:
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
   help_menu_admin:
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
-    - "<#FF69B4><bold>Plugin name: {name} | Author: {author} | Version: {version}</bold>"
+    - "<#FF69B4><bold>Plugin name: {name}</bold>"
+    - "<#D7C7FF><bold>Author: {author}</bold>"
+    - "<#D7C7FF><bold>Version: {version}</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
     - "<#FF69B4><bold>- Player commands</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  /war help - Open this help menu</bold></gradient>"

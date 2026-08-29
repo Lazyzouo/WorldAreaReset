@@ -343,9 +343,9 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     void logLocalized(String key, String fallback, String... replacements) {
         String statusColor = switch (key) {
             case "updater.checking" -> "<#D7C7FF>";
-            case "updater.latest", "updater.downloaded" -> "<#55FF55>";
-            case "updater.available", "updater.manual_download" -> "<#FFFF55><bold>";
-            case "updater.failed" -> "<#FF5555><bold>";
+            case "updater.latest", "updater.downloaded" -> "<#B9E7FF>";
+            case "updater.available", "updater.manual_download" -> "<#FFB7D5><bold>";
+            case "updater.failed" -> "<#E62028><bold>";
             default -> "<#B9E7FF>";
         };
         String body = PlainTextComponentSerializer.plainText().serialize(
@@ -393,42 +393,24 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         String recreateUnit = cleanupTask.recreateIntervalUnitDescription(chinese);
         String recreateRemaining = cleanupTask.recreateRemainingDescription(chinese);
         int recreateCountdown = Math.max(0, getConfig().getInt("recreate.countdown_seconds", 10));
-        boolean cleanupEnabled = getConfig().getBoolean("cleanup.enabled", false);
-        boolean recreateEnabled = getConfig().getBoolean("recreate.enabled", false);
-        boolean showSchedule = cleanupEnabled || recreateEnabled;
         boolean hasCleanupHelp = helpMenu.stream().anyMatch(line -> line.contains("/war cleanup"));
         boolean hasRecreateHelp = helpMenu.stream().anyMatch(line -> line.contains("/war recreate"));
         for (String line : helpMenu) {
             if (line == null || line.isBlank()) {
                 continue;
             }
-            if ((!cleanupEnabled && (line.contains("{cleanup_") || line.contains("{interval}")))
-                    || (!recreateEnabled && line.contains("{recreate_"))) {
-                continue;
-            }
-            if (!showSchedule && isScheduleHelpLine(line)) {
-                continue;
-            }
-            if (chinese && line.contains("/war recreate")
-                    && (line.contains("Run ") || line.contains("hot restoration"))) {
-                line = "  <#FFFFFF><bold>/war recreate <#34495E><bold>- <#95A5A6><bold>执行地形热恢复并重置热恢复计时器";
-            }
-            if (chinese && line.contains("/war cleanup")
-                    && (line.contains("Run ") || line.contains("cleanup"))) {
-                line = "  <#FFFFFF><bold>/war cleanup <#34495E><bold>- <#95A5A6><bold>立即清理地形并重置清理计时器";
-            }
             if (isAdmin && !hasCleanupHelp && line.contains("/war reload")) {
                 String fallback = chinese
-                        ? "  <#FFFFFF><bold>/war cleanup <#34495E><bold>- <#95A5A6><bold>立即清理地形并重置清理计时器"
-                        : "  <#FFFFFF><bold>/war cleanup <#34495E><bold>- <#95A5A6><bold>Run cleanup and reset the cleanup timer";
+                        ? "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war cleanup - 立即清理地形并重置自动倒计时</gradient>"
+                        : "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war cleanup - Run cleanup and reset the automatic timer</gradient>";
                 sendHelpLine(sender, fallback,
                         pluginName, pluginVersion, author, cleanupInterval, cleanupIntervalUnit, cleanupRemaining,
                         cleanupCountdown, recreateInterval, recreateUnit, recreateRemaining, recreateCountdown);
             }
             if (isAdmin && !hasRecreateHelp && line.contains("/war reload")) {
                 String fallback = chinese
-                        ? "  <#FFFFFF><bold>/war recreate <#34495E><bold>- <#95A5A6><bold>执行地形热恢复并重置热恢复计时器"
-                        : "  <#FFFFFF><bold>/war recreate <#34495E><bold>- <#95A5A6><bold>Run hot restoration and reset the recreate timer";
+                        ? "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war recreate - 执行地形热恢复并重置自动倒计时</gradient>"
+                        : "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war recreate - Run hot restoration and reset the automatic timer</gradient>";
                 sendHelpLine(sender, fallback,
                         pluginName, pluginVersion, author, cleanupInterval, cleanupIntervalUnit, cleanupRemaining,
                         cleanupCountdown, recreateInterval, recreateUnit, recreateRemaining, recreateCountdown);
@@ -436,14 +418,6 @@ public class WorldAreaResetPlugin extends JavaPlugin {
             sendHelpLine(sender, line, pluginName, pluginVersion, author, cleanupInterval, cleanupIntervalUnit, cleanupRemaining,
                     cleanupCountdown, recreateInterval, recreateUnit, recreateRemaining, recreateCountdown);
         }
-    }
-
-    private boolean isScheduleHelpLine(String line) {
-        return line.contains("{cleanup_interval}")
-                || line.contains("{recreate_interval}")
-                || line.contains("{interval}")
-                || line.contains("当前运行状态")
-                || line.contains("Current schedule");
     }
 
     private void sendHelpLine(CommandSender sender, String line, String pluginName, String pluginVersion,
@@ -533,7 +507,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         String started = languageManager.code().equalsIgnoreCase("zh_CN")
                 ? "WorldAreaReset v" + version + " 作者 " + author + " 已在 Paper/Folia 核心上成功启动。"
                 : "WorldAreaReset v" + version + " by " + author + " started successfully on Paper/Folia.";
-        started = "<#55FF55><bold>" + started + "</bold>";
+        started = "<#B9E7FF><bold>" + started + "</bold>";
         logConsole(started);
     }
 

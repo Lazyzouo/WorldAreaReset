@@ -7,14 +7,14 @@
 #                                                                        |__/                |__/     #
 #                                                                                                     #
 # =================================================================================================== #
-# 插件作者: Lazyz | 插件版本: 1.14.0
+# 插件作者: Lazyz | 插件版本: 1.14.1
 # 问题反馈: https://github.com/Lazyzouo/WorldAreaReset/issues
 # 本插件使用的是Hex颜色代码，颜色代码查询: https://htmlcolorcodes.com/color-picker/
 # 格式: <#RRGGBB>颜色，<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5>文本</gradient>
 #       <bold>加粗</bold>，<italic>斜体</italic>，<underlined>下划线</underlined>，
 #       <strikethrough>删除线</strikethrough>，<obfuscated>随机字符</obfuscated>，<br>换行
 # 修改本文件后，可在游戏内使用 /war reload 指令热重载所有配置。
-config_version: 23
+config_version: 24
 # 消息语言。可选值：zh_CN、en_US。默认值：zh_CN。
 language: "zh_CN"
 # 最近一次已应用到运行时配置的语言。只修改 language，不要手动修改 language-applied；修改后执行 /war reload 或重启。
@@ -122,7 +122,9 @@ messages:
     <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
   help_menu_player:
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
-    - "<#FF69B4><bold>插件名称：{name} | 作者：{author} | 版本：{version}</bold>"
+    - "<#FF69B4><bold>插件名称：{name}</bold>"
+    - "<#D7C7FF><bold>作者：{author}</bold>"
+    - "<#D7C7FF><bold>版本：{version}</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
     - "<#FF69B4><bold>- 玩家可用指令</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war help - 打开帮助菜单</bold></gradient>"
@@ -134,7 +136,9 @@ messages:
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
   help_menu_admin:
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
-    - "<#FF69B4><bold>插件名称：{name} | 作者：{author} | 版本：{version}</bold>"
+    - "<#FF69B4><bold>插件名称：{name}</bold>"
+    - "<#D7C7FF><bold>作者：{author}</bold>"
+    - "<#D7C7FF><bold>版本：{version}</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
     - "<#FF69B4><bold>- 玩家可用指令</bold>"
     - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war help - 打开帮助菜单</bold></gradient>"

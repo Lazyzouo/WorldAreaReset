@@ -31,6 +31,7 @@ final class ConfigurationUpdater {
     private static final int CLEANUP_INTERVAL_CONFIG_VERSION = 18;
     private static final int VISUAL_CONFIG_VERSION = 22;
     private static final int FLAT_MESSAGES_CONFIG_VERSION = 23;
+    private static final int HELP_LAYOUT_CONFIG_VERSION = 24;
     private static final String STANDARD_DIVIDER =
             "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------"
                     + "<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------"
@@ -80,6 +81,7 @@ final class ConfigurationUpdater {
         migratedKeys += migrateKnownLegacyMessages(current, defaults);
         migratedKeys += migrateLegacyDividers(current);
         migratedKeys += migrateLegacyMessageFormatting(current, defaults, versionPath, oldVersion, targetVersion);
+        migratedKeys += migrateHelpMenuLayout(current, defaults, versionPath, oldVersion, targetVersion);
         migratedKeys += refreshOfficialHeader(current, defaults, versionPath, oldVersion, targetVersion,
                 refreshComments);
         if (refreshComments) {
@@ -366,6 +368,58 @@ final class ConfigurationUpdater {
                     "finish_cleanup", "finish_restore", "help_menu_player", "help_menu_admin", "updater" -> true;
             default -> false;
         };
+    }
+
+    /** Split the 1.14.0 help metadata row into the three KitLoader-style rows. */
+    private static int migrateHelpMenuLayout(YamlConfiguration current, YamlConfiguration defaults,
+                                             String versionPath, int currentVersion, int targetVersion) {
+        if (versionPath == null || targetVersion < HELP_LAYOUT_CONFIG_VERSION
+                || currentVersion >= HELP_LAYOUT_CONFIG_VERSION) {
+            return 0;
+        }
+
+        int changed = 0;
+        for (String menuKey : List.of("help_menu_player", "help_menu_admin")) {
+            String path = "messages." + menuKey;
+            List<String> currentMenu = current.getStringList(path);
+            List<String> defaultMenu = defaults.getStringList(path);
+            List<String> metadataRows = defaultMenu.stream()
+                    .filter(ConfigurationUpdater::isHelpMetadataRow)
+                    .toList();
+            if (currentMenu.isEmpty() || metadataRows.size() < 2) {
+                continue;
+            }
+
+            List<Object> migrated = new ArrayList<>();
+            boolean replaced = false;
+            for (String row : currentMenu) {
+                if (!replaced && isLegacyHelpMetadataRow(row)) {
+                    migrated.addAll(metadataRows);
+                    replaced = true;
+                } else {
+                    migrated.add(row);
+                }
+            }
+            if (replaced) {
+                current.set(path, migrated);
+                copyComments(current, defaults, path);
+                changed++;
+            }
+        }
+        return changed;
+    }
+
+    private static boolean isHelpMetadataRow(String row) {
+        return row != null && (row.contains("{name}") || row.contains("{author}") || row.contains("{version}"));
+    }
+
+    private static boolean isLegacyHelpMetadataRow(String row) {
+        if (row == null) {
+            return false;
+        }
+        String plain = row.replaceAll("<[^>]*>", "").trim().replaceAll("\\s+", " ");
+        return plain.equals("Plugin name: {name} | Author: {author} | Version: {version}")
+                || plain.equals("插件名称：{name} | 作者：{author} | 版本：{version}");
     }
 
     private static String legacyToMiniMessage(String text) {
