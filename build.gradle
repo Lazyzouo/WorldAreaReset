@@ -1,0 +1,100 @@
+plugins {
+    id 'java'
+}
+
+def pluginName = 'WorldAreaReset'
+def pluginVersion = '1.14.0'
+def pluginAuthor = 'Lazyz'
+
+group = 'net.lazyz'
+version = pluginVersion
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'papermc-repo'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+}
+
+dependencies {
+    compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
+    testImplementation 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.13.4'
+}
+
+def targetJavaVersion = 21
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+processResources {
+    def props = [
+            'pluginName': pluginName,
+            'pluginVersion': pluginVersion,
+            'pluginAuthor': pluginAuthor
+    ]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+def releaseJar = tasks.register('releaseJar', Jar) {
+    archiveFileName = "${pluginName}-${pluginVersion}.jar"
+    from(sourceSets.main.output) {
+        exclude 'config.yml'
+        exclude 'config-en_US.yml'
+        exclude 'config-zh_CN.yml'
+    }
+    from('src/main/resources/config-en_US.yml') {
+        rename { 'config.yml' }
+    }
+    from('src/main/resources/config.yml') {
+        rename { 'config-zh_CN.yml' }
+    }
+}
+
+tasks.register('verifyReleaseJar') {
+    dependsOn releaseJar
+    doLast {
+        def jarFile = releaseJar.get().archiveFile.get().asFile
+        def expectedConfig = file('src/main/resources/config-en_US.yml')
+        def packagedConfig = zipTree(jarFile).matching { include 'config.yml' }.singleFile
+        if (!Arrays.equals(packagedConfig.bytes, expectedConfig.bytes)) {
+            throw new GradleException("${jarFile.name} does not contain the unchanged official ${expectedConfig.name}")
+        }
+        def expectedChineseConfig = file('src/main/resources/config.yml')
+        def packagedChineseConfig = zipTree(jarFile).matching { include 'config-zh_CN.yml' }.singleFile
+        if (!Arrays.equals(packagedChineseConfig.bytes, expectedChineseConfig.bytes)) {
+            throw new GradleException("${jarFile.name} does not contain the unchanged official ${expectedChineseConfig.name}")
+        }
+    }
+}
+
+tasks.named('assemble') {
+    dependsOn releaseJar
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('verifyReleaseJar')
+}

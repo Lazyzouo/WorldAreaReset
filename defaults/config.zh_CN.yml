@@ -1,0 +1,158 @@
+# =================================================================================================== #
+#                                                                                                     #
+#  __      __       _    _   _                ___             _     _           _                     #
+#  \ \    / /__ _ _| |__| | /_\  _ _ ___ __ _| _ \___ ___ ___| |_  | |__ _  _  | |   __ _ ____  _ ___ #
+#   \ \/\/ / _ \ '_| / _` |/ _ \| '_/ -_) _` |   / -_|_-</ -_)  _| | '_ \ || | | |__/ _` |_ / || |_ / #
+#    \_/\_/\___/_| |_\__,_/_/ \_\_| \___\__,_|_|_\___/__/\___|\__| |_.__/\_, | |____\__,_/__|\_, /__| #
+#                                                                        |__/                |__/     #
+#                                                                                                     #
+# =================================================================================================== #
+# 插件作者: Lazyz | 插件版本: 1.14.0
+# 问题反馈: https://github.com/Lazyzouo/WorldAreaReset/issues
+# 本插件使用的是Hex颜色代码，颜色代码查询: https://htmlcolorcodes.com/color-picker/
+# 格式: <#RRGGBB>颜色，<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5>文本</gradient>
+#       <bold>加粗</bold>，<italic>斜体</italic>，<underlined>下划线</underlined>，
+#       <strikethrough>删除线</strikethrough>，<obfuscated>随机字符</obfuscated>，<br>换行
+# 修改本文件后，可在游戏内使用 /war reload 指令热重载所有配置。
+config_version: 23
+# 消息语言。可选值：zh_CN、en_US。默认值：zh_CN。
+language: "zh_CN"
+# 最近一次已应用到运行时配置的语言。只修改 language，不要手动修改 language-applied；修改后执行 /war reload 或重启。
+language-applied: "zh_CN"
+
+cleanup:
+  # 普通清理设置。确认所有世界与区域前请保持关闭。
+  enabled: false
+  # 自动清理周期数值；最小为 1。手动 /war cleanup 不受此开关限制。
+  interval: 3
+  # 周期单位，只能使用 minutes（分钟）、hours（小时）或 days（天）。
+  interval_unit: "hours"
+  # 自动清理和手动清理开始前的警告倒计时，单位秒。
+  countdown_seconds: 10
+  # 一个列表统一控制全部清理世界及各自的包含边界长方体区域。
+  # 单世界只保留一个模块；多世界或多区域时按相同格式继续添加。
+  worlds:
+    - name: "world_nether"
+      regions:
+        - {min_x: -200, max_x: 200, min_y: 0, max_y: 128, min_z: -200, max_z: 200}
+  # 清理时保留的方块材质名称；其余非空气方块会被清除。
+  keep_blocks:
+    - BEDROCK
+    - BARRIER
+  # 保护每名玩家周围的球形方块半径；2 表示保护半径 2 格。
+  player_protection_radius: 2
+
+recreate:
+  # 地形热恢复设置。模板必须放在 templates/<世界名>/region/。
+  # 例如：templates/arena_world/region/r.0.0.mca；文件夹名就是目标世界名。
+  # 目标世界必须已加载，模板可以来自服务器原生生成的另一个世界。
+  # 首次使用建议保持 enabled: false，先用 /war recreate 测试小区域。
+  enabled: false
+  # 自动热恢复周期数值；最小为 1。
+  interval: 3
+  # 周期单位，只能使用 hours（小时）或 days（天）。
+  interval_unit: "hours"
+  # 热恢复开始前的警告倒计时，单位秒。
+  countdown_seconds: 10
+  # 保护每名玩家周围的球形方块半径；0 表示不保护，建议使用 2。
+  player_protection_radius: 2
+  # 每个 Region tick 的最大恢复方块数；在线玩家世界会自动限制为更低的安全批次。
+  # 数值越小越平滑，数值越大恢复越快但会产生更多区块更新数据包。
+  blocks_per_tick: 4096
+  # 是否忽略模板中的水、岩浆和气泡柱；true 时保留目标世界原有液体方块。
+  ignore_liquids: false
+  # 忽略模板中的指定 Bukkit Material 方块；被忽略的位置保留目标世界原方块。
+  ignore_blocks: []
+  # 一个列表统一控制所有热恢复世界与各自区域。name 必须同时匹配已加载世界及
+  # templates/<世界名>/region/；regions 留空时恢复模板中实际存在的全部区块，无需玩家在线。
+  worlds:
+    - name: "arena_world"
+      regions:
+        - {min_x: -4, max_x: 4, min_y: 0, max_y: 40, min_z: -4, max_z: 4}
+        - {min_x: -32, max_x: 32, min_y: 32, max_y: 40, min_z: -4, max_z: 4}
+    - name: "arena_nether"
+      regions:
+        - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
+
+updates:
+  # 启动时检查官方 GitHub Release。
+  enabled: true
+  auto_download: true
+  notify_latest: true
+
+# 可编辑中文消息。
+messages:
+  prefix: "<color:#8A2387><bold>[</bold><color:#E62028><bold>WorldAreaReset</bold></color><color:#8A2387><bold>]</bold></color> <color:#555555><bold>»</bold></color> <color:#B9E7FF>"
+  reload_success: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>操作成功：配置文件已重载，清理任务已重新启动！</bold></gradient>"
+  manual_cleanup_started: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>手动清理倒计时已启动，自动清理倒计时已重置为 {interval}。</bold></gradient>"
+  manual_recreate_started: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>手动地形热恢复倒计时已启动，自动任务计时器已重置为 {interval}。</bold></gradient>"
+  no_permission: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>权限不足：你没有权限执行此命令！</bold></gradient>"
+  wrong_usage: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>参数错误：未知的指令，请使用 /war help 查看帮助。</bold></gradient>"
+  start_cleanup: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>系统提示：正在执行区域清理，世界：{world}，请稍候...</bold></gradient>"
+  start_restore: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>系统提示：正在执行地形热恢复，世界：{world}，请稍候...</bold></gradient>"
+  warning: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>⚠ 地形清理警告 ⚠</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 清理世界：{world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 将在 {time} 秒后开始清理。</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  restore_warning: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>⚠ 地形热恢复警告 ⚠</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 恢复世界：{world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 将在 {time} 秒后开始恢复。</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  finish_cleanup: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>❖ 区域清理完成 ❖</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 清理世界：{world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 清理方块：{blocks} 个</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 清理实体：{entities} 个</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 总计耗时：{time} ms</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  finish_restore: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>❖ 地形热恢复完成 ❖</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 恢复世界：{world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 恢复方块：{blocks} 个</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 忽略模板方块：{ignored} 个</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 清理实体：{entities} 个</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 失败区块：{failed} 个</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>▪ 总计耗时：{time} ms</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  help_menu_player:
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>插件名称：{name} | 作者：{author} | 版本：{version}</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>- 玩家可用指令</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war help - 打开帮助菜单</bold></gradient>"
+    - "<#FF69B4><bold>当前运行状态</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>普通清理模式：{cleanup_interval} {cleanup_interval_unit}，警告倒计时 {cleanup_countdown} 秒</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>下次清理：{cleanup_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>热恢复模式：{recreate_interval} {recreate_interval_unit}，警告倒计时 {recreate_countdown} 秒</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>下次热恢复：{recreate_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+  help_menu_admin:
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>插件名称：{name} | 作者：{author} | 版本：{version}</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>- 玩家可用指令</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war help - 打开帮助菜单</bold></gradient>"
+    - "<#FF69B4><bold>- 管理员可用指令</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war cleanup - 立即清理地形并重置自动倒计时</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war recreate - 执行地形热恢复并重置自动倒计时</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war reload - 重载 config.yml 并重新排程</bold></gradient>"
+    - "<#FF69B4><bold>当前运行状态</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>普通清理模式：{cleanup_interval} {cleanup_interval_unit}，警告倒计时 {cleanup_countdown} 秒</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>下次清理：{cleanup_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>热恢复模式：{recreate_interval} {recreate_interval_unit}，警告倒计时 {recreate_countdown} 秒</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>下次热恢复：{recreate_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+  updater:
+    disabled: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>自动更新检查已关闭。</bold></gradient>"
+    checking: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>正在检查 WorldAreaReset 官方 GitHub 仓库更新...</bold></gradient>"
+    latest: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>WorldAreaReset {version} 已经是最新版本。</bold></gradient>"
+    available: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>发现新版本 WorldAreaReset {version}，当前版本为 {current}。</bold></gradient>"
+    manual_download: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>自动下载已关闭，请前往 {url} 手动下载。</bold></gradient>"
+    downloaded: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>WorldAreaReset {version} 已下载，将在下一次服务器重启时安装。</bold></gradient>"
+    failed: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>自动更新失败：{reason}。请前往 {url} 手动下载。</bold></gradient>"

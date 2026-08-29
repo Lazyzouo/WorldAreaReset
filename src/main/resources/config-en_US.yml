@@ -1,0 +1,164 @@
+# =================================================================================================== #
+#                                                                                                     #
+#  __      __       _    _   _                ___             _     _           _                     #
+#  \ \    / /__ _ _| |__| | /_\  _ _ ___ __ _| _ \___ ___ ___| |_  | |__ _  _  | |   __ _ ____  _ ___ #
+#   \ \/\/ / _ \ '_| / _` |/ _ \| '_/ -_) _` |   / -_|_-</ -_)  _| | '_ \ || | | |__/ _` |_ / || |_ / #
+#    \_/\_/\___/_| |_\__,_/_/ \_\_| \___\__,_|_|_\___/__/\___|\__| |_.__/\_, | |____\__,_/__|\_, /__| #
+#                                                                        |__/                |__/     #
+#                                                                                                     #
+# =================================================================================================== #
+# Author: Lazyz | Version: 1.14.0
+# Feedback: https://github.com/Lazyzouo/WorldAreaReset/issues
+# This plugin uses Hex color codes. Color code lookup: https://htmlcolorcodes.com/color-picker/
+# Format: <#RRGGBB>color, <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5>text</gradient>
+#        <bold>bold</bold>, <italic>italic</italic>, <underlined>underline</underlined>,
+#        <strikethrough>strike</strikethrough>, <obfuscated>obfuscated</obfuscated>, <br>line break
+# After editing this file, run /war reload in game to reload all config.
+config_version: 23
+# Message language. Allowed values: zh_CN, en_US. Default: en_US.
+language: "en_US"
+# Language most recently applied to runtime configuration. Change language only; do not edit language-applied manually. Reload or restart after changing language.
+language-applied: "en_US"
+
+cleanup:
+  # Ordinary cleanup settings. Keep disabled until every world and region is confirmed.
+  enabled: false
+  # Automatic cleanup period amount; minimum 1. Manual /war cleanup remains available.
+  interval: 3
+  # Interval unit: minutes, hours, or days.
+  interval_unit: "hours"
+  # Warning countdown before automatic or manual cleanup, in seconds.
+  countdown_seconds: 10
+  # One list controls every cleanup world and its inclusive cuboid regions.
+  # Keep one module for one world; add modules or regions as needed.
+  worlds:
+    - name: "world_nether"
+      regions:
+        - {min_x: -200, max_x: 200, min_y: 0, max_y: 128, min_z: -200, max_z: 200}
+  # Bukkit Material names preserved during cleanup; other non-air blocks are cleared.
+  keep_blocks:
+    - BEDROCK
+    - BARRIER
+  # Spherical block radius protected around every player; 2 protects two blocks.
+  player_protection_radius: 2
+
+recreate:
+  # Hot restoration. Put templates under templates/<world-name>/region/.
+  # Example: templates/arena_world/region/r.0.0.mca; the folder name is the target world.
+  # The target world must be loaded. Templates may come from another server-generated world.
+  # For first use, keep enabled false and test a small region with /war recreate.
+  enabled: false
+  # Automatic hot-restoration interval amount; minimum 1.
+  interval: 3
+  # Interval unit: hours or days.
+  interval_unit: "hours"
+  # Warning countdown before restoration starts, in seconds.
+  countdown_seconds: 10
+  # Spherical block radius protected around every player; 0 disables protection, 2 is recommended.
+  player_protection_radius: 2
+  # Maximum blocks written per Region tick; online-player worlds use a safer lower cap automatically.
+  # Lower values are smoother; higher values restore faster but send more chunk update packets.
+  blocks_per_tick: 4096
+  # Ignore water, lava, and bubble columns saved in the template; target liquids remain unchanged.
+  ignore_liquids: false
+  # Bukkit Material names ignored in the template; the target block remains unchanged.
+  ignore_blocks: []
+  # One list controls every target world and its regions. Each name must match both the loaded
+  # world and templates/<world-name>/region/. Empty regions restore every stored template chunk,
+  # even when no player is online in the target world.
+  worlds:
+    - name: "arena_world"
+      regions:
+        - {min_x: -4, max_x: 4, min_y: 0, max_y: 40, min_z: -4, max_z: 4}
+        - {min_x: -32, max_x: 32, min_y: 32, max_y: 40, min_z: -4, max_z: 4}
+    - name: "arena_nether"
+      regions:
+        - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
+
+updates:
+  # Checks the official GitHub Releases page asynchronously at startup. Default: true.
+  enabled: true
+
+  # Downloads a newer JAR into Bukkit's update folder. It applies after another restart.
+  # This setting is used only when updates.enabled is true. Default: true.
+  auto_download: true
+
+  # Prints a console notice when the installed version is already current. Default: true.
+  notify_latest: true
+
+# These editable messages are not server-specific parameter presets.
+messages:
+  prefix: "<color:#8A2387><bold>[</bold><color:#E62028><bold>WorldAreaReset</bold></color><color:#8A2387><bold>]</bold></color> <color:#555555><bold>»</bold></color> <#B9E7FF>"
+  reload_success: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Reload complete > Configuration reloaded and cleanup scheduling restarted.</bold></gradient>"
+  manual_cleanup_started: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Cleanup queued > Countdown started; automatic cleanup timer reset to {interval}</bold></gradient>"
+  manual_recreate_started: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Restoration queued > Countdown started; automatic restoration timer reset to {interval}</bold></gradient>"
+  no_permission: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Permission denied > You cannot use this command.</bold></gradient>"
+  wrong_usage: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Usage > Unknown command. Use /war help.</bold></gradient>"
+  start_cleanup: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Cleanup running > Area cleanup is running in {world}. Please wait.</bold></gradient>"
+  start_restore: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Restoration running > Terrain hot restoration is running in {world}. Please wait.</bold></gradient>"
+  warning: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Terrain cleanup warning > Move away from the cleanup area.</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>World > {world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Starts in > {time} seconds.</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  restore_warning: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Terrain restoration warning > Move away from the restoration area.</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>World > {world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Starts in > {time} seconds.</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  finish_cleanup: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Cleanup complete > Area cleanup finished.</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>World > {world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Blocks removed > {blocks}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Entities removed > {entities}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Elapsed time > {time} ms</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  finish_restore: |-
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Restoration complete > Terrain hot restoration finished.</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>World > {world}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Blocks restored > {blocks}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Template blocks ignored > {ignored}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Entities removed > {entities}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Failed chunks > {failed}</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Elapsed time > {time} ms</bold></gradient>
+    <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>
+  help_menu_player:
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>Plugin name: {name} | Author: {author} | Version: {version}</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>- Player commands</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  /war help - Open this help menu</bold></gradient>"
+    - "<#FF69B4><bold>- Current schedule</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Cleanup interval - {cleanup_interval} {cleanup_interval_unit}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Next cleanup - {cleanup_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Restoration interval - {recreate_interval} {recreate_interval_unit}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Next restoration - {recreate_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+  help_menu_admin:
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>Plugin name: {name} | Author: {author} | Version: {version}</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+    - "<#FF69B4><bold>- Player commands</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  /war help - Open this help menu</bold></gradient>"
+    - "<#FF69B4><bold>- Administrator commands</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  /war cleanup - Run cleanup and reset the automatic timer</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  /war recreate - Run hot restoration and reset the automatic timer</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  /war reload - Reload config.yml and restart scheduling</bold></gradient>"
+    - "<#FF69B4><bold>- Current schedule</bold>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Cleanup interval - {cleanup_interval} {cleanup_interval_unit}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Next cleanup - {cleanup_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Restoration interval - {recreate_interval} {recreate_interval_unit}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>  Next restoration - {recreate_remaining}</bold></gradient>"
+    - "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------<bold><strikethrough>---------</gradient>"
+  updater:
+    disabled: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Automatic update checks are disabled.</bold></gradient>"
+    checking: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Checking the official GitHub repository for updates...</bold></gradient>"
+    latest: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>WorldAreaReset {version} is already the latest version.</bold></gradient>"
+    available: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>WorldAreaReset {version} is available (current: {current}).</bold></gradient>"
+    manual_download: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Automatic download is disabled. Download the update from {url}</bold></gradient>"
+    downloaded: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>WorldAreaReset {version} was downloaded and will be installed on the next server restart.</bold></gradient>"
+    failed: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>Update failed: {reason}. Download it manually from {url}</bold></gradient>"

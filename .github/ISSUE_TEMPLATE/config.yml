@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation / 项目文档
+    url: https://github.com/Lazyzouo/WorldAreaReset/blob/main/WorldAreaReset.md
+    about: Read configuration, logic, and limitations before reporting. / 提交前阅读配置、逻辑和限制。

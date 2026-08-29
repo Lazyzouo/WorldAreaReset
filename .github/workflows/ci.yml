@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Java 21 build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Build
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon
+
+      - name: Read project version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(sed -n "s/def pluginVersion = '\([^']*\)'/\1/p" build.gradle)
+          test -n "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Upload exact build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: WorldAreaReset-${{ steps.version.outputs.version }}
+          path: build/libs/WorldAreaReset-${{ steps.version.outputs.version }}.jar
+          if-no-files-found: error

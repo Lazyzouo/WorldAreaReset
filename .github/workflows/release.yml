@@ -1,0 +1,100 @@
+name: Automatic Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: worldareareset-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Publish versioned release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read project version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(sed -n "s/def pluginVersion = '\([^']*\)'/\1/p" build.gradle)
+          if [[ -z "$VERSION" ]]; then
+            echo "Could not read pluginVersion from build.gradle" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether release exists
+        id: release_check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "$TAG already exists; no duplicate release will be created."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Java 21
+        if: steps.release_check.outputs.publish == 'true'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Validate release metadata
+        if: steps.release_check.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          test -f "release-notes/$TAG.md"
+          grep -q "## \[$VERSION\]" CHANGELOG.md
+
+      - name: Build release
+        if: steps.release_check.outputs.publish == 'true'
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon
+
+      - name: Verify exact versioned release package
+        if: steps.release_check.outputs.publish == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          JAR="build/libs/WorldAreaReset-${VERSION}.jar"
+          test -f "$JAR"
+          test "$(find build/libs -maxdepth 1 -type f -name '*.jar' | wc -l)" -eq 1
+          unzip -p "$JAR" config.yml | cmp - src/main/resources/config-en_US.yml
+          unzip -p "$JAR" config-zh_CN.yml | cmp - src/main/resources/config.yml
+
+      - name: Create GitHub Release
+        if: steps.release_check.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          gh release create "$TAG" \
+            --target "$GITHUB_SHA" \
+            --title "WorldAreaReset $TAG" \
+            --notes-file "release-notes/$TAG.md" \
+            "build/libs/WorldAreaReset-${VERSION}.jar"

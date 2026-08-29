@@ -1,0 +1,51 @@
+name: Bug report / 错误报告
+description: Report a reproducible WorldAreaReset problem / 报告可复现问题
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Back up your world and remove all private data before submitting. / 提交前请备份世界并删除隐私数据。"
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version / 插件版本
+      placeholder: "1.3.0"
+    validations:
+      required: true
+  - type: input
+    id: server-version
+    attributes:
+      label: Server build / 服务端构建
+      placeholder: "Folia 1.21.11 build ..."
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description / 问题描述
+      description: State expected and actual behavior. / 说明预期与实际行为。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps / 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs and configuration / 相关日志与配置
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist / 检查项
+      options:
+        - label: I tested the latest release. / 我已测试最新版本。
+          required: true
+        - label: I reproduced this on Paper/Folia 1.21.11. / 我已在 Paper/Folia 1.21.11 上复现。
+          required: true
+        - label: I removed credentials and private data. / 我已删除凭据与隐私数据。
+          required: true
