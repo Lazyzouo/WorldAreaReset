@@ -1,6 +1,8 @@
 package net.lazyz.worldareareset;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -59,16 +61,11 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                     + "|(?:&|§)(?:#[0-9a-f]{6}|x(?:&?[0-9a-f]){6}|[0-9a-fk-or])");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     /**
-     * Preserve RGB colors when handing components to Bukkit's string-based
-     * console sender. The plain legacy serializer silently quantizes colors
-     * such as the warning pink to white, which makes panel output appear
-     * unstyled. Paper's section-code parser understands the repeated-x form.
+     * Server panels commonly render only the 16 legacy section colors. Keep
+     * the exact Hex colors for players, but downgrade console-only components
+     * to visible legacy equivalents instead of letting #FFB7D5 become white.
      */
-    private static final LegacyComponentSerializer CONSOLE_SERIALIZER = LegacyComponentSerializer.builder()
-            .character('\u00a7')
-            .hexColors()
-            .useUnusualXRepeatedCharacterHexFormat()
-            .build();
+    private static final LegacyComponentSerializer CONSOLE_SERIALIZER = LegacyComponentSerializer.legacySection();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('&').hexColors().build();
 
@@ -603,7 +600,39 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     static String serializeConsole(Component component) {
-        return CONSOLE_SERIALIZER.serialize(component);
+        return CONSOLE_SERIALIZER.serialize(consoleCompatible(component));
+    }
+
+    private static Component consoleCompatible(Component component) {
+        TextColor color = component.color();
+        TextColor fallback = consoleFallbackColor(color);
+        List<Component> children = component.children();
+        List<Component> compatibleChildren = children.stream()
+                .map(WorldAreaResetPlugin::consoleCompatible)
+                .toList();
+        Component result = component;
+        if (fallback != null && fallback != color) {
+            result = result.color(fallback);
+        }
+        if (!compatibleChildren.equals(children)) {
+            result = result.children(compatibleChildren);
+        }
+        return result;
+    }
+
+    private static TextColor consoleFallbackColor(TextColor color) {
+        if (color == null) {
+            return null;
+        }
+        return switch (color.value()) {
+            case 0xFFB7D5, 0xFF69B4 -> NamedTextColor.LIGHT_PURPLE;
+            case 0xD7C7FF -> NamedTextColor.BLUE;
+            case 0xB9E7FF -> NamedTextColor.AQUA;
+            case 0x8A2387 -> NamedTextColor.DARK_PURPLE;
+            case 0xE62028 -> NamedTextColor.RED;
+            case 0x555555 -> NamedTextColor.DARK_GRAY;
+            default -> color;
+        };
     }
 
     private String stripConsoleColorTags(String text) {

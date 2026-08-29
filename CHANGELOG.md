@@ -2,6 +2,18 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.14.6] - 2026-08-30
+
+### English
+
+- Use visible legacy fallback colors for console panels that do not render Hex section codes; the light-pink cleanup warning is now rendered as `§d` instead of white.
+- Keep the complete Hex palette for player-facing messages.
+
+### 中文
+
+- 针对不渲染 Hex 分节码的后台面板使用可见的 Legacy 回退颜色，浅粉色清理警告现在显示为 `§d`，不再变成白色。
+- 玩家端消息继续保留完整 Hex 调色板。
+
 ## [1.14.5] - 2026-08-30
 
 ### English
