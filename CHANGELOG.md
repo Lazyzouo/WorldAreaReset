@@ -2,6 +2,18 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.14.8] - 2026-09-01
+
+### English
+
+- Route console-facing command responses, help lines, updater notices, and cleanup/restoration broadcasts through the startup-banner palette instead of player-facing gradients.
+- Distinguish console notification titles, labels/separators, values, and notices with the banner's red, light-purple, light-blue, and pink colors while preserving the configured player messages.
+
+### 中文
+
+- 后台指令响应、帮助行、更新器提示以及清理/热恢复广播统一改用启动横幅配色，不再套用玩家端渐变。
+- 后台通知使用横幅的红色标题、浅紫标签/分隔线、浅蓝值和粉色提示区分内容，同时保留玩家端原有消息样式。
+
 ## [1.14.7] - 2026-08-30
 
 ### English

@@ -9,6 +9,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Locale;
 import java.util.logging.Level;
-import java.util.regex.Pattern;
 
 public class WorldAreaResetPlugin extends JavaPlugin {
 
@@ -46,7 +46,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     private static final String PREFIX_MESSAGE_COLOR = "<#B9E7FF>";
     private static final String CONSOLE_INFO_COLOR = "<#D7C7FF>";
     private static final String CONSOLE_SUCCESS_COLOR = "<#B9E7FF>";
-    private static final String CONSOLE_WARNING_COLOR = "<#FFB7D5>";
+    private static final String CONSOLE_WARNING_COLOR = "<#FF69B4>";
     private static final String CONSOLE_ERROR_COLOR = "<#E62028>";
     private static final String BANNER_BORDER_COLOR = "<#8A2387>";
     private static final String BANNER_SEPARATOR_COLOR = "<#D7C7FF>";
@@ -56,9 +56,6 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     private static final String BANNER_NOTICE_COLOR = "<#FF69B4>";
     private static final List<String> DEFAULT_GRADIENT = List.of(
             "#FFB7D5", "#D7C7FF", "#B9E7FF", "#D7C7FF", "#FFB7D5");
-    private static final Pattern CONSOLE_COLOR_TAG = Pattern.compile(
-            "(?i)</?gradient(?::[^>]+)?>|</?color(?::[^>]+)?>|<#[0-9a-f]{6}>"
-                    + "|(?:&|§)(?:#[0-9a-f]{6}|x(?:&?[0-9a-f]){6}|[0-9a-fk-or])");
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     /**
      * Server panels commonly render only the 16 legacy section colors. Keep
@@ -367,10 +364,6 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                         ? "Unknown"
                         : getPluginMeta().getAuthors().get(0))
                 .replace("{prefix}", "");
-        // Console output has its own severity channel. Strip message-local
-        // colors first so legacy custom configurations cannot reintroduce a
-        // gradient or override the documented severity color.
-        body = stripConsoleColorTags(body);
         String statusColor = switch (key) {
             case "updater.checking" -> CONSOLE_INFO_COLOR;
             case "updater.latest", "updater.downloaded" -> CONSOLE_SUCCESS_COLOR;
@@ -381,7 +374,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         boolean emphasize = key.equals("updater.available")
                 || key.equals("updater.manual_download")
                 || key.equals("updater.failed");
-        logConsole(statusColor + (emphasize ? "<bold>" + body + "</bold>" : body));
+        logConsole(consoleBodyMarkup(body, statusColor, emphasize));
     }
 
     void broadcastInfo(String prefix, String message) {
@@ -405,28 +398,105 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         Component playerMessage = deserializeInGame(prefix, message);
         Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(playerMessage));
 
-        String consoleBody = PlainTextComponentSerializer.plainText().serialize(deserialize(message));
-        consoleBody = stripConsoleColorTags(consoleBody);
-        StringBuilder coloredBody = new StringBuilder(consoleBody.length() + 32);
-        String[] lines = consoleBody.split("\\R", -1);
-        for (int index = 0; index < lines.length; index++) {
-            if (index > 0) {
-                coloredBody.append('\n');
-            }
-            coloredBody.append(consoleColor);
-            if (emphasize) {
-                coloredBody.append("<bold>");
-            }
-            coloredBody.append(lines[index]);
-            if (emphasize) {
-                coloredBody.append("</bold>");
-            }
-        }
-        String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), coloredBody.toString());
+        String coloredBody = consoleBodyMarkup(message, consoleColor, emphasize);
+        String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), coloredBody);
         sendConsoleComponent(deserialize(prefixedBody));
     }
 
-    Component deserialize(String text) {
+    /**
+     * Rebuilds a notification for the server console using the startup banner
+     * palette. Player-facing gradients and custom message colors must never
+     * leak into console output, where they make unrelated content look like a
+     * random gradient and are often quantized poorly by terminal panels.
+     */
+    static String consoleBodyMarkup(String message, String fallbackColor, boolean emphasize) {
+        String[] sourceLines = message.split("\\R", -1);
+        StringBuilder result = new StringBuilder(message.length() + 64);
+        int contentLine = 0;
+        for (int index = 0; index < sourceLines.length; index++) {
+            if (index > 0) {
+                result.append('\n');
+            }
+
+            String sourceLine = sourceLines[index];
+            String plainLine = PlainTextComponentSerializer.plainText().serialize(deserialize(sourceLine));
+            if (isDividerLine(plainLine)) {
+                result.append(colorizeConsoleLine(plainLine, BANNER_SEPARATOR_COLOR, true));
+                continue;
+            }
+
+            String explicitColor = explicitBannerColor(sourceLine);
+            boolean title = contentLine == 0 && (sourceLines.length > 1 || splitConsoleLabelValue(plainLine) != null);
+            result.append(colorizeConsoleLine(plainLine,
+                    explicitColor == null ? (title ? BANNER_TITLE_COLOR : fallbackColor) : explicitColor,
+                    emphasize || containsBoldFormatting(sourceLine),
+                    true));
+            contentLine++;
+        }
+        return result.toString();
+    }
+
+    private static String colorizeConsoleLine(String line, String color, boolean bold) {
+        return colorizeConsoleLine(line, color, bold, false);
+    }
+
+    private static String colorizeConsoleLine(String line, String color, boolean bold, boolean splitLabelValue) {
+        LabelValue parts = splitConsoleLabelValue(line);
+        if (!splitLabelValue || parts == null) {
+            return color + (bold ? "<bold>" : "") + line + (bold ? "</bold>" : "");
+        }
+        String labelColor = BANNER_TITLE_COLOR.equals(color) ? BANNER_TITLE_COLOR : BANNER_LABEL_COLOR;
+        return labelColor + (bold ? "<bold>" : "") + parts.label() + parts.separator()
+                + (bold ? "</bold>" : "") + BANNER_VALUE_COLOR + (bold ? "<bold>" : "")
+                + parts.value() + (bold ? "</bold>" : "");
+    }
+
+    private static String explicitBannerColor(String sourceLine) {
+        String normalized = sourceLine
+                .replaceAll("(?i)</?gradient(?::[^>]*)?>", "")
+                .toLowerCase(Locale.ROOT);
+        if (normalized.contains("#ff69b4")) {
+            return BANNER_NOTICE_COLOR;
+        }
+        if (normalized.contains("#e62028")) {
+            return BANNER_TITLE_COLOR;
+        }
+        if (normalized.contains("#d7c7ff")) {
+            return BANNER_LABEL_COLOR;
+        }
+        if (normalized.contains("#b9e7ff")) {
+            return BANNER_VALUE_COLOR;
+        }
+        return null;
+    }
+
+    private static boolean containsBoldFormatting(String text) {
+        String normalized = text.toLowerCase(Locale.ROOT);
+        return normalized.contains("<bold>") || normalized.contains("&l") || normalized.contains("§l");
+    }
+
+    private static LabelValue splitConsoleLabelValue(String line) {
+        int arrow = line.indexOf(" > ");
+        if (arrow > 0 && arrow + 3 < line.length()) {
+            return new LabelValue(line.substring(0, arrow), line.substring(arrow, arrow + 3),
+                    line.substring(arrow + 3));
+        }
+        int fullWidthColon = line.indexOf('：');
+        if (fullWidthColon > 0 && fullWidthColon + 1 < line.length()) {
+            return new LabelValue(line.substring(0, fullWidthColon + 1), "",
+                    line.substring(fullWidthColon + 1).trim());
+        }
+        int colon = line.indexOf(": ");
+        if (colon > 0 && colon + 2 < line.length()) {
+            return new LabelValue(line.substring(0, colon + 1), " ", line.substring(colon + 2));
+        }
+        return null;
+    }
+
+    private record LabelValue(String label, String separator, String value) {
+    }
+
+    static Component deserialize(String text) {
         String source = legacyToMiniMessage(text)
                 .replace("{gradient}", "<gradient:" + String.join(":", DEFAULT_GRADIENT) + ">")
                 .replace("<gradient>", "<gradient:" + String.join(":", DEFAULT_GRADIENT) + ">");
@@ -517,10 +587,16 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                 "{recreate_interval_unit}", recreateUnit,
                 "{recreate_remaining}", recreateRemaining,
                 "{recreate_countdown}", String.valueOf(recreateCountdown));
-        sender.sendMessage(deserializeInGame(formattedLine));
+        if (sender instanceof ConsoleCommandSender) {
+            String consoleBody = consoleBodyMarkup(formattedLine, CONSOLE_INFO_COLOR, false);
+            String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), consoleBody);
+            sendConsoleComponent(sender, deserialize(prefixedBody));
+        } else {
+            sender.sendMessage(deserializeInGame(formattedLine));
+        }
     }
 
-    private boolean isDividerLine(String line) {
+    private static boolean isDividerLine(String line) {
         String plain = line
                 .replaceAll("<[^>]*>", "")
                 .replaceAll("(?i)(?:&|§)#[0-9a-f]{6}", "")
@@ -543,7 +619,28 @@ public class WorldAreaResetPlugin extends JavaPlugin {
 
     private void sendPrefixed(CommandSender sender, String key, String fallback, String... replacements) {
         String prefix = message("prefix", DEFAULT_PREFIX);
-        sender.sendMessage(deserializeInGame(prefix, message(key, fallback, replacements)));
+        String body = message(key, fallback, replacements);
+        if (sender instanceof ConsoleCommandSender) {
+            String consoleBody = consoleBodyMarkup(body, consoleColorForKey(key), consoleEmphasizeForKey(key));
+            String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), consoleBody);
+            sendConsoleComponent(sender, deserialize(prefixedBody));
+        } else {
+            sender.sendMessage(deserializeInGame(prefix, body));
+        }
+    }
+
+    private String consoleColorForKey(String key) {
+        return switch (key) {
+            case "reload_success" -> BANNER_VALUE_COLOR;
+            case "manual_cleanup_started", "manual_recreate_started" -> BANNER_SEPARATOR_COLOR;
+            case "no_permission" -> BANNER_TITLE_COLOR;
+            case "wrong_usage" -> BANNER_NOTICE_COLOR;
+            default -> CONSOLE_INFO_COLOR;
+        };
+    }
+
+    private boolean consoleEmphasizeForKey(String key) {
+        return key.equals("no_permission") || key.equals("wrong_usage");
     }
 
     private boolean hasAdminPermission(CommandSender sender) {
@@ -599,6 +696,10 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(serializeConsole(component));
     }
 
+    private void sendConsoleComponent(CommandSender sender, Component component) {
+        sender.sendMessage(serializeConsole(component));
+    }
+
     static String serializeConsole(Component component) {
         return CONSOLE_SERIALIZER.serialize(consoleCompatible(component));
     }
@@ -633,10 +734,6 @@ public class WorldAreaResetPlugin extends JavaPlugin {
             case 0x555555 -> NamedTextColor.DARK_GRAY;
             default -> color;
         };
-    }
-
-    private String stripConsoleColorTags(String text) {
-        return CONSOLE_COLOR_TAG.matcher(text).replaceAll("");
     }
 
     private void logBanner(String text) {
@@ -726,7 +823,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         return result;
     }
 
-    private String legacyToMiniMessage(String text) {
+    private static String legacyToMiniMessage(String text) {
         StringBuilder result = new StringBuilder(text.length() + 16);
         for (int index = 0; index < text.length();) {
             if ((text.charAt(index) == '&' || text.charAt(index) == '§') && index + 1 < text.length()) {
