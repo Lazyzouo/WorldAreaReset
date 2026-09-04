@@ -32,13 +32,23 @@ jobs:
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          # GitHub immutable releases cannot reuse the deleted original v1.0.0
+          # tag. Keep the plugin/JAR version at 1.0.0 while using one unique
+          # reissue tag; all later versions use the normal vX.Y.Z tag.
+          if [[ "$VERSION" == "1.0.0" ]]; then
+            echo "tag=v1.0.0-reissue" >> "$GITHUB_OUTPUT"
+            echo "notes_tag=v1.0.0" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+            echo "notes_tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Check whether release exists
         id: release_check
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
+          NOTES_TAG: ${{ steps.version.outputs.notes_tag }}
           VERSION: ${{ steps.version.outputs.version }}
         shell: bash
         run: |
@@ -62,9 +72,10 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TAG: ${{ steps.version.outputs.tag }}
+          NOTES_TAG: ${{ steps.version.outputs.notes_tag }}
         shell: bash
         run: |
-          test -f "release-notes/$TAG.md"
+          test -f "release-notes/$NOTES_TAG.md"
           grep -q "## \[$VERSION\]" CHANGELOG.md
 
       - name: Build release
@@ -94,11 +105,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
+          NOTES_TAG: ${{ steps.version.outputs.notes_tag }}
           VERSION: ${{ steps.version.outputs.version }}
         shell: bash
         run: |
           gh release create "$TAG" \
             --target "$GITHUB_SHA" \
-            --title "WorldAreaReset $TAG" \
-            --notes-file "release-notes/$TAG.md" \
+            --title "WorldAreaReset $VERSION" \
+            --notes-file "release-notes/$NOTES_TAG.md" \
             "build/libs/WorldAreaReset-${VERSION}.jar"
