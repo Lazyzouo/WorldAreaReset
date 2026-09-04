@@ -110,7 +110,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-The first newly created `config.yml` contains copy-ready world modules for cleanup and hot restoration. A recreate module with an empty `regions` list restores every chunk actually stored in that world's template region files; this scope does not depend on loaded chunks or online players. Existing world, bounds, and global-region fields are migrated once into the module list when upgrading to configuration format 15. Format 18 adds cleanup interval units, format 22 migrates legacy message formatting, format 23 flattens the selected language and removes retired formatting/replacement settings, format 24 updates the help metadata layout, and format 25 adopts the hyphenated updater options and flat updater messages. Use explicit regions when only part of a template should be restored.
+The first newly created `config.yml` contains copy-ready world modules for cleanup and hot restoration. A recreate module with an empty `regions` list restores every chunk actually stored in that world's template region files; this scope does not depend on loaded chunks or online players. The first public release starts at configuration format `1`; future schema changes increment `config-version` and migrate existing values safely. Use explicit regions when only part of a template should be restored.
 
 ## Language
 
@@ -134,7 +134,7 @@ Language files are no longer generated. Each release has exactly one uploaded pl
 
 Release filenames always follow `WorldAreaReset-<version>.jar`. CI and the Release workflow publish the exact file produced in `build/libs/` without renaming, relabeling, or adding other JAR assets.
 
-The official templates keep one flat `messages` section containing only the selected language. Server-specific cleanup parameters retain safe official presets. Legacy nested language sections, `formatting`, `inline-replacements`, and root `gradient-colors` are removed during format 23 migration. Ordinary messages use the fixed KitLoader gradient, with the documented banner, severity, and help-heading color exceptions; console updater notices, command responses, and cleanup/restoration broadcasts use the startup-banner palette with structured title, label, and value colors and never a player-facing gradient. Player broadcasts retain the configured message styling.
+The official templates keep one flat `messages` section containing only the selected language. Server-specific cleanup parameters retain safe official presets. Ordinary messages use the fixed KitLoader gradient, with the documented banner, severity, and help-heading color exceptions; console updater notices, command responses, and cleanup/restoration broadcasts use the startup-banner palette with structured title, label, and value colors and never a player-facing gradient. Player broadcasts retain the configured message styling.
 
 Player-facing text is forced bold and left aligned at runtime without rewriting configured message text or colors. Leading spaces are removed independently from every line while leading legacy and hex formatting codes are preserved. Help menus, command feedback, countdown warnings, cleanup broadcasts, and completion messages use the same alignment and fixed KitLoader five-color gradient. In prefixed multiline messages, content rows keep the configured plugin prefix while decorative divider rows render without it, preventing the divider from wrapping. Every divider uses the KitLoader-style `✧` format; divider rows remain decorative and are not centering anchors.
 
@@ -144,7 +144,7 @@ The top of every bundled configuration uses the exact 103-column ASCII layout. T
 
 Administrators no longer need to delete `plugins/WorldAreaReset/config.yml` after an update. During startup or `/war reload`, WorldAreaReset recreates a missing file from bundled defaults, then parses the configuration and adds only missing paths. Existing values, custom messages, unknown extension keys, explicit `false` values, empty lists, comments, and the selected language are preserved. A reload error keeps the current plugin state running; startup stops safely when the configuration is invalid. Legacy generated language files are removed automatically.
 
-When the main `config.yml` changes, it is copied first to `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`, then written through a same-directory temporary file and atomically replaced. `config-version` is updated only after a compatible merge. Malformed YAML, parent/child structure conflicts, or incompatible value types are never overwritten. Unknown custom keys remain intact; format 23 also removes legacy language files and retired formatting/replacement settings, format 24 splits the official help metadata row, and format 25 adopts Kitloader-compatible hyphenated updater options and flat status messages.
+When the main `config.yml` changes, it is copied first to `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`, then written through a same-directory temporary file and atomically replaced. `config-version` is updated only after a compatible merge. Malformed YAML, parent/child structure conflicts, or incompatible value types are never overwritten. Unknown custom keys remain intact, and future schema changes will use ordered migrations without replacing administrator values.
 
 ## Commands
 
@@ -325,7 +325,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-首次新建的 `config.yml` 会直接包含 cleanup 与 recreate 的可复制世界模块。recreate 世界模块的 `regions` 留空时，按模板 region 文件中实际存在的区块恢复，不依赖当前已加载区块或在线玩家；只需恢复模板的一部分时请填写明确区域。升级到配置格式 15 时，旧世界、边界和全局区域字段会一次性迁移为模块列表，格式 18 增加清理周期单位参数，格式 22 迁移旧消息格式；格式 23 将当前语言消息扁平化并移除旧的 formatting 与 inline-replacements 设置，格式 24 将帮助菜单元数据拆分为名称、作者和版本三行，格式 25 采用连字符更新参数和扁平更新消息。
+首次新建的 `config.yml` 会直接包含 cleanup 与 recreate 的可复制世界模块。recreate 世界模块的 `regions` 留空时，按模板 region 文件中实际存在的区块恢复，不依赖当前已加载区块或在线玩家；只需恢复模板的一部分时请填写明确区域。首个公开版本从配置格式 `1` 开始；后续配置结构变化会递增 `config-version` 并按顺序安全迁移。
 
 ## 语言切换
 
@@ -339,9 +339,9 @@ recreate:
 
 ## 配置自动迁移
 
-更新后不再需要删除 `plugins/WorldAreaReset/config.yml`。服务器启动或执行 `/war reload` 时，如果文件缺失，插件会先从内置默认值恢复，再解析配置并补充缺失路径；格式 23 会把旧的双语消息、`formatting`、`inline-replacements` 和 root `gradient-colors` 清理并写入当前语言的扁平消息，同时统一 KitLoader 五色渐变和 `✧` 分割线。其他已有参数、未知扩展键、明确设置的 `false`、注释及语言选择都会保留。
+更新后不再需要删除 `plugins/WorldAreaReset/config.yml`。服务器启动或执行 `/war reload` 时，如果文件缺失，插件会先从内置默认值恢复，再解析配置并补充缺失路径；当前语言消息保持扁平结构，并统一使用 KitLoader 五色渐变和 `✧` 分割线。其他已有参数、未知扩展键、明确设置的 `false`、注释及语言选择都会保留。
 
-主 `config.yml` 需要更新时，会先备份到 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件并原子替换正式文件。只有兼容合并成功后才更新 `config-version`；YAML 损坏或结构冲突时不会覆盖原文件。未知自定义键会保留，格式 23 会移除旧语言文件和已废弃的显示设置，格式 24 会拆分官方帮助菜单元数据行，格式 25 会采用与 Kitloader 一致的连字符更新参数和扁平状态消息。
+主 `config.yml` 需要更新时，会先备份到 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件并原子替换正式文件。只有兼容合并成功后才更新 `config-version`；YAML 损坏或结构冲突时不会覆盖原文件。未知自定义键会保留，后续配置结构变化会通过有序迁移处理。
 
 ## 自动更新
 

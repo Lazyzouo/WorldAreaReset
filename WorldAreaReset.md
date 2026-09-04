@@ -49,7 +49,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-The first newly created `config.yml` contains copy-ready world modules for both modes. Upgrading to configuration format 15 converts the retired world, bounds, switches, and global region lists into these modules and removes those retired fields. Format 18 adds cleanup interval units; format 22 migrates plugin-owned legacy message formatting; format 23 flattens the selected language and removes retired formatting/replacement settings; format 24 splits the official help metadata row into separate plugin name, author, and version rows; format 25 adopts Kitloader-compatible hyphenated updater options and flat updater messages.
+The first newly created `config.yml` contains copy-ready world modules for both modes. The first public release starts at configuration format `1`; future schema changes increment `config-version` and migrate existing values in order while preserving administrator settings.
 
 Sparse template data is merged per block position. A template state that exists, including explicit `minecraft:air`, replaces the target state; an omitted template section has no state and preserves the target block. Omitted data does not claim an overlap, so another configured region can still supply a saved state there. This layered `world_nether` configuration therefore preserves the outer area's lower terrain while restoring its saved upper layer:
 
@@ -77,10 +77,10 @@ The bundled English and Chinese administrator help menus must contain every comm
 
 | Path | Default | Meaning |
 | --- | --- | --- |
-| `config-version` | `25` | Automatically maintained public configuration format marker |
+| `config-version` | `1` | Automatically maintained public configuration format marker |
 | `language` | `en_US` | The single `WorldAreaReset-1.0.0.jar` starts with the English `config.yml`; set `zh_CN` to apply the bundled Simplified Chinese template |
 | `language-applied` | Selected language | Plugin-maintained marker; change `language` only, then reload or restart |
-| `messages` | Flat selected-language messages | The active language is written directly to `messages`; legacy nested language sections and retired formatting settings are removed during format 23 migration |
+| `messages` | Flat selected-language messages | The active language is written directly to `messages` |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
 | `cleanup.interval` / `cleanup.interval_unit` | `3` / `hours` | Automatic cleanup period amount and unit: `minutes`, `hours`, or `days` |
 | `cleanup.countdown_seconds` | `10` | Cleanup-mode warning delay for automatic and `/war cleanup` |
@@ -100,7 +100,7 @@ The bundled English and Chinese administrator help menus must contain every comm
 
 Official defaults and first-creation examples are stored in `src/main/resources/config.yml`, `src/main/resources/config-zh_CN.yml`, `src/main/resources/config-en_US.yml`, and `defaults/`. The build creates one release JAR containing the English default `config.yml` and the Chinese `config-zh_CN.yml` template; language-specific release JARs are not produced. Live server configuration belongs only in `plugins/WorldAreaReset/config.yml` and is excluded from the repository. When `language` changes, plugin-owned comments, the configuration header, and flat `messages.*` values are refreshed to the selected template while administrator parameters and unknown keys remain unchanged.
 
-At every startup, the plugin parses the live `config.yml` and matching bundled default as structured YAML. Existing parameters, unknown custom keys, selected language, and parsed comments are retained. Format 15 migrates retired world and region fields, format 18 converts cleanup interval units, format 22 migrates legacy message formatting, format 23 flattens the selected language and removes `formatting`, `inline-replacements`, and root `gradient-colors`, format 24 splits the official help metadata row, and format 25 adopts the Kitloader-compatible hyphenated updater option and flat updater messages. Legacy `lang` files are removed after migration.
+At every startup, the plugin parses the live `config.yml` and matching bundled default as structured YAML. Existing parameters, unknown custom keys, selected language, and parsed comments are retained. Future schema changes increment `config-version` and use ordered migrations; incompatible or newer unsupported schemas are never overwritten. Legacy `lang` files are removed after migration.
 
 Before changing the main `config.yml`, the plugin creates `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`; it then writes a same-directory temporary file, flushes it, and atomically replaces the original. `config-version` advances only after the entire structure is compatible. Invalid YAML, a scalar where a section is required, a section where a value is required, or incompatible value types block the merge without modifying the original. A blocked main configuration stops plugin startup before cleanup scheduling.
 
@@ -227,7 +227,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-首次新建的 `config.yml` 会直接包含两种模式的可复制世界模块。升级到配置格式 15 时，旧世界、坐标、开关和全局区域列表会转换为这些模块并被移除；格式 16 会补充恢复速度参数，格式 17 会补充模板方块过滤参数；格式 24 会拆分官方帮助菜单的名称、作者和版本元数据行；格式 25 会采用与 Kitloader 兼容的连字符更新参数和扁平更新消息。
+首次新建的 `config.yml` 会直接包含两种模式的可复制世界模块。首个公开版本从配置格式 `1` 开始；后续配置结构变化会递增 `config-version`，并在保留管理员设置的前提下按顺序迁移。
 
 稀疏模板会按方块位置融合。模板明确保存的状态（包括 `minecraft:air`）会覆盖目标；模板缺失的 section 没有状态，会保留目标方块。缺失数据不会占用重叠坐标，因此其他配置区域仍可在该位置提供已保存状态。下面的 `world_nether` 分层配置会恢复外层已保存的高层，同时保留外层下方原有地形：
 
@@ -267,10 +267,10 @@ recreate:
 
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
-| `config-version` | `25` | 由插件自动维护的公开配置格式版本 |
+| `config-version` | `1` | 由插件自动维护的公开配置格式版本 |
 | `language` | `en_US` | 单个 `WorldAreaReset-1.0.0.jar` 默认使用英文 `config.yml`；设为 `zh_CN` 后重载即可应用同一 JAR 内的简体中文模板 |
 | `language-applied` | 当前语言 | 插件自动维护的最近应用语言标记；只修改 `language`，然后 reload 或重启 |
-| `messages` | 当前语言扁平消息 | 运行时配置只保留 `messages` 下当前语言的一份消息；旧的双语命名空间和 formatting 设置会在格式 23 清理 |
+| `messages` | 当前语言扁平消息 | 运行时配置只保留 `messages` 下当前语言的一份消息 |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
 | `cleanup.interval` / `cleanup.interval_unit` | `3` / `hours` | 自动清理周期数值和单位：`minutes`、`hours` 或 `days` |
 | `cleanup.countdown_seconds` | `10` | 普通清理自动倒计时与 `/war cleanup` 倒计时 |
@@ -288,9 +288,9 @@ recreate:
 | `updates.enabled` | `true` | 启动时检查官方最新 Release |
 | `updates.auto-download` | `true` | 将新版 JAR 下载到 Bukkit 更新目录 |
 
-官方默认配置和首次创建时的参数示例位于 `src/main/resources/config.yml`、`src/main/resources/config-zh_CN.yml`、`src/main/resources/config-en_US.yml` 与 `defaults/`。发布流程只生成一个 JAR，使用英文 `config.yml` 作为默认配置，同时包含中文 `config-zh_CN.yml` 模板和完整配置注释；不会构建语言专用发布包。服务器实际配置只应位于 `plugins/WorldAreaReset/config.yml`，该运行目录已排除在仓库之外。修改 `language` 后重载会刷新插件官方配置头、注释和扁平消息；旧版 `lang` 文件会自动删除。
+官方默认配置和首次创建时的参数示例位于 `src/main/resources/config.yml`、`src/main/resources/config-zh_CN.yml`、`src/main/resources/config-en_US.yml` 与 `defaults/`。发布流程只生成一个 JAR，使用英文 `config.yml` 作为默认配置，同时包含中文 `config-zh_CN.yml` 模板和完整配置注释；不会构建语言专用发布包。服务器实际配置只应位于 `plugins/WorldAreaReset/config.yml`，该运行目录已排除在仓库之外。修改 `language` 后重载会刷新插件官方配置头、注释和当前语言扁平消息；旧版 `lang` 文件会自动删除。
 
-插件每次启动都会把服务器实际 `config.yml` 与内置默认配置作为结构化 YAML 解析。管理员已有参数、未知自定义键、语言选择和已解析注释都会保留。格式 15 会把旧世界与区域字段迁移为模块列表，格式 18 会将旧的 `cleanup.interval_minutes` 转换为 `cleanup.interval` 与 `cleanup.interval_unit`，格式 22 迁移旧消息格式，格式 23 会清理双语消息、`formatting`、`inline-replacements` 和 root `gradient-colors`，格式 24 会拆分官方帮助菜单元数据行，格式 25 会采用与 Kitloader 一致的连字符更新参数和扁平更新消息。
+插件每次启动都会把服务器实际 `config.yml` 与内置默认配置作为结构化 YAML 解析。管理员已有参数、未知自定义键、语言选择和已解析注释都会保留。首个公开配置格式为 `1`；后续配置结构变化会递增 `config-version` 并按顺序安全迁移。
 
 主 `config.yml` 需要变化时，会先创建 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件、刷新到磁盘，并在支持时原子替换正式文件。只有整体结构兼容时才推进 `config-version`。YAML 无效、应为配置节的位置出现标量、应为值的位置出现配置节或值类型不兼容时，迁移会停止且不会修改原文件。
 

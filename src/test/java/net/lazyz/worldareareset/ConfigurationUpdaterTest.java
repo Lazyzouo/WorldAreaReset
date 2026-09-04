@@ -554,7 +554,7 @@ class ConfigurationUpdaterTest {
                 "defaults/config.zh_CN.yml");
         for (String bundledFile : bundledFiles) {
             YamlConfiguration configuration = loadWithComments(Path.of(bundledFile));
-            assertEquals(25, configuration.getInt("config-version"), bundledFile);
+            assertEquals(1, configuration.getInt("config-version"), bundledFile);
             assertFalse(configuration.contains("config_version", true), bundledFile);
             assertFalse(configuration.contains("formatting", true), bundledFile);
             assertFalse(configuration.contains("inline-replacements", true), bundledFile);

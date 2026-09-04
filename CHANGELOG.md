@@ -2,20 +2,18 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
-## [1.0.0] - 2026-09-04
+## [1.0.0] - 2026-09-05
 
 ### English
 
-- Reset the public release line to `1.0.0` and publish one `WorldAreaReset-1.0.0.jar` containing the English default `config.yml` and bundled Chinese template.
-- Standardize player and console messages with Kitloader-compatible MiniMessage, legacy color handling, prefixes, separators, and severity colors.
-- Adopt the `config-version: 25` schema with hyphenated updater options, flat updater messages, safe migration, and atomic configuration backups.
-- Require a valid SHA-256 release digest and enforce a 50 MiB automatic-update download limit.
-- Keep automatic cleanup disabled in official defaults and retain administrator values and custom configuration keys during migration.
+- Reissue the first public release as `WorldAreaReset-1.0.0.jar` with the English `config.yml` as the default and the Chinese template bundled in the same JAR.
+- Start the public configuration schema at `config-version: 1`; future schema changes will increment this marker.
+- Keep Kitloader-compatible MiniMessage, legacy color, prefix, separator, GUI, and severity-color behavior.
+- Preserve safe configuration migration, atomic backups, verified SHA-256 updates, and the 50 MiB download limit.
 
 ### 中文
 
-- 将公开发布版本线重置为 `1.0.0`，只发布一个 `WorldAreaReset-1.0.0.jar`，其中包含英文默认 `config.yml` 和内置中文模板。
-- 按照与 Kitloader 兼容的 MiniMessage、Legacy 颜色、前缀、分割线和严重级别颜色规范统一玩家端与后台消息。
-- 采用 `config-version: 25` 配置结构、连字符更新参数、扁平更新消息、安全迁移和原子配置备份。
-- 自动更新必须提供有效 SHA-256 发布摘要，并限制下载大小为 50 MiB。
-- 官方默认配置继续关闭自动清理，配置迁移会保留管理员参数和自定义键。
+- 重新发布首个公开版本 `WorldAreaReset-1.0.0.jar`，默认使用英文 `config.yml`，并在同一 JAR 内附带中文模板。
+- 将公开配置结构从 `config-version: 1` 开始；后续配置结构变化会递增该标记。
+- 保留与 Kitloader 兼容的 MiniMessage、Legacy 颜色、前缀、分割线、GUI 和严重级别颜色行为。
+- 保留安全配置迁移、原子备份、SHA-256 校验更新以及 50 MiB 下载上限。

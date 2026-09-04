@@ -14,7 +14,7 @@
 #        <bold>bold</bold>, <italic>italic</italic>, <underlined>underline</underlined>,
 #        <strikethrough>strike</strikethrough>, <obfuscated>obfuscated</obfuscated>, <br>line break
 # After editing this file, run /war reload in game to reload all config.
-config-version: 25
+config-version: 1
 # Message language. Allowed values: zh_CN, en_US. Default: en_US.
 language: "en_US"
 # Language most recently applied to runtime configuration. Change language only; do not edit language-applied manually. Reload or restart after changing language.

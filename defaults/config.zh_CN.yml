@@ -14,7 +14,7 @@
 #       <bold>加粗</bold>，<italic>斜体</italic>，<underlined>下划线</underlined>，
 #       <strikethrough>删除线</strikethrough>，<obfuscated>随机字符</obfuscated>，<br>换行
 # 修改本文件后，可在游戏内使用 /war reload 指令热重载所有配置。
-config-version: 25
+config-version: 1
 # 消息语言。可选值：zh_CN、en_US。默认值：zh_CN。
 language: "zh_CN"
 # 最近一次已应用到运行时配置的语言。只修改 language，不要手动修改 language-applied；修改后执行 /war reload 或重启。
