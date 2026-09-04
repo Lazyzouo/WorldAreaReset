@@ -28,7 +28,7 @@ The only runtime network feature is the optional updater. When `updates.enabled:
 https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest
 ```
 
-If a newer version exists and `updates.auto_download: true`, it downloads the matching `WorldAreaReset-<version>.jar` release asset and verifies the GitHub-provided SHA-256 digest when available.
+If a newer version exists and `updates.auto-download: true`, it downloads the matching `WorldAreaReset-<version>.jar` release asset and requires GitHub's `sha256:` asset digest before installation.
 
 No server content is included in these requests. However, GitHub necessarily receives standard network metadata associated with any HTTPS connection, including the server's public IP address, request time, and the plugin User-Agent. GitHub processes that metadata under GitHub's own privacy and logging policies; it is not collected by the WorldAreaReset author.
 
@@ -73,7 +73,7 @@ WorldAreaReset 不包含后门、遥测、统计分析、广告、远程管理�
 https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest
 ```
 
-若存在新版本且 `updates.auto_download: true`，插件会从官方 GitHub Release 下载对应的 `WorldAreaReset-<version>.jar` 资源，并在 GitHub 提供 SHA-256 摘要时进行校验。
+若存在新版本且 `updates.auto-download: true`，插件会从官方 GitHub Release 下载对应的 `WorldAreaReset-<version>.jar` 资源，并要求 GitHub 提供 `sha256:` 资源摘要后才会安装。
 
 这些请求不会包含任何服务器内容。但是，与所有 HTTPS 连接相同，GitHub 必然会接收服务器公网 IP、请求时间和插件 User-Agent 等标准网络元数据。相关元数据由 GitHub 按其自身隐私及日志政策处理，并非由 WorldAreaReset 作者收集。
 

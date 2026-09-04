@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -21,11 +22,16 @@ import java.util.concurrent.CompletionException;
 
 public final class UpdateChecker {
 
-    public static final String PROJECT_URL = "https://github.com/Lazyzouo/WorldAreaReset";
+    public static final String REPOSITORY = "Lazyzouo/WorldAreaReset";
+    public static final String PROJECT_URL = "https://github.com/" + REPOSITORY;
+    /** Alias used by the Kitloader updater contract. */
+    public static final String REPOSITORY_URL = PROJECT_URL;
+    public static final String RELEASES_URL = PROJECT_URL + "/releases";
     private static final String ASSET_PREFIX = "WorldAreaReset-";
     private static final String ASSET_SUFFIX = ".jar";
     private static final URI LATEST_RELEASE_API = URI.create(
             "https://api.github.com/repos/Lazyzouo/WorldAreaReset/releases/latest");
+    private static final long MAX_DOWNLOAD_BYTES = 50L * 1024L * 1024L;
 
     private final WorldAreaResetPlugin plugin;
     private final HttpClient httpClient = HttpClient.newBuilder()
@@ -38,12 +44,9 @@ public final class UpdateChecker {
     }
 
     public void checkOnStartup() {
-        if (!plugin.getConfig().getBoolean("updates.enabled", true)) {
-            plugin.logLocalized("updater.disabled", "Update checks are disabled.");
-            return;
-        }
+        if (!plugin.getConfig().getBoolean("updates.enabled", true)) return;
 
-        plugin.logLocalized("updater.checking", "Checking GitHub for updates...");
+        plugin.logLocalized("update_checking", "Checking the official WorldAreaReset GitHub Release for updates.");
         HttpRequest request = request(LATEST_RELEASE_API);
 
         httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
@@ -62,20 +65,17 @@ public final class UpdateChecker {
         String currentVersion = plugin.getPluginMeta().getVersion();
 
         if (compareVersions(latestVersion, currentVersion) <= 0) {
-            if (plugin.getConfig().getBoolean("updates.notify_latest", true)) {
-                plugin.logLocalized("updater.latest",
-                        "WorldAreaReset {version} is already the latest version.", "{version}", currentVersion);
-            }
+            plugin.logLocalized("update_latest", "WorldAreaReset {version} is already the latest version.", "{version}", currentVersion);
             return;
         }
 
-        plugin.logLocalized("updater.available",
-                "A new version {version} is available (current: {current}).",
-                "{version}", latestVersion, "{current}", currentVersion);
+        plugin.logLocalized("update_available", "WorldAreaReset {latest} is available; the current version is {current}.",
+                "{latest}", latestVersion, "{current}", currentVersion);
 
-        if (!plugin.getConfig().getBoolean("updates.auto_download", true)) {
-            plugin.logLocalized("updater.manual_download",
-                    "Automatic download is disabled. Download it from {url}", "{url}", PROJECT_URL + "/releases/latest");
+        if (!plugin.getConfig().getBoolean("updates.auto-download", true)) {
+            plugin.logLocalized("update_manual",
+                    "WorldAreaReset {version} is available. Download it from the official Releases page: {url}",
+                    "{version}", latestVersion, "{url}", RELEASES_URL);
             return;
         }
 
@@ -90,18 +90,18 @@ public final class UpdateChecker {
                 ? jarAsset.get("digest").getAsString()
                 : null;
 
-        httpClient.sendAsync(request(downloadUrl), HttpResponse.BodyHandlers.ofByteArray())
-                .thenApply(this::requireSuccess)
-                .thenAccept(bytes -> installUpdate(bytes, expectedDigest, latestVersion))
+        httpClient.sendAsync(request(downloadUrl), HttpResponse.BodyHandlers.ofInputStream())
+                .thenAccept(response -> installUpdate(response, expectedDigest, latestVersion))
                 .exceptionally(error -> {
                     reportFailure(rootCause(error).getMessage());
                     return null;
                 });
     }
 
-    private void installUpdate(byte[] bytes, String expectedDigest, String latestVersion) {
+    private void installUpdate(HttpResponse<InputStream> response, String expectedDigest, String latestVersion) {
+        Path temporary = null;
         try {
-            verifyDigest(bytes, expectedDigest);
+            requireSuccess(response);
 
             Path runningJar = Path.of(plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
             if (!Files.isRegularFile(runningJar) || !runningJar.getFileName().toString().endsWith(".jar")) {
@@ -110,21 +110,58 @@ public final class UpdateChecker {
 
             Path updateDirectory = plugin.getServer().getUpdateFolderFile().toPath();
             Files.createDirectories(updateDirectory);
-            Path target = updateDirectory.resolve(runningJar.getFileName());
-            Path temporary = updateDirectory.resolve(runningJar.getFileName() + ".tmp");
-            Files.write(temporary, bytes);
+            Path target = updateDirectory.resolve(expectedAssetName(latestVersion));
+            temporary = Files.createTempFile(updateDirectory, "worldareareset-", ".download");
+            download(response, temporary);
+            verifyDigest(temporary, expectedDigest);
 
             try {
                 Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
             } catch (AtomicMoveNotSupportedException ignored) {
                 Files.move(temporary, target, StandardCopyOption.REPLACE_EXISTING);
             }
+            temporary = null;
 
-            plugin.logLocalized("updater.downloaded",
+            plugin.logLocalized("update_downloaded",
                     "Version {version} was downloaded and will be installed on the next server restart.",
                     "{version}", latestVersion);
         } catch (Exception error) {
             reportFailure(error.getMessage());
+        } finally {
+            if (temporary != null) {
+                try {
+                    Files.deleteIfExists(temporary);
+                } catch (IOException ignored) {
+                    // The failed temporary file is harmless and will be
+                    // replaced on the next update attempt.
+                }
+            }
+            try {
+                response.body().close();
+            } catch (IOException ignored) {
+                // The response stream is best-effort cleanup only.
+            }
+        }
+    }
+
+    private void download(HttpResponse<InputStream> response, Path destination)
+            throws IOException {
+        long contentLength = response.headers().firstValueAsLong("Content-Length").orElse(-1L);
+        if (contentLength > MAX_DOWNLOAD_BYTES) {
+            throw new IOException("release asset exceeds 50 MiB");
+        }
+
+        try (InputStream input = response.body(); var output = Files.newOutputStream(destination)) {
+            byte[] buffer = new byte[8192];
+            long total = 0L;
+            int read;
+            while ((read = input.read(buffer)) != -1) {
+                total += read;
+                if (total > MAX_DOWNLOAD_BYTES) {
+                    throw new IOException("release asset exceeds 50 MiB");
+                }
+                output.write(buffer, 0, read);
+            }
         }
     }
 
@@ -134,6 +171,11 @@ public final class UpdateChecker {
             JsonObject asset = element.getAsJsonObject();
             String name = asset.get("name").getAsString();
             if (name.equals(expectedName)) {
+                String digest = asset.has("digest") && !asset.get("digest").isJsonNull()
+                        ? asset.get("digest").getAsString() : "";
+                if (!digest.matches("(?i)^sha256:[0-9a-f]{64}$")) {
+                    throw new IllegalStateException("release asset has no valid SHA-256 digest: " + expectedName);
+                }
                 return asset;
             }
         }
@@ -144,12 +186,20 @@ public final class UpdateChecker {
         return ASSET_PREFIX + version + ASSET_SUFFIX;
     }
 
-    private void verifyDigest(byte[] bytes, String expectedDigest) throws Exception {
-        if (expectedDigest == null || !expectedDigest.startsWith("sha256:")) {
-            return;
+    private void verifyDigest(Path file, String expectedDigest) throws Exception {
+        if (expectedDigest == null || !expectedDigest.matches("(?i)^sha256:[0-9a-f]{64}$")) {
+            throw new IOException("release asset has no valid SHA-256 digest");
         }
 
-        String actual = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        try (InputStream input = Files.newInputStream(file)) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = input.read(buffer)) != -1) {
+                digest.update(buffer, 0, read);
+            }
+        }
+        String actual = HexFormat.of().formatHex(digest.digest());
         String expected = expectedDigest.substring("sha256:".length());
         if (!actual.equalsIgnoreCase(expected)) {
             throw new IOException("Downloaded JAR failed SHA-256 verification");
@@ -202,9 +252,9 @@ public final class UpdateChecker {
     }
 
     private void reportFailure(String reason) {
-        plugin.logLocalized("updater.failed",
+        plugin.logLocalized("update_failed",
                 "Update failed: {reason}. Download manually from {url}",
                 "{reason}", reason == null ? "unknown error" : reason,
-                "{url}", PROJECT_URL + "/releases/latest");
+                "{url}", RELEASES_URL);
     }
 }

@@ -82,8 +82,12 @@ jobs:
           JAR="build/libs/WorldAreaReset-${VERSION}.jar"
           test -f "$JAR"
           test "$(find build/libs -maxdepth 1 -type f -name '*.jar' | wc -l)" -eq 1
-          unzip -p "$JAR" config.yml | cmp - src/main/resources/config-en_US.yml
-          unzip -p "$JAR" config-zh_CN.yml | cmp - src/main/resources/config.yml
+          unzip -p "$JAR" config.yml | cmp - src/main/resources/config.yml
+          unzip -p "$JAR" config-zh_CN.yml | cmp - src/main/resources/config-zh_CN.yml
+          if unzip -Z1 "$JAR" | grep -E '(^|/)(config-en_US|config-zh_CN)\.yml$' | grep -q 'config-en_US'; then
+            echo "The release JAR must not contain a separate config-en_US.yml package." >&2
+            exit 1
+          fi
 
       - name: Create GitHub Release
         if: steps.release_check.outputs.publish == 'true'

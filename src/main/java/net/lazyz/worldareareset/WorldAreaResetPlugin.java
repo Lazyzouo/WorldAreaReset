@@ -33,6 +33,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.logging.Level;
 
 public class WorldAreaResetPlugin extends JavaPlugin {
@@ -46,7 +49,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     private static final String PREFIX_MESSAGE_COLOR = "<#B9E7FF>";
     private static final String CONSOLE_INFO_COLOR = "<#D7C7FF>";
     private static final String CONSOLE_SUCCESS_COLOR = "<#B9E7FF>";
-    private static final String CONSOLE_WARNING_COLOR = "<#FF69B4>";
+    private static final String CONSOLE_WARNING_COLOR = "<#FFB7D5>";
     private static final String CONSOLE_ERROR_COLOR = "<#E62028>";
     private static final String BANNER_BORDER_COLOR = "<#8A2387>";
     private static final String BANNER_SEPARATOR_COLOR = "<#D7C7FF>";
@@ -56,13 +59,28 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     private static final String BANNER_NOTICE_COLOR = "<#FF69B4>";
     private static final List<String> DEFAULT_GRADIENT = List.of(
             "#FFB7D5", "#D7C7FF", "#B9E7FF", "#D7C7FF", "#FFB7D5");
+    private static final String LEGACY_STATUS_GRADIENT =
+            "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5>";
     private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final ConcurrentHashMap<String, String> COLOR_CACHE = new ConcurrentHashMap<>();
+    private static final int MAX_COLOR_CACHE_ENTRIES = 2048;
+    private static final String ESCAPED_MARKUP_MARKER = "\uE000";
+    private static final String GUI_PINK = "§x§F§F§B§7§D§5";
+    private static final String GUI_LIGHT_PURPLE = "§x§D§7§C§7§F§F";
+    private static final String GUI_SUCCESS = "§x§5§5§F§F§5§5";
+    private static final String GUI_WARNING = "§x§F§F§F§F§5§5";
+    private static final String GUI_INFO = "§x§0§0§D§2§F§F";
+    private static final String GUI_ERROR = "§x§F§F§5§5§5§5";
+    private static final Pattern MINI_MESSAGE_TAG = Pattern.compile(
+            "(?i)</?(?:gradient(?::[^>]+)?|color(?::[^>]+)?|bold|b|italic|i|"
+                    + "underlined|u|strikethrough|st|obfuscated|obf|reset|r|br)/?>|<#[0-9a-f]{6}>");
     /**
      * Server panels commonly render only the 16 legacy section colors. Keep
      * the exact Hex colors for players, but downgrade console-only components
      * to visible legacy equivalents instead of letting #FFB7D5 become white.
      */
     private static final LegacyComponentSerializer CONSOLE_SERIALIZER = LegacyComponentSerializer.legacySection();
+    private static final LegacyComponentSerializer SECTION_SERIALIZER = LegacyComponentSerializer.legacySection();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('&').hexColors().build();
 
@@ -73,6 +91,8 @@ public class WorldAreaResetPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        INSTANCE = this;
+        clearColorCache();
         saveDefaultConfig();
         if (!updateConfiguration(true)) {
             return;
@@ -88,6 +108,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         }
 
         printStartupBanner();
+        logLocalized("plugin_enabled", "WorldAreaReset v{version} by {author} started successfully on Paper/Folia.");
         updateChecker = new UpdateChecker(this);
         updateChecker.checkOnStartup();
     }
@@ -117,7 +138,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                 try (Reader defaultsReader = new InputStreamReader(defaultsStream, StandardCharsets.UTF_8)) {
                     ConfigurationUpdater.UpdateResult result = ConfigurationUpdater.mergeMissingValues(
                             configFile.toPath(), defaultsReader,
-                            "config_version", getPluginMeta().getVersion(), true, refreshComments);
+                            "config-version", getPluginMeta().getVersion(), true, refreshComments);
                     if (result.blocked()) {
                         logConfigurationFailure(disableOnFailure,
                                 "Configuration update stopped because existing values conflict with the official structure: "
@@ -172,7 +193,8 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         if (header != null && !header.isEmpty()) {
             return header;
         }
-        return configuration.getComments("config_version");
+        List<String> comments = configuration.getComments("config-version");
+        return comments.isEmpty() ? configuration.getComments("config_version") : comments;
     }
 
     static String configurationResource(String language) {
@@ -265,6 +287,310 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         if (cleanupTask != null) {
             cleanupTask.stop();
         }
+        if (INSTANCE == this) INSTANCE = null;
+    }
+
+    /**
+     * Parses MiniMessage (the configuration format) and legacy ampersand/section
+     * codes into the section-code string accepted by Bukkit metadata and chat.
+     */
+    public static String color(String message) {
+        if (message == null) return null;
+        String original = message;
+        if (message.length() <= 512) {
+            String cached = COLOR_CACHE.get(message);
+            if (cached != null) return cached;
+        }
+        WorldAreaResetPlugin active = INSTANCE;
+        if (active != null && active.languageManager != null) {
+            message = active.languageManager.expandConfiguredTokens(active.languageManager.translateInline(message));
+        } else {
+            message = message.replace("{gradient}", "<gradient:" + String.join(":", DEFAULT_GRADIENT) + ">");
+        }
+        String protectedMessage = message.replace("\\<", ESCAPED_MARKUP_MARKER);
+        if (containsMiniMessageTag(protectedMessage)) {
+            try {
+                Component component = MINI_MESSAGE.deserialize(legacyToMiniMessageStatic(protectedMessage));
+                String result = stripUnparsedMiniMessageTags(SECTION_SERIALIZER.serialize(component))
+                        .replace(ESCAPED_MARKUP_MARKER, "<");
+                cacheColor(original, result);
+                return result;
+            } catch (RuntimeException | LinkageError ignored) {
+                // Fall through to the legacy parser for malformed custom text.
+            }
+        }
+        String result = stripUnparsedMiniMessageTags(translateLegacyColors(protectedMessage))
+                .replace(ESCAPED_MARKUP_MARKER, "<");
+        cacheColor(original, result);
+        return result;
+    }
+
+    private static volatile WorldAreaResetPlugin INSTANCE;
+
+    private static void cacheColor(String source, String result) {
+        if (source == null || result == null || source.length() > 512) return;
+        if (COLOR_CACHE.size() >= MAX_COLOR_CACHE_ENTRIES) COLOR_CACHE.clear();
+        COLOR_CACHE.putIfAbsent(source, result);
+    }
+
+    static void clearColorCache() {
+        COLOR_CACHE.clear();
+    }
+
+    /** Compact GUI text to one semantic RGB color, matching Kitloader's metadata safety rule. */
+    public static String colorForGui(String message) {
+        return compactGuiColors(color(message));
+    }
+
+    /** Compacts an already serialized legacy string without translating user text. */
+    static String compactLegacyGuiText(String message) {
+        return compactGuiColors(message);
+    }
+
+    private static String compactGuiColors(String text) {
+        if (text == null || text.isEmpty()) return text;
+
+        String paletteColor = findGuiPaletteColor(text);
+        if (paletteColor == null) paletteColor = GUI_PINK;
+
+        StringBuilder compact = new StringBuilder(text.length() + paletteColor.length());
+        compact.append(paletteColor);
+        boolean bold = false;
+        boolean italic = false;
+        boolean underlined = false;
+        boolean strikethrough = false;
+        boolean obfuscated = false;
+        for (int index = 0; index < text.length(); index++) {
+            char current = text.charAt(index);
+            if (current != '\u00a7' || index + 1 >= text.length()) {
+                compact.append(current);
+                continue;
+            }
+
+            char code = text.charAt(index + 1);
+            if (code == 'x' || code == 'X') {
+                int end = index + 14;
+                if (end <= text.length() && isLegacyHex(text, index)) {
+                    index = end - 1;
+                    bold = false;
+                    italic = false;
+                    underlined = false;
+                    strikethrough = false;
+                    obfuscated = false;
+                    continue;
+                }
+            }
+            if (isLegacyColorCode(code)) {
+                index++;
+                bold = false;
+                italic = false;
+                underlined = false;
+                strikethrough = false;
+                obfuscated = false;
+                continue;
+            }
+
+            if (code == 'r' || code == 'R') {
+                compact.append(current).append(code).append(paletteColor);
+                bold = false;
+                italic = false;
+                underlined = false;
+                strikethrough = false;
+                obfuscated = false;
+                index++;
+                continue;
+            }
+
+            boolean alreadyActive = switch (Character.toLowerCase(code)) {
+                case 'l' -> bold;
+                case 'o' -> italic;
+                case 'n' -> underlined;
+                case 'm' -> strikethrough;
+                case 'k' -> obfuscated;
+                default -> false;
+            };
+            if (!alreadyActive) {
+                compact.append(current).append(code);
+                switch (Character.toLowerCase(code)) {
+                    case 'l' -> bold = true;
+                    case 'o' -> italic = true;
+                    case 'n' -> underlined = true;
+                    case 'm' -> strikethrough = true;
+                    case 'k' -> obfuscated = true;
+                    default -> { }
+                }
+            }
+            index++;
+        }
+        return compact.toString();
+    }
+
+    private static String findGuiPaletteColor(String text) {
+        String selected = null;
+        int selectedPriority = -1;
+        for (int index = 0; index + 1 < text.length(); index++) {
+            if (text.charAt(index) != '\u00a7') continue;
+            char code = text.charAt(index + 1);
+            if (code == 'x' || code == 'X') {
+                int end = index + 14;
+                if (end <= text.length() && isLegacyHex(text, index)) {
+                    String candidate = guiPaletteColor(text.substring(index, end));
+                    int priority = guiPalettePriority(candidate);
+                    if (priority > selectedPriority) {
+                        selected = candidate;
+                        selectedPriority = priority;
+                    }
+                    index = end - 1;
+                }
+            } else if (isLegacyColorCode(code)) {
+                String candidate = guiPaletteColor(text.substring(index, index + 2));
+                int priority = guiPalettePriority(candidate);
+                if (priority > selectedPriority) {
+                    selected = candidate;
+                    selectedPriority = priority;
+                }
+                index++;
+            }
+        }
+        return selected;
+    }
+
+    private static int guiPalettePriority(String color) {
+        if (GUI_ERROR.equals(color)) return 4;
+        if (GUI_SUCCESS.equals(color)) return 3;
+        if (GUI_WARNING.equals(color)) return 2;
+        if (GUI_INFO.equals(color)) return 1;
+        return 0;
+    }
+
+    private static String guiPaletteColor(String legacyColor) {
+        if (legacyColor == null || legacyColor.length() < 2) return GUI_PINK;
+        int red;
+        int green;
+        int blue;
+        if (legacyColor.charAt(1) == 'x' || legacyColor.charAt(1) == 'X') {
+            if (legacyColor.length() < 14) return GUI_PINK;
+            red = Character.digit(legacyColor.charAt(3), 16) * 16
+                    + Character.digit(legacyColor.charAt(5), 16);
+            green = Character.digit(legacyColor.charAt(7), 16) * 16
+                    + Character.digit(legacyColor.charAt(9), 16);
+            blue = Character.digit(legacyColor.charAt(11), 16) * 16
+                    + Character.digit(legacyColor.charAt(13), 16);
+        } else {
+            char code = Character.toLowerCase(legacyColor.charAt(1));
+            return switch (code) {
+                case 'a' -> GUI_SUCCESS;
+                case 'e', '6' -> GUI_WARNING;
+                case 'b', '3', '9' -> GUI_INFO;
+                case 'c', '4' -> GUI_ERROR;
+                default -> GUI_PINK;
+            };
+        }
+        if (green > 150 && green >= blue && green >= red + 48) return GUI_SUCCESS;
+        if (red >= 200 && green >= 150 && blue < 150) return GUI_WARNING;
+        if (red >= green + 80 && red >= blue + 80) return GUI_ERROR;
+        if (blue >= red + 16 || (blue >= red && green >= red)) return GUI_INFO;
+        return GUI_PINK;
+    }
+
+    private static boolean isLegacyHex(String text, int start) {
+        if (start + 14 > text.length() || (text.charAt(start + 1) != 'x'
+                && text.charAt(start + 1) != 'X')) return false;
+        for (int offset = 2; offset < 14; offset += 2) {
+            if (text.charAt(start + offset) != '\u00a7'
+                    || Character.digit(text.charAt(start + offset + 1), 16) < 0) return false;
+        }
+        return true;
+    }
+
+    private static boolean isLegacyColorCode(char code) {
+        return code >= '0' && code <= '9'
+                || code >= 'a' && code <= 'f'
+                || code >= 'A' && code <= 'F';
+    }
+
+    private static boolean containsMiniMessageTag(String text) {
+        return text != null && (text.matches("(?s).*<(?:#[0-9a-fA-F]{6}|gradient(?::[^>]+)?|color(?::[^>]+)?|bold|b|italic|i|underlined|u|strikethrough|st|obfuscated|obf|reset|r|br)(?:/?>|>).*" )
+                || text.matches("(?s).*</(?:gradient|color|bold|italic|underlined|strikethrough|obfuscated|b|i|u|st|obf)>.*"));
+    }
+
+    private static String stripUnparsedMiniMessageTags(String text) {
+        if (text == null || text.isEmpty()) return text;
+        Matcher matcher = MINI_MESSAGE_TAG.matcher(text);
+        StringBuffer cleaned = new StringBuffer();
+        while (matcher.find()) {
+            int slashCount = 0;
+            for (int index = matcher.start() - 1; index >= 0 && text.charAt(index) == '\\'; index--) slashCount++;
+            matcher.appendReplacement(cleaned, (slashCount & 1) == 1
+                    ? Matcher.quoteReplacement(matcher.group()) : "");
+        }
+        matcher.appendTail(cleaned);
+        return cleaned.toString();
+    }
+
+    private static String translateLegacyColors(String text) {
+        Matcher matcher = Pattern.compile("&#[a-fA-F0-9]{6}").matcher(text);
+        StringBuffer output = new StringBuffer();
+        while (matcher.find()) {
+            String hex = matcher.group().substring(2);
+            StringBuilder legacy = new StringBuilder("&x");
+            for (char digit : hex.toCharArray()) legacy.append('&').append(digit);
+            matcher.appendReplacement(output, Matcher.quoteReplacement(legacy.toString()));
+        }
+        matcher.appendTail(output);
+        return org.bukkit.ChatColor.translateAlternateColorCodes('&', output.toString());
+    }
+
+    private static String legacyToMiniMessageStatic(String text) {
+        StringBuilder result = new StringBuilder(text.length() + 16);
+        for (int index = 0; index < text.length();) {
+            char marker = text.charAt(index);
+            if ((marker == '&' || marker == '\u00a7') && index + 1 < text.length()) {
+                char code = Character.toLowerCase(text.charAt(index + 1));
+                if (code == '#' && index + 7 < text.length()
+                        && text.substring(index + 2, index + 8).matches("[0-9a-fA-F]{6}")) {
+                    result.append("<color:#").append(text, index + 2, index + 8).append('>');
+                    index += 8;
+                    continue;
+                }
+                if (code == 'x' && index + 13 < text.length()) {
+                    StringBuilder hex = new StringBuilder(6);
+                    boolean valid = true;
+                    for (int offset = 0; offset < 6; offset++) {
+                        int markerIndex = index + 2 + offset * 2;
+                        if (markerIndex + 1 >= text.length() || text.charAt(markerIndex) != marker
+                                || Character.digit(text.charAt(markerIndex + 1), 16) < 0) {
+                            valid = false;
+                            break;
+                        }
+                        hex.append(text.charAt(markerIndex + 1));
+                    }
+                    if (valid) {
+                        result.append("<color:#").append(hex).append('>');
+                        index += 14;
+                        continue;
+                    }
+                }
+                String tag = switch (code) {
+                    case '0' -> "<black>"; case '1' -> "<dark_blue>"; case '2' -> "<dark_green>";
+                    case '3' -> "<dark_aqua>"; case '4' -> "<dark_red>"; case '5' -> "<dark_purple>";
+                    case '6' -> "<gold>"; case '7' -> "<gray>"; case '8' -> "<dark_gray>";
+                    case '9' -> "<blue>"; case 'a' -> "<green>"; case 'b' -> "<aqua>";
+                    case 'c' -> "<red>"; case 'd' -> "<light_purple>"; case 'e' -> "<yellow>";
+                    case 'f' -> "<white>"; case 'k' -> "<obfuscated>"; case 'l' -> "<bold>";
+                    case 'm' -> "<strikethrough>"; case 'n' -> "<underlined>";
+                    case 'o' -> "<italic>"; case 'r' -> "<reset>"; default -> null;
+                };
+                if (tag != null) {
+                    result.append(tag);
+                    index += 2;
+                    continue;
+                }
+            }
+            result.append(marker);
+            index++;
+        }
+        return result.toString();
     }
 
     @Override
@@ -289,6 +615,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                 return true;
             }
             languageManager.reload();
+            clearColorCache();
             cleanupTask.stop();
             cleanupTask.start();
 
@@ -357,6 +684,188 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         return replaceVariables(message, replacements);
     }
 
+    /** Sends a localized message using the same severity and prefix contract as Kitloader. */
+    public void sendMsg(CommandSender sender, String key, String... placeholders) {
+        if (sender == null || languageManager == null) return;
+        String prefix = languageManager.getMessageString("prefix", DEFAULT_PREFIX);
+        String author = getPluginMeta().getAuthors().isEmpty() ? "Unknown" : getPluginMeta().getAuthors().get(0);
+        String name = getPluginMeta().getName();
+        Object configured = languageManager.getMessage(key);
+        if (configured instanceof List<?> list) {
+            if (list.isEmpty()) return;
+            for (Object value : list) {
+                if (value == null || String.valueOf(value).trim().isEmpty()) continue;
+                String line = replaceVariables(String.valueOf(value), placeholders)
+                        .replace("{prefix}", prefix).replace("{version}", getPluginMeta().getVersion())
+                        .replace("{author}", author).replace("{name}", name);
+                sendGameMessage(sender, colorLegacyStatusMessage(key, line), key);
+            }
+            return;
+        }
+        String line = configured instanceof String value ? value : null;
+        if (line == null || line.trim().isEmpty()) return;
+        line = replaceVariables(line, placeholders)
+                .replace("{prefix}", prefix).replace("{version}", getPluginMeta().getVersion())
+                .replace("{author}", author).replace("{name}", name);
+        sendGameMessage(sender, colorLegacyStatusMessage(key, line), key);
+    }
+
+    public void sendGameMessage(CommandSender sender, String message) {
+        sendGameMessage(sender, message, null);
+    }
+
+    private void sendGameMessage(CommandSender sender, String message, String severityKey) {
+        if (sender == null || message == null) return;
+        for (String line : message.split("\\R", -1)) {
+            String formatted = isChatDivider(line) ? color(line) : colorSingleTone(line, severityKey);
+            sender.sendMessage(sender instanceof org.bukkit.entity.Player ? leftAlignGameText(formatted) : formatted);
+        }
+    }
+
+    static String leftAlignGameText(String text) {
+        if (text == null || text.isEmpty()) return text;
+        StringBuilder formatting = new StringBuilder();
+        int index = 0;
+        while (index < text.length()) {
+            if (text.charAt(index) == '\u00a7' && index + 1 < text.length()) {
+                formatting.append(text, index, index + 2);
+                index += 2;
+                continue;
+            }
+            int codePoint = text.codePointAt(index);
+            if (!Character.isWhitespace(codePoint)) break;
+            index += Character.charCount(codePoint);
+        }
+        return formatting.append(text, index, text.length()).toString();
+    }
+
+    private static String colorSingleTone(String message, String severityKey) {
+        if (message == null || message.isEmpty()) return message;
+        String parsed = color(message);
+        String plain = org.bukkit.ChatColor.stripColor(parsed);
+        if (plain == null) plain = parsed;
+        plain = stripUnparsedMiniMessageTags(plain);
+        String tone = isYellowHelpSectionLabel(severityKey, plain)
+                ? GUI_WARNING
+                : isHelpMenu(severityKey)
+                ? GUI_LIGHT_PURPLE
+                : severityKey == null ? inferGameMessageColor(message, plain)
+                : gameMessageColorForKey(severityKey);
+        PrefixSplit prefix = splitGamePrefix(plain);
+        return prefix == null ? tone + plain : renderGamePrefix() + tone + prefix.body();
+    }
+
+    private static boolean isHelpMenu(String severityKey) {
+        return "help_menu_admin".equals(severityKey) || "help_menu_player".equals(severityKey);
+    }
+
+    private static boolean isYellowHelpSectionLabel(String severityKey, String plain) {
+        if (!isHelpMenu(severityKey)) return false;
+        String role = helpHeaderRole(plain);
+        return "player".equals(role) || "admin".equals(role);
+    }
+
+    /** Mirrors Kitloader's role detection so only help section headings stay yellow. */
+    private static String helpHeaderRole(String line) {
+        if (line == null) return null;
+        String plain = line
+                .replaceAll("(?i)</?(?:gradient|color)(?::[^>]+)?>", "")
+                .replaceAll("(?i)</?(?:bold|italic|underlined|strikethrough|obfuscated|reset)>", "")
+                .replaceAll("(?i)<#[0-9a-f]{6}>", "")
+                .replaceAll("(?i)[&§][0-9a-fk-or]", "")
+                .toLowerCase(Locale.ROOT);
+        if (plain.contains("/")) return null;
+        if (plain.contains("plugin name") || plain.contains("插件名称")
+                || (plain.contains("worldareareset") && plain.contains("{version}"))) return "metadata";
+        if (plain.contains("player commands") || plain.contains("玩家可用指令")
+                || plain.contains("玩家指令") || plain.contains("basic commands")
+                || plain.contains("基础指令")) return "player";
+        if (plain.contains("administrator commands") || plain.contains("管理员可用指令")
+                || plain.contains("admin commands") || plain.contains("管理员指令")) return "admin";
+        return null;
+    }
+
+    private static String gameMessageColorForKey(String key) {
+        String severity = messageSeverityColor(key);
+        if (isHelpMenu(key)) return GUI_LIGHT_PURPLE;
+        if (severity == null) return GUI_SUCCESS;
+        if ("#55FF55".equalsIgnoreCase(severity)) return GUI_SUCCESS;
+        if ("#FFFF55".equalsIgnoreCase(severity)) return GUI_WARNING;
+        if ("#00D2FF".equalsIgnoreCase(severity)) return GUI_WARNING;
+        return GUI_ERROR;
+    }
+
+    private static String messageSeverityColor(String key) {
+        return switch (key) {
+            case "plugin_enabled", "update_latest", "update_downloaded", "reload_success",
+                    "finish_cleanup", "finish_restore" -> "#55FF55";
+            case "update_checking", "update_available", "update_manual", "reload_started",
+                    "reload_in_progress", "start_cleanup", "start_restore", "manual_cleanup_started",
+                    "manual_recreate_started", "warning", "restore_warning", "naming_instructions",
+                    "naming_limits" -> "#FFFF55";
+            case "prefix", "help_menu_player", "help_menu_admin" -> null;
+            case "update_failed", "reload_failed", "no_permission", "wrong_usage" -> "#FF5555";
+            default -> "#FF5555";
+        };
+    }
+
+    static String colorLegacyStatusMessage(String key, String message) {
+        if (message == null || key == null || key.equals("naming_instructions")
+                || key.startsWith("help_menu_")) return message;
+        String severity = messageSeverityColor(key);
+        if (severity == null || !message.startsWith(LEGACY_STATUS_GRADIENT)) return message;
+        int open = message.indexOf('>');
+        int close = message.lastIndexOf("</gradient>");
+        if (open < 0 || close <= open || close + "</gradient>".length() != message.length()) return message;
+        return "<color:" + severity + ">" + message.substring(open + 1, close) + "</color>";
+    }
+
+    private static PrefixSplit splitGamePrefix(String plain) {
+        String name = "[WorldAreaReset]";
+        if (plain == null || plain.length() < name.length()
+                || !plain.regionMatches(true, 0, name, 0, name.length())) return null;
+        int index = name.length();
+        while (index < plain.length() && Character.isWhitespace(plain.charAt(index))) index++;
+        if (index < plain.length() && (plain.charAt(index) == '»' || plain.charAt(index) == '>')) {
+            index++;
+            while (index < plain.length() && Character.isWhitespace(plain.charAt(index))) index++;
+        }
+        return new PrefixSplit(plain.substring(index));
+    }
+
+    private static String renderGamePrefix() {
+        return color(PREFIX_BRACKET_COLOR + "<bold>[</bold>" + PREFIX_NAME_COLOR + "<bold>WorldAreaReset</bold>"
+                + PREFIX_BRACKET_COLOR + "<bold>]</bold> " + PREFIX_ARROW_COLOR + "<bold>»</bold> ");
+    }
+
+    private record PrefixSplit(String body) {
+    }
+
+    private static String inferGameMessageColor(String source, String plain) {
+        String value = source == null ? "" : source.toLowerCase(Locale.ROOT);
+        if (containsAny(value, "#ff5555", "#ff5e62", "&c", "§c", "失败", "错误", "拒绝",
+                "禁止", "没有", "不存在", "无法", "已满", "仅限", "格式错误")) return GUI_ERROR;
+        if (containsAny(value, "#ffff55", "#f2c94c", "&e", "§e", "警告", "提示", "等待",
+                "限制", "尚未", "只读", "暂时")) return GUI_WARNING;
+        if (containsAny(value, "#55ff55", "#a8ff78", "#00b09b", "&a", "§a", "成功", "已成功",
+                "完成", "加载", "保存", "发布", "命名", "重命名", "恢复", "公开")) return GUI_SUCCESS;
+        return GUI_SUCCESS;
+    }
+
+    private static boolean containsAny(String text, String... needles) {
+        for (String needle : needles) if (text.contains(needle)) return true;
+        return false;
+    }
+
+    private static boolean isChatDivider(String line) {
+        if (line == null || line.isBlank()) return false;
+        String plain = org.bukkit.ChatColor.stripColor(color(line));
+        if (plain == null) plain = line;
+        String compact = plain.replaceAll("\\s+", "");
+        return compact.length() >= 8 && compact.matches("[-_=✧✦*━]+")
+                && (compact.contains("-") || compact.contains("=") || compact.contains("✧") || compact.contains("✦"));
+    }
+
     void logLocalized(String key, String fallback, String... replacements) {
         String body = message(key, fallback, replacements)
                 .replace("{version}", getPluginMeta().getVersion())
@@ -365,40 +874,41 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                         : getPluginMeta().getAuthors().get(0))
                 .replace("{prefix}", "");
         String statusColor = switch (key) {
-            case "updater.checking" -> CONSOLE_INFO_COLOR;
-            case "updater.latest", "updater.downloaded" -> CONSOLE_SUCCESS_COLOR;
-            case "updater.available", "updater.manual_download" -> CONSOLE_WARNING_COLOR;
-            case "updater.failed" -> CONSOLE_ERROR_COLOR;
+            case "update_checking" -> CONSOLE_INFO_COLOR;
+            case "update_latest", "update_downloaded", "plugin_enabled" -> CONSOLE_SUCCESS_COLOR;
+            case "update_available", "update_manual" -> CONSOLE_WARNING_COLOR;
+            case "update_failed" -> CONSOLE_ERROR_COLOR;
             default -> PREFIX_MESSAGE_COLOR;
         };
-        boolean emphasize = key.equals("updater.available")
-                || key.equals("updater.manual_download")
-                || key.equals("updater.failed");
+        boolean emphasize = key.equals("update_available")
+                || key.equals("update_manual")
+                || key.equals("update_failed");
         logConsole(consoleBodyMarkup(body, statusColor, emphasize));
     }
 
     void broadcastInfo(String prefix, String message) {
-        broadcastToPlayersAndConsole(prefix, message, CONSOLE_INFO_COLOR, false);
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_INFO_COLOR, false, "start_cleanup");
     }
 
     void broadcastSuccess(String prefix, String message) {
-        broadcastToPlayersAndConsole(prefix, message, CONSOLE_SUCCESS_COLOR, false);
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_SUCCESS_COLOR, false, "finish_cleanup");
     }
 
     void broadcastWarning(String prefix, String message) {
-        broadcastToPlayersAndConsole(prefix, message, CONSOLE_WARNING_COLOR, true);
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_WARNING_COLOR, true, "warning");
     }
 
     void broadcastError(String prefix, String message) {
-        broadcastToPlayersAndConsole(prefix, message, CONSOLE_ERROR_COLOR, true);
+        broadcastToPlayersAndConsole(prefix, message, CONSOLE_ERROR_COLOR, true, "wrong_usage");
     }
 
     private void broadcastToPlayersAndConsole(String prefix, String message,
-                                              String consoleColor, boolean emphasize) {
-        Component playerMessage = deserializeInGame(prefix, message);
-        Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage(playerMessage));
+                                              String consoleColor, boolean emphasize, String severityKey) {
+        String body = message.replace("{prefix}", "");
+        String combined = prefix + body;
+        Bukkit.getOnlinePlayers().forEach(player -> sendGameMessage(player, combined, severityKey));
 
-        String coloredBody = consoleBodyMarkup(message, consoleColor, emphasize);
+        String coloredBody = consoleBodyMarkup(body, consoleColor, emphasize);
         String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), coloredBody);
         sendConsoleComponent(deserialize(prefixedBody));
     }
@@ -497,11 +1007,8 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     static Component deserialize(String text) {
-        String source = legacyToMiniMessage(text)
-                .replace("{gradient}", "<gradient:" + String.join(":", DEFAULT_GRADIENT) + ">")
-                .replace("<gradient>", "<gradient:" + String.join(":", DEFAULT_GRADIENT) + ">");
         try {
-            return MINI_MESSAGE.deserialize(source);
+            return SECTION_SERIALIZER.deserialize(color(text));
         } catch (IllegalArgumentException invalidMiniMessage) {
             // Keep old installations readable when a custom message contains an invalid tag.
             return LEGACY_SERIALIZER.deserialize(text.replace('§', '&'));
@@ -538,6 +1045,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         int recreateCountdown = Math.max(0, getConfig().getInt("recreate.countdown_seconds", 10));
         boolean hasCleanupHelp = helpMenu.stream().anyMatch(line -> line.contains("/war cleanup"));
         boolean hasRecreateHelp = helpMenu.stream().anyMatch(line -> line.contains("/war recreate"));
+        String helpKey = isAdmin ? "help_menu_admin" : "help_menu_player";
         for (String line : helpMenu) {
             if (line == null || line.isBlank()) {
                 continue;
@@ -546,7 +1054,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                 String fallback = chinese
                         ? "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war cleanup - 立即清理地形并重置自动倒计时</gradient>"
                         : "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war cleanup - Run cleanup and reset the automatic timer</gradient>";
-                sendHelpLine(sender, fallback,
+                sendHelpLine(sender, fallback, helpKey,
                         pluginName, pluginVersion, author, cleanupInterval, cleanupIntervalUnit, cleanupRemaining,
                         cleanupCountdown, recreateInterval, recreateUnit, recreateRemaining, recreateCountdown);
             }
@@ -554,16 +1062,16 @@ public class WorldAreaResetPlugin extends JavaPlugin {
                 String fallback = chinese
                         ? "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war recreate - 执行地形热恢复并重置自动倒计时</gradient>"
                         : "  <gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold>/war recreate - Run hot restoration and reset the automatic timer</gradient>";
-                sendHelpLine(sender, fallback,
+                sendHelpLine(sender, fallback, helpKey,
                         pluginName, pluginVersion, author, cleanupInterval, cleanupIntervalUnit, cleanupRemaining,
                         cleanupCountdown, recreateInterval, recreateUnit, recreateRemaining, recreateCountdown);
             }
-            sendHelpLine(sender, line, pluginName, pluginVersion, author, cleanupInterval, cleanupIntervalUnit, cleanupRemaining,
+            sendHelpLine(sender, line, helpKey, pluginName, pluginVersion, author, cleanupInterval, cleanupIntervalUnit, cleanupRemaining,
                     cleanupCountdown, recreateInterval, recreateUnit, recreateRemaining, recreateCountdown);
         }
     }
 
-    private void sendHelpLine(CommandSender sender, String line, String pluginName, String pluginVersion,
+    private void sendHelpLine(CommandSender sender, String line, String helpKey, String pluginName, String pluginVersion,
                               String author, String cleanupInterval, String cleanupIntervalUnit, String cleanupRemaining,
                               int cleanupCountdown, long recreateInterval, String recreateUnit, String recreateRemaining,
                               int recreateCountdown) {
@@ -592,7 +1100,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
             String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), consoleBody);
             sendConsoleComponent(sender, deserialize(prefixedBody));
         } else {
-            sender.sendMessage(deserializeInGame(formattedLine));
+            sendGameMessage(sender, formattedLine, helpKey);
         }
     }
 
@@ -619,13 +1127,13 @@ public class WorldAreaResetPlugin extends JavaPlugin {
 
     private void sendPrefixed(CommandSender sender, String key, String fallback, String... replacements) {
         String prefix = message("prefix", DEFAULT_PREFIX);
-        String body = message(key, fallback, replacements);
+        String body = message(key, fallback, replacements).replace("{prefix}", "");
         if (sender instanceof ConsoleCommandSender) {
             String consoleBody = consoleBodyMarkup(body, consoleColorForKey(key), consoleEmphasizeForKey(key));
             String prefixedBody = InGameTextFormatter.prefixContentLines(consolePrefix(), consoleBody);
             sendConsoleComponent(sender, deserialize(prefixedBody));
         } else {
-            sender.sendMessage(deserializeInGame(prefix, body));
+            sendGameMessage(sender, colorLegacyStatusMessage(key, prefix + body), key);
         }
     }
 
@@ -644,7 +1152,7 @@ public class WorldAreaResetPlugin extends JavaPlugin {
     }
 
     private boolean hasAdminPermission(CommandSender sender) {
-        return sender.hasPermission("worldareareset.admin");
+        return sender.hasPermission(getConfig().getString("settings.admin-permission", "worldareareset.admin"));
     }
 
     boolean isChineseLanguage() {
@@ -674,11 +1182,6 @@ public class WorldAreaResetPlugin extends JavaPlugin {
         logBanner(bannerMessage(privacy, BANNER_NOTICE_COLOR));
         logBanner(bannerBorder('='));
 
-        String started = languageManager.code().equalsIgnoreCase("zh_CN")
-                ? "WorldAreaReset v" + version + " 作者 " + author + " 已在 Paper/Folia 核心上成功启动。"
-                : "WorldAreaReset v" + version + " by " + author + " started successfully on Paper/Folia.";
-        started = "<#B9E7FF><bold>" + started + "</bold>";
-        logConsole(started);
     }
 
     private void logConsole(String text) {

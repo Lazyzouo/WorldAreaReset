@@ -3,7 +3,7 @@ plugins {
 }
 
 def pluginName = 'WorldAreaReset'
-def pluginVersion = '1.14.8'
+def pluginVersion = '1.0.0'
 def pluginAuthor = 'Lazyz'
 
 group = 'net.lazyz'
@@ -66,24 +66,22 @@ def releaseJar = tasks.register('releaseJar', Jar) {
         exclude 'config-en_US.yml'
         exclude 'config-zh_CN.yml'
     }
-    from('src/main/resources/config-en_US.yml') {
-        rename { 'config.yml' }
-    }
-    from('src/main/resources/config.yml') {
-        rename { 'config-zh_CN.yml' }
-    }
+    // The release is one versioned JAR. English config.yml is the default;
+    // the Chinese template is an optional resource inside the same package.
+    from('src/main/resources/config.yml')
+    from('src/main/resources/config-zh_CN.yml')
 }
 
 tasks.register('verifyReleaseJar') {
     dependsOn releaseJar
     doLast {
         def jarFile = releaseJar.get().archiveFile.get().asFile
-        def expectedConfig = file('src/main/resources/config-en_US.yml')
+        def expectedConfig = file('src/main/resources/config.yml')
         def packagedConfig = zipTree(jarFile).matching { include 'config.yml' }.singleFile
         if (!Arrays.equals(packagedConfig.bytes, expectedConfig.bytes)) {
             throw new GradleException("${jarFile.name} does not contain the unchanged official ${expectedConfig.name}")
         }
-        def expectedChineseConfig = file('src/main/resources/config.yml')
+        def expectedChineseConfig = file('src/main/resources/config-zh_CN.yml')
         def packagedChineseConfig = zipTree(jarFile).matching { include 'config-zh_CN.yml' }.singleFile
         if (!Arrays.equals(packagedChineseConfig.bytes, expectedChineseConfig.bytes)) {
             throw new GradleException("${jarFile.name} does not contain the unchanged official ${expectedChineseConfig.name}")

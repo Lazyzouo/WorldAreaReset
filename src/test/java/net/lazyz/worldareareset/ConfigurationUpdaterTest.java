@@ -548,17 +548,24 @@ class ConfigurationUpdaterTest {
     void bundledConfigurationsAreValidAndUseTheCurrentFormat() throws Exception {
         List<String> bundledFiles = List.of(
                 "src/main/resources/config.yml",
+                "src/main/resources/config-zh_CN.yml",
                 "src/main/resources/config-en_US.yml",
                 "defaults/config.en_US.yml",
                 "defaults/config.zh_CN.yml");
         for (String bundledFile : bundledFiles) {
             YamlConfiguration configuration = loadWithComments(Path.of(bundledFile));
-            assertEquals(24, configuration.getInt("config_version"), bundledFile);
+            assertEquals(25, configuration.getInt("config-version"), bundledFile);
+            assertFalse(configuration.contains("config_version", true), bundledFile);
             assertFalse(configuration.contains("formatting", true), bundledFile);
             assertFalse(configuration.contains("inline-replacements", true), bundledFile);
             assertFalse(configuration.contains("messages.en_US", true), bundledFile);
             assertFalse(configuration.contains("messages.zh_CN", true), bundledFile);
             assertTrue(configuration.isString("messages.reload_success"), bundledFile);
+            if (bundledFile.endsWith("config-zh_CN.yml") || bundledFile.endsWith("config.zh_CN.yml")) {
+                assertEquals("zh_CN", configuration.getString("language"), bundledFile);
+            } else {
+                assertEquals("en_US", configuration.getString("language"), bundledFile);
+            }
         }
     }
 
@@ -598,6 +605,62 @@ class ConfigurationUpdaterTest {
                         "commands"),
                 updated.getStringList("messages.help_menu_player"));
         assertEquals(24, updated.getInt("config_version"));
+    }
+
+    @Test
+    void migratesKitloaderUpdaterContractFromFormat24() throws Exception {
+        Path configFile = temporaryDirectory.resolve("config.yml");
+        Files.writeString(configFile, """
+                config-version: 24
+                updates:
+                  enabled: true
+                  auto_download: false
+                  notify_latest: true
+                messages:
+                  updater:
+                    disabled: "legacy disabled"
+                    checking: "legacy checking"
+                    latest: "legacy latest {version}"
+                    available: "legacy available {version}"
+                    manual_download: "legacy manual"
+                    downloaded: "legacy downloaded"
+                    failed: "legacy failed"
+                    custom_extension: "retain this"
+                  reload_success: "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5>legacy reload</gradient>"
+                """, StandardCharsets.UTF_8);
+        String defaults = """
+                config-version: 25
+                updates:
+                  enabled: true
+                  auto-download: true
+                messages:
+                  update_checking: "default checking"
+                  update_latest: "default latest"
+                  update_available: "default available"
+                  update_manual: "default manual"
+                  update_downloaded: "default downloaded"
+                  update_failed: "default failed"
+                  reload_success: "default reload"
+                """;
+
+        ConfigurationUpdater.UpdateResult result = ConfigurationUpdater.mergeMissingValues(
+                configFile, new StringReader(defaults), "config-version", "1.0.0", false);
+
+        assertTrue(result.changed());
+        YamlConfiguration updated = loadWithComments(configFile);
+        assertEquals(25, updated.getInt("config-version"));
+        assertFalse(updated.contains("config_version", true));
+        assertFalse(updated.contains("updates.auto_download", true));
+        assertFalse(updated.contains("updates.notify_latest", true));
+        assertFalse(updated.contains("messages.updater.disabled", true));
+        assertTrue(updated.contains("messages.updater", true));
+        assertEquals(false, updated.getBoolean("updates.auto-download"));
+        assertEquals("legacy checking", updated.getString("messages.update_checking"));
+        assertEquals("legacy latest {version}", updated.getString("messages.update_latest"));
+        assertEquals("legacy available {latest}", updated.getString("messages.update_available"));
+        assertEquals("retain this", updated.getString("messages.updater.custom_extension"));
+        assertEquals("<color:#55FF55>legacy reload</color>",
+                updated.getString("messages.reload_success"));
     }
 
     private YamlConfiguration loadWithComments(Path file) throws Exception {

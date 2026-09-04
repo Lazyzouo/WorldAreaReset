@@ -32,6 +32,7 @@ final class ConfigurationUpdater {
     private static final int VISUAL_CONFIG_VERSION = 22;
     private static final int FLAT_MESSAGES_CONFIG_VERSION = 23;
     private static final int HELP_LAYOUT_CONFIG_VERSION = 24;
+    private static final int KITLOADER_PRESENTATION_CONFIG_VERSION = 25;
     private static final String STANDARD_DIVIDER =
             "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------"
                     + "<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------"
@@ -69,19 +70,39 @@ final class ConfigurationUpdater {
 
         YamlConfiguration current = load(normalizedTarget);
         YamlConfiguration defaults = load(defaultsReader);
+        // Kitloader's canonical marker uses a hyphen. Promote the historical
+        // underscore spelling when an upgraded preset uses the canonical key.
+        int legacyVersionMarkerChanged = 0;
+        if ("config-version".equals(versionPath)
+                && !defaults.contains("config-version", true)
+                && defaults.contains("config_version", true)) {
+            versionPath = "config_version";
+        } else if ("config-version".equals(versionPath) && defaults.contains("config-version", true)
+                && current.contains("config_version", true)) {
+            if (!current.contains("config-version", true)) current.set("config-version", current.get("config_version"));
+            current.set("config_version", null);
+            legacyVersionMarkerChanged = 1;
+        }
         int oldVersion = readVersion(current, versionPath, "Existing configuration");
         int targetVersion = readVersion(defaults, versionPath, "Bundled defaults");
         if (versionPath != null && targetVersion < 0) {
             throw new InvalidConfigurationException(
                     "Bundled defaults must define a non-negative integer " + versionPath);
         }
+        if (versionPath != null && oldVersion > targetVersion) {
+            throw new InvalidConfigurationException(
+                    "Existing configuration uses newer schema v" + oldVersion
+                            + "; refusing to downgrade it to v" + targetVersion);
+        }
         int migratedKeys = migrateWorldModules(current, defaults, versionPath, oldVersion, targetVersion);
+        migratedKeys += legacyVersionMarkerChanged;
         migratedKeys += migrateCleanupInterval(current, defaults, versionPath, oldVersion, targetVersion);
         migratedKeys += migrateLanguageAndVisualStructure(current, defaults, versionPath, oldVersion, targetVersion);
         migratedKeys += migrateKnownLegacyMessages(current, defaults);
         migratedKeys += migrateLegacyDividers(current);
         migratedKeys += migrateLegacyMessageFormatting(current, defaults, versionPath, oldVersion, targetVersion);
         migratedKeys += migrateHelpMenuLayout(current, defaults, versionPath, oldVersion, targetVersion);
+        migratedKeys += migrateKitloaderPresentation(current, defaults, versionPath, oldVersion, targetVersion);
         migratedKeys += refreshOfficialHeader(current, defaults, versionPath, oldVersion, targetVersion,
                 refreshComments);
         if (refreshComments) {
@@ -107,10 +128,88 @@ final class ConfigurationUpdater {
         return new UpdateResult(addedKeys, versionUpdated, backupFile, List.of());
     }
 
+    /** Aligns legacy updater nesting, option spelling, and status colors with Kitloader. */
+    private static int migrateKitloaderPresentation(YamlConfiguration current, YamlConfiguration defaults,
+                                                    String versionPath, int currentVersion, int targetVersion) {
+        if (versionPath == null || targetVersion < KITLOADER_PRESENTATION_CONFIG_VERSION
+                || currentVersion >= KITLOADER_PRESENTATION_CONFIG_VERSION) return 0;
+        int changed = 0;
+        if (current.contains("updates.auto_download", true)) {
+            if (!current.contains("updates.auto-download", true)) current.set("updates.auto-download", current.get("updates.auto_download"));
+            current.set("updates.auto_download", null);
+            changed++;
+        }
+        if (current.contains("updates.notify_latest", true)) {
+            current.set("updates.notify_latest", null);
+            changed++;
+        }
+        ConfigurationSection legacy = current.getConfigurationSection("messages.updater");
+        if (legacy != null) {
+            Map<String, String> names = Map.of(
+                    "checking", "update_checking", "latest", "update_latest",
+                    "available", "update_available", "manual_download", "update_manual",
+                    "downloaded", "update_downloaded", "failed", "update_failed");
+            for (Map.Entry<String, String> entry : names.entrySet()) {
+                Object value = legacy.get(entry.getKey());
+                if (value != null && !current.contains("messages." + entry.getValue(), true)) {
+                    String text = String.valueOf(value).replace("{version}",
+                            "available".equals(entry.getKey()) ? "{latest}" : "{version}");
+                    current.set("messages." + entry.getValue(), text);
+                    changed++;
+                }
+                if (value != null) {
+                    legacy.set(entry.getKey(), null);
+                    changed++;
+                }
+            }
+            // `disabled` was an official updater message in the legacy
+            // nesting, but the Kitloader contract has no equivalent because
+            // updates.enabled now controls that state.
+            if (legacy.contains("disabled", true)) {
+                legacy.set("disabled", null);
+                changed++;
+            }
+            // Retain administrator-defined updater extensions. Remove the
+            // retired section only when all of its children were official keys.
+            if (legacy.getKeys(false).isEmpty()) {
+                current.set("messages.updater", null);
+                changed++;
+            }
+        }
+        ConfigurationSection messages = current.getConfigurationSection("messages");
+        if (messages != null) {
+            for (String key : List.of("reload_success", "manual_cleanup_started", "manual_recreate_started",
+                    "no_permission", "wrong_usage", "start_cleanup", "start_restore")) {
+                Object value = messages.get(key);
+                if (value instanceof String text && text.startsWith("<gradient:")) {
+                    String color = switch (key) {
+                        case "reload_success" -> "#55FF55";
+                        case "manual_cleanup_started", "manual_recreate_started" -> "#FFFF55";
+                        case "start_cleanup", "start_restore" -> "#00D2FF";
+                        default -> "#FF5555";
+                    };
+                    int open = text.indexOf('>');
+                    int close = text.lastIndexOf("</gradient>");
+                    if (open >= 0 && close > open && close + 11 == text.length()) {
+                        messages.set(key, "<color:" + color + ">" + text.substring(open + 1, close) + "</color>");
+                        changed++;
+                    }
+                }
+            }
+        }
+        return changed;
+    }
+
     private static int readVersion(YamlConfiguration configuration, String versionPath, String source)
             throws InvalidConfigurationException {
         if (versionPath == null || !configuration.contains(versionPath, true)) {
-            return -1;
+            if ("config-version".equals(versionPath) && configuration.contains("config_version", true)) {
+                versionPath = "config_version";
+            } else if ("config_version".equals(versionPath) && configuration.contains("config-version", true)) {
+                versionPath = "config-version";
+            } else {
+                return -1;
+            }
         }
 
         Object value = configuration.get(versionPath);
@@ -363,7 +462,8 @@ final class ConfigurationUpdater {
 
     private static boolean isOfficialMessageKey(String key) {
         return switch (key) {
-            case "reload_success", "manual_cleanup_started", "manual_recreate_started", "no_permission",
+            case "plugin_enabled", "update_checking", "update_latest", "update_available", "update_downloaded",
+                    "update_manual", "update_failed", "reload_success", "manual_cleanup_started", "manual_recreate_started", "no_permission",
                     "wrong_usage", "start_cleanup", "start_restore", "warning", "restore_warning",
                     "finish_cleanup", "finish_restore", "help_menu_player", "help_menu_admin", "updater" -> true;
             default -> false;
@@ -487,7 +587,7 @@ final class ConfigurationUpdater {
                 || !looksLikeOfficialHeader(String.join("\n", header))) {
             return 0;
         }
-        current.setComments("config_version", new ArrayList<>(defaultsHeader));
+        current.setComments(versionPath == null ? "config-version" : versionPath, new ArrayList<>(defaultsHeader));
         if (!defaults.options().getHeader().isEmpty()) {
             current.options().setHeader(new ArrayList<>(defaults.options().getHeader()));
         }
@@ -528,7 +628,8 @@ final class ConfigurationUpdater {
         if (header != null && !header.isEmpty()) {
             return header;
         }
-        return configuration.getComments("config_version");
+        List<String> comments = configuration.getComments("config-version");
+        return comments.isEmpty() ? configuration.getComments("config_version") : comments;
     }
 
     private static boolean looksLikeOfficialHeader(String header) {
@@ -819,6 +920,9 @@ final class ConfigurationUpdater {
             if (path.equals(versionPath)) {
                 continue;
             }
+            if ("config-version".equals(versionPath) && "config_version".equals(path)) {
+                continue;
+            }
 
             if (!current.contains(path, true)) {
                 continue;
@@ -869,7 +973,9 @@ final class ConfigurationUpdater {
         int addedKeys = 0;
 
         for (String path : defaultPaths) {
-            if (path.equals(versionPath) || current.contains(path, true)) {
+            if (path.equals(versionPath)
+                    || ("config-version".equals(versionPath) && "config_version".equals(path))
+                    || current.contains(path, true)) {
                 continue;
             }
 
