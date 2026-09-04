@@ -25,7 +25,7 @@ A Paper/Folia terrain-maintenance plugin designed for administrator-defined free
 - Manual hot restoration through `/war recreate`, using only `recreate.*` settings.
 - Cleanup and recreate each use one `worlds` module list; every world owns its own `regions` list.
 - Automatic configuration migration that adds new options without replacing administrator values or custom keys.
-- MiniMessage/Hex/gradient message rendering with the fixed KitLoader five-color palette, plus safe Legacy-color compatibility.
+- MiniMessage/Hex/gradient message rendering with WorldAreaReset's fixed five-color palette, plus safe Legacy-color compatibility.
 - Bold, left-aligned rendering for every in-game plugin message; configured leading indentation is removed at runtime, and decorative divider rows omit the plugin prefix to preserve their full width.
 - Inclusive X/Y/Z cuboid boundaries, a material allowlist, and independent hot-reloadable player-protection radii for cleanup and restoration (default 2 blocks).
 - Optional hot restoration from external `region/` templates, using either configured cuboids or every chunk stored in the template.
@@ -40,6 +40,10 @@ A Paper/Folia terrain-maintenance plugin designed for administrator-defined free
 - A wider, fully enclosed startup banner with a language-specific PvP terrain-maintenance subtitle and dashed title separator; banner rows are prefix-free while updater notices use the purple/red plugin prefix and distinct status colors.
 - Folia region scheduling and a visible startup banner.
 - Automated CI, tagged releases, GitHub asset digests, and bilingual release notes.
+
+## Compatibility and integrations
+
+WorldAreaReset's message, color, prefix, separator, GUI, and severity conventions are compatible with KitLoader. KitLoader is optional and is not a runtime dependency. Region and PvP-management plugins may continue to own boundary and permission policy while WorldAreaReset performs cleanup or restoration inside its configured coordinates.
 
 ## Requirements
 
@@ -124,7 +128,7 @@ language: "en_US"
 language: "zh_CN"
 ```
 
-`language-applied` is maintained by the plugin and records the language most recently applied at runtime. Change only `language`, then run `/war reload` or restart. All bundled messages use the fixed KitLoader palette `#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5` and the `✧` divider.
+`language-applied` is maintained by the plugin and records the language most recently applied at runtime. Change only `language`, then run `/war reload` or restart. All bundled messages use WorldAreaReset's fixed five-color palette `#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5` and the `✧` divider.
 
 Messages accept MiniMessage tags such as `<#RRGGBB>`, `<gradient:...>`, `<bold>`, `<italic>`, `<underlined>`, `<strikethrough>`, `<obfuscated>`, `<reset>`, and `<br>`; existing `&` color codes remain compatible.
 
@@ -134,9 +138,9 @@ Language files are no longer generated. Each release has exactly one uploaded pl
 
 Release filenames always follow `WorldAreaReset-<version>.jar`. CI and the Release workflow publish the exact file produced in `build/libs/` without renaming, relabeling, or adding other JAR assets.
 
-The official templates keep one flat `messages` section containing only the selected language. Server-specific cleanup parameters retain safe official presets. Ordinary messages use the fixed KitLoader gradient, with the documented banner, severity, and help-heading color exceptions; console updater notices, command responses, and cleanup/restoration broadcasts use the startup-banner palette with structured title, label, and value colors and never a player-facing gradient. Player broadcasts retain the configured message styling.
+The official templates keep one flat `messages` section containing only the selected language. Server-specific cleanup parameters retain safe official presets. Ordinary messages use WorldAreaReset's fixed five-color gradient, with the documented banner, severity, and help-heading color exceptions; console updater notices, command responses, and cleanup/restoration broadcasts use the startup-banner palette with structured title, label, and value colors and never a player-facing gradient. Player broadcasts retain the configured message styling.
 
-Player-facing text is forced bold and left aligned at runtime without rewriting configured message text or colors. Leading spaces are removed independently from every line while leading legacy and hex formatting codes are preserved. Help menus, command feedback, countdown warnings, cleanup broadcasts, and completion messages use the same alignment and fixed KitLoader five-color gradient. In prefixed multiline messages, content rows keep the configured plugin prefix while decorative divider rows render without it, preventing the divider from wrapping. Every divider uses the KitLoader-style `✧` format; divider rows remain decorative and are not centering anchors.
+Player-facing text is forced bold and left aligned at runtime without rewriting configured message text or colors. Leading spaces are removed independently from every line while leading legacy and hex formatting codes are preserved. Help menus, command feedback, countdown warnings, cleanup broadcasts, and completion messages use the same alignment and fixed five-color gradient. In prefixed multiline messages, content rows keep the configured plugin prefix while decorative divider rows render without it, preventing the divider from wrapping. Every divider uses the fixed WorldAreaReset `✧` format; divider rows remain decorative and are not centering anchors.
 
 The top of every bundled configuration uses the exact 103-column ASCII layout. The brand is contained in the multi-line symbol art; no separate plain `# WorldAreaReset by Lazyz` line is included.
 
@@ -262,6 +266,10 @@ WorldAreaReset 是一款面向 Paper/Folia 服务器、专为管理员指定的�
 - Folia 区域调度与醒目的启动横幅。
 - 自动 CI、标签发布、GitHub 资源摘要及双语 Release 更新日志。
 
+## 兼容与配合
+
+WorldAreaReset 的消息、颜色、前缀、分割线、GUI 和严重级别约定与 KitLoader 兼容；KitLoader 不是运行依赖。服务器使用的区域/PvP 管理插件可以继续负责区域和权限策略，本插件只按配置坐标执行清理或恢复。
+
 ## 版本限制
 
 WorldAreaReset 1.0.0 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
@@ -331,15 +339,15 @@ recreate:
 
 每个 Release 仅上传一个通用 JAR，文件名固定遵循 `WorldAreaReset-<版本>.jar`；该包内置英文默认配置和中文配置模板，运行时只保留当前语言。GitHub 页面自动显示的源码 ZIP/TAR 并非项目额外上传的 Release 附件；CI 和 Release 工作流必须原样上传 `build/libs/` 的单个构建文件，禁止改名、改标签或加入其他 JAR。在 `config.yml` 设置 `language: "zh_CN"` 或 `language: "en_US"` 后执行 `/war reload` 仍可随时切换语言；切换时会刷新插件官方配置头、注释和扁平消息。`language-applied` 由插件维护，记录最近一次已应用语言；只修改 `language`，不要手动修改 `language-applied`。旧版 `lang` 文件会自动删除。
 
-所有默认消息统一使用 KitLoader 五色渐变 `#FFB7D5`、`#D7C7FF`、`#B9E7FF`、`#D7C7FF`、`#FFB7D5` 和 `✧` 分割线。消息支持 `<#RRGGBB>`、`<gradient:...>`、`<bold>`、`<italic>`、`<underlined>`、`<strikethrough>`、`<obfuscated>`、`<reset>` 和 `<br>`，旧版 `&` 色码仍可使用。玩家端清理/恢复广播保留配置样式；后台端会移除玩家渐变和自定义颜色，改用启动横幅的紫色边框、红色标题、浅紫标签、浅蓝值和粉色提示区分内容。
+所有默认消息统一使用 WorldAreaReset 五色渐变 `#FFB7D5`、`#D7C7FF`、`#B9E7FF`、`#D7C7FF`、`#FFB7D5` 和 `✧` 分割线。消息支持 `<#RRGGBB>`、`<gradient:...>`、`<bold>`、`<italic>`、`<underlined>`、`<strikethrough>`、`<obfuscated>`、`<reset>` 和 `<br>`，旧版 `&` 色码仍可使用。玩家端清理/恢复广播保留配置样式；后台端会移除玩家渐变和自定义颜色，改用启动横幅的紫色边框、红色标题、浅紫标签、浅蓝值和粉色提示区分内容。
 
 帮助菜单中的 `{cleanup_remaining}` 与 `{recreate_remaining}` 会按配置的分钟、小时或天作为最大单位，并精确显示到秒；对应计划关闭时仍保留状态行并显示“未排程”。
 
-所有游戏内文本都会在运行时强制显示为粗体并统一左对齐，不会改写配置中的消息文本或颜色。每一行的行首空格都会被移除，同时保留行首旧式颜色码与十六进制颜色码。帮助菜单、指令反馈、清理倒计时、清理广播和完成消息均使用相同对齐规则；带前缀的多行消息仅在正文行显示已配置的插件前缀，装饰分割线不显示前缀，从而避免分割线折行。所有分割线统一使用与 Kitloader 相同的可见文本 `---------------- ✧ ----------------`（两侧各 16 个连字符），分割线仍仅用于装饰，不作为居中基准。每个内置配置顶部均采用精确的 103 列 ASCII 版式，品牌包含在多行符号拼凑图案中，不再添加独立的普通品牌行。
+所有游戏内文本都会在运行时强制显示为粗体并统一左对齐，不会改写配置中的消息文本或颜色。每一行的行首空格都会被移除，同时保留行首旧式颜色码与十六进制颜色码。帮助菜单、指令反馈、清理倒计时、清理广播和完成消息均使用相同对齐规则；带前缀的多行消息仅在正文行显示已配置的插件前缀，装饰分割线不显示前缀，从而避免分割线折行。所有分割线统一使用 WorldAreaReset 的可见文本 `---------------- ✧ ----------------`（两侧各 16 个连字符），分割线仍仅用于装饰，不作为居中基准。每个内置配置顶部均采用精确的 103 列 ASCII 版式，品牌包含在多行符号拼凑图案中，不再添加独立的普通品牌行。
 
 ## 配置自动迁移
 
-更新后不再需要删除 `plugins/WorldAreaReset/config.yml`。服务器启动或执行 `/war reload` 时，如果文件缺失，插件会先从内置默认值恢复，再解析配置并补充缺失路径；当前语言消息保持扁平结构，并统一使用 KitLoader 五色渐变和 `✧` 分割线。其他已有参数、未知扩展键、明确设置的 `false`、注释及语言选择都会保留。
+更新后不再需要删除 `plugins/WorldAreaReset/config.yml`。服务器启动或执行 `/war reload` 时，如果文件缺失，插件会先从内置默认值恢复，再解析配置并补充缺失路径；当前语言消息保持扁平结构，并统一使用 WorldAreaReset 五色渐变和 `✧` 分割线。其他已有参数、未知扩展键、明确设置的 `false`、注释及语言选择都会保留。
 
 主 `config.yml` 需要更新时，会先备份到 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件并原子替换正式文件。只有兼容合并成功后才更新 `config-version`；YAML 损坏或结构冲突时不会覆盖原文件。未知自定义键会保留，后续配置结构变化会通过有序迁移处理。
 

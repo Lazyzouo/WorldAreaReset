@@ -17,6 +17,10 @@
 
 Always include the exact server implementation and build when reporting a problem.
 
+### Compatibility and integrations
+
+WorldAreaReset's message, color, prefix, separator, GUI, and severity conventions are compatible with KitLoader. KitLoader is optional and is not a runtime dependency. Region and PvP-management plugins may continue to own boundary and permission policy while WorldAreaReset performs cleanup or restoration inside its configured coordinates.
+
 ### 2. Purpose and runtime model
 
 WorldAreaReset provides scheduled terrain maintenance for administrator-defined free-for-all PvP zones. The default mode cleans an inclusive cuboid in one or more loaded worlds: every non-air block not listed in `cleanup.keep_blocks` and outside the configured player-protection radius is changed to air without physics, and every non-player entity inside the cuboid is removed. Optional hot restoration reads block data from external `region/` templates and applies it after the same countdown while protecting the corresponding radius.
@@ -118,11 +122,11 @@ Only server-specific settings such as world, boundaries, interval, allowlist, la
 
 Supported placeholders include `{name}`, `{version}`, `{author}`, `{interval}`, `{countdown}`, `{cleanup_interval}`, `{cleanup_interval_unit}`, `{cleanup_remaining}`, `{cleanup_countdown}`, `{recreate_interval}`, `{recreate_interval_unit}`, `{recreate_remaining}`, `{recreate_countdown}`, `{world}`, `{worlds}`, `{time}`, `{blocks}`, `{protected}`, `{ignored}`, `{entities}`, `{failed}`, `{current}`, `{reason}`, and `{url}` where relevant. `{cleanup_remaining}` and `{recreate_remaining}` show a live countdown with seconds, using the configured minutes, hours, or days as the largest unit. Their help rows remain visible when a schedule is disabled and show `not scheduled` (or `未排程`). In a restore completion message, a line containing `{ignored}` is omitted when no template blocks were ignored. For multi-world cleanup or restoration, `{world}` and `{worlds}` both contain the comma-separated world list.
 
-The startup banner is prefix-free and follows the selected language; all other updater notices, command responses, and cleanup/restoration broadcasts use the fixed KitLoader-style purple/red `WorldAreaReset` prefix. Banner fields use border `#8A2387`, title `#E62028`, labels/separators `#D7C7FF`, values `#B9E7FF`, and open-source rows `#FF69B4`. Console notifications discard player-facing gradients and rebuild content with the same banner palette: red titles, light-purple labels/separators, light-blue values, and pink notices. Player messages use the Kitloader severity palette: `#55FF55` for success, `#FFFF55` for waiting/warnings, and `#FF5555` for errors.
+The startup banner is prefix-free and follows the selected language; all other updater notices, command responses, and cleanup/restoration broadcasts use WorldAreaReset's fixed purple/red prefix. Banner fields use border `#8A2387`, title `#E62028`, labels/separators `#D7C7FF`, values `#B9E7FF`, and open-source rows `#FF69B4`. Console notifications discard player-facing gradients and rebuild content with the same banner palette: red titles, light-purple labels/separators, light-blue values, and pink notices. Player messages use WorldAreaReset's severity palette: `#55FF55` for success, `#FFFF55` for waiting/warnings, and `#FF5555` for errors.
 
 The startup banner uses a dynamic interior width: at least 60 columns, or one column wider than the widest visible content line. Its identity section contains the centered service name/version and a centered subtitle in the selected language, followed by a full-width dashed separator before runtime metadata. Every title, metadata, project URL, and privacy row is enclosed by matching left and right borders. Padding ignores legacy color codes and counts Chinese characters as double-width terminal columns, keeping the right border aligned with space after the longest field.
 
-Every player-facing plugin message is forced left aligned at runtime. Leading whitespace is removed independently from every line without rewriting configuration. Help menus use the light-purple presentation color, status messages use their severity color, and only divider rows retain the five-color gradient. In prefixed multiline messages, content rows retain the configured plugin prefix while decorative divider rows omit it so the full divider does not wrap. All divider rows use the exact KitLoader-style `✧` divider; old rows are migrated safely while other custom text is preserved. The bundled configuration header uses the exact 103-column ASCII layout, with the brand contained in the multi-line symbol art and no separate plain brand line.
+Every player-facing plugin message is forced left aligned at runtime. Leading whitespace is removed independently from every line without rewriting configuration. Help menus use the light-purple presentation color, status messages use their severity color, and only divider rows retain the five-color gradient. In prefixed multiline messages, content rows retain the configured plugin prefix while decorative divider rows omit it so the full divider does not wrap. All divider rows use the exact WorldAreaReset `✧` divider; old rows are migrated safely while other custom text is preserved. The bundled configuration header uses the exact 103-column ASCII layout, with the brand contained in the multi-line symbol art and no separate plain brand line.
 
 ### 5. Automatic cleanup sequence
 
@@ -176,7 +180,7 @@ Disable the network check with `updates.enabled: false`, or keep notifications w
 - Invalid Material names are logged and ignored.
 - Player entities are preserved. Restore mode skips the configured spherical radius around players; every other block is written to the template state.
 - All non-player entity categories are removed; no entity allowlist exists.
-- WorldGuard, claims, protected regions, and ownership are not consulted.
+- Region protection, claims, protected regions, and ownership are not consulted.
 - Automatic migration preserves unknown custom keys; format 15 removes only the retired world/bounds/region fields it converts into modules, format 16 adds missing restore pacing values, format 17 adds template filter values, and format 18 converts the legacy cleanup interval field.
 - A failed or partial cleanup has no built-in rollback.
 
@@ -194,6 +198,10 @@ Back up the world, pre-generate chunks, test a small range, and run large cleanu
 - `plugin.yml` 中的 `api-version: 1.21` 是 Bukkit API 元数据，不代表所有 1.21.x 服务端都受支持。
 
 报告问题时必须提供准确的服务端实现与构建号。
+
+### 兼容与配合
+
+WorldAreaReset 的消息、颜色、前缀、分割线、GUI 和严重级别约定与 KitLoader 兼容；KitLoader 不是运行依赖。服务器使用的区域/PvP 管理插件可以继续负责区域和权限策略，本插件只按配置坐标执行清理或恢复。
 
 ### 2. 用途与运行模型
 
@@ -304,11 +312,11 @@ recreate:
 
 根据消息场景可使用 `{name}`、`{version}`、`{author}`、`{interval}`、`{countdown}`、`{cleanup_interval}`、`{cleanup_interval_unit}`、`{cleanup_remaining}`、`{cleanup_countdown}`、`{recreate_interval}`、`{recreate_interval_unit}`、`{recreate_remaining}`、`{recreate_countdown}`、`{world}`、`{worlds}`、`{time}`、`{blocks}`、`{protected}`、`{ignored}`、`{entities}`、`{failed}`、`{current}`、`{reason}` 和 `{url}` 等变量。`{cleanup_remaining}` 与 `{recreate_remaining}` 会按配置的分钟、小时或天作为最大单位并精确到秒；对应计划关闭时，帮助菜单仍显示状态行并显示“未排程”。恢复完成消息中，未忽略模板方块时会自动省略含 `{ignored}` 的整行。多世界清理或恢复时，`{world}` 与 `{worlds}` 都会得到逗号分隔的世界列表。
 
-启动横幅之外的全部更新器通知、指令响应以及清理/热恢复广播共用固定的 KitLoader 风格紫红色 `WorldAreaReset` 前缀；横幅本身不添加前缀并遵循当前语言。后台通知会移除玩家端渐变和自定义颜色，改用启动横幅的颜色体系：紫色边框、红色标题、浅紫标签/分隔线、浅蓝值和粉色提示；玩家端状态消息沿用 Kitloader 的成功绿 `#55FF55`、等待/警告黄 `#FFFF55` 与错误红 `#FF5555`。
+启动横幅之外的全部更新器通知、指令响应以及清理/热恢复广播共用 WorldAreaReset 固定的紫红色前缀；横幅本身不添加前缀并遵循当前语言。后台通知会移除玩家端渐变和自定义颜色，改用启动横幅的颜色体系：紫色边框、红色标题、浅紫标签/分隔线、浅蓝值和粉色提示；玩家端状态消息使用 WorldAreaReset 的成功绿 `#55FF55`、等待/警告黄 `#FFFF55` 与错误红 `#FF5555`。
 
 启动横幅内部宽度动态计算：最小 60 列，并至少比最长可见内容行多 1 列。身份标题区包含居中的服务名称与版本，以及遵循当前语言的居中 PvP 地形维护副标题，随后使用整行虚线将标题区与运行信息分隔。标题、元数据、项目地址和隐私声明各行均由同色左右边框完整包围。留白计算会忽略旧式颜色码，并将中文字符按双列终端宽度计算，使右侧边框保持对齐，并与最长字段保留空隙。
 
-所有插件游戏内文本都会在运行时统一左对齐。系统会逐行移除行首空白而不改写配置；帮助菜单使用浅紫展示色，状态消息使用 Kitloader 的严重级别色，只有装饰分割线保留五色渐变。带前缀的多行消息会在正文行保留已配置的插件前缀，但装饰分割线不显示前缀，避免完整分割线折行。所有分割线统一使用 KitLoader 风格的 `✧`，旧分割线会安全迁移且不影响其它自定义文本。内置配置顶部采用精确的 103 列 ASCII 版式，品牌包含在多行符号拼凑图案中，不再添加独立的普通品牌行。
+所有插件游戏内文本都会在运行时统一左对齐。系统会逐行移除行首空白而不改写配置；帮助菜单使用浅紫展示色，状态消息使用 WorldAreaReset 的严重级别色，只有装饰分割线保留五色渐变。带前缀的多行消息会在正文行保留已配置的插件前缀，但装饰分割线不显示前缀，避免完整分割线折行。所有分割线统一使用 WorldAreaReset 固定的 `✧`，旧分割线会安全迁移且不影响其它自定义文本。内置配置顶部采用精确的 103 列 ASCII 版式，品牌包含在多行符号拼凑图案中，不再添加独立的普通品牌行。
 
 ### 5. 自动清理逻辑
 
@@ -356,7 +364,7 @@ recreate:
 - 无效 Material 会记录警告并忽略。
 - 玩家实体不会被删除，也不会被传送到安全位置；恢复模式会跳过配置的玩家周围球形保护半径。
 - 没有实体白名单，所有非玩家实体类别都可能被删除。
-- 不识别 WorldGuard、领地、保护区或归属。
+- 不识别区域保护、领地、保护区或归属。
 - 自动迁移会保留未知自定义键；格式 15 只移除已转换成世界模块的旧世界、边界与区域字段，格式 16 会补充缺失的恢复速度参数，格式 17 会补充模板方块过滤参数，格式 18 会转换旧的清理周期字段。
 - 清理失败或只完成一部分时没有内置回滚。
 
