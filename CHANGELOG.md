@@ -2,6 +2,18 @@
 
 All notable changes are documented here. English is listed before Chinese for every release.
 
+## [1.0.1] - 2026-09-05
+
+### English
+
+- Fix startup migration for servers upgrading from the known v1-v25 configuration chain after the public schema marker was reset to `config-version: 1`.
+- Preserve the existing refusal for unknown future schemas instead of downgrading them.
+
+### 中文
+
+- 修复公开配置标记重置为 `config-version: 1` 后，已使用 v1-v25 配置链的服务器启动迁移问题。
+- 保留对未知未来配置格式的拒绝行为，不会强制降级覆盖。
+
 ## [1.0.0] - 2026-09-05
 
 ### English

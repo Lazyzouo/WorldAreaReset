@@ -663,6 +663,51 @@ class ConfigurationUpdaterTest {
                 updated.getString("messages.reload_success"));
     }
 
+    @Test
+    void migratesKnownLegacyConfigurationAfterPublicSchemaReset() throws Exception {
+        Path configFile = temporaryDirectory.resolve("config.yml");
+        Files.writeString(configFile, """
+                config-version: 24
+                updates:
+                  enabled: true
+                  auto_download: false
+                  notify_latest: true
+                messages:
+                  updater:
+                    checking: "legacy checking"
+                """, StandardCharsets.UTF_8);
+        String defaults = """
+                config-version: 1
+                updates:
+                  enabled: true
+                  auto-download: true
+                messages:
+                  update_checking: "default checking"
+                """;
+
+        ConfigurationUpdater.UpdateResult result = ConfigurationUpdater.mergeMissingValues(
+                configFile, new StringReader(defaults), "config-version", "1.0.1", false);
+
+        assertTrue(result.changed());
+        assertFalse(result.blocked());
+        YamlConfiguration updated = loadWithComments(configFile);
+        assertEquals(25, updated.getInt("config-version"));
+        assertEquals(false, updated.getBoolean("updates.auto-download"));
+        assertFalse(updated.contains("updates.auto_download", true));
+        assertEquals("legacy checking", updated.getString("messages.update_checking"));
+    }
+
+    @Test
+    void stillRejectsUnknownSchemaAfterPublicSchemaReset() throws Exception {
+        Path configFile = temporaryDirectory.resolve("config.yml");
+        byte[] original = "config-version: 26\n".getBytes(StandardCharsets.UTF_8);
+        Files.write(configFile, original);
+
+        assertThrows(InvalidConfigurationException.class, () -> ConfigurationUpdater.mergeMissingValues(
+                configFile, new StringReader("config-version: 1\n"), "config-version", "1.0.1", false));
+        assertArrayEquals(original, Files.readAllBytes(configFile));
+    }
+
     private YamlConfiguration loadWithComments(Path file) throws Exception {
         YamlConfiguration configuration = new YamlConfiguration();
         configuration.options().parseComments(true);

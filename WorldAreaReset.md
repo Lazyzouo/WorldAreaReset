@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > WorldAreaReset is fully open source and contains no telemetry, remote administration, hidden data collection, or backdoor functionality. Server content is not uploaded; plugin-created files remain local. The only optional runtime network access is the official GitHub Release update check/download. / WorldAreaReset 完全开源，不含遥测、远程管理、隐藏数据收集或后门功能，不会上传服务器内容，插件创建的文件仅保存在本机；唯一可选联网行为是官方 GitHub Release 更新检查与下载。详见 [PRIVACY.md](PRIVACY.md)。
 
-> Applies to / 适用于：`WorldAreaReset 1.0.0`<br>
+> Applies to / 适用于：`WorldAreaReset 1.0.1`<br>
 > Project / 项目地址：https://github.com/Lazyzouo/WorldAreaReset
 
 ## English
@@ -53,7 +53,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-The first newly created `config.yml` contains copy-ready world modules for both modes. The first public release starts at configuration format `1`; future schema changes increment `config-version` and migrate existing values in order while preserving administrator settings.
+The first newly created `config.yml` contains copy-ready world modules for both modes. The first public release starts at configuration format `1`; known v1-v25 configurations from the pre-reset chain are migrated through the retained compatibility steps, while unknown newer schemas remain blocked. Future schema changes increment `config-version` and migrate existing values in order while preserving administrator settings.
 
 Sparse template data is merged per block position. A template state that exists, including explicit `minecraft:air`, replaces the target state; an omitted template section has no state and preserves the target block. Omitted data does not claim an overlap, so another configured region can still supply a saved state there. This layered `world_nether` configuration therefore preserves the outer area's lower terrain while restoring its saved upper layer:
 
@@ -82,7 +82,7 @@ The bundled English and Chinese administrator help menus must contain every comm
 | Path | Default | Meaning |
 | --- | --- | --- |
 | `config-version` | `1` | Automatically maintained public configuration format marker |
-| `language` | `en_US` | The single `WorldAreaReset-1.0.0.jar` starts with the English `config.yml`; set `zh_CN` to apply the bundled Simplified Chinese template |
+| `language` | `en_US` | The single `WorldAreaReset-1.0.1.jar` starts with the English `config.yml`; set `zh_CN` to apply the bundled Simplified Chinese template |
 | `language-applied` | Selected language | Plugin-maintained marker; change `language` only, then reload or restart |
 | `messages` | Flat selected-language messages | The active language is written directly to `messages` |
 | `cleanup.enabled` | `false` | Enables automatic scheduling; manual cleanup remains available when false |
@@ -104,7 +104,7 @@ The bundled English and Chinese administrator help menus must contain every comm
 
 Official defaults and first-creation examples are stored in `src/main/resources/config.yml`, `src/main/resources/config-zh_CN.yml`, `src/main/resources/config-en_US.yml`, and `defaults/`. The build creates one release JAR containing the English default `config.yml` and the Chinese `config-zh_CN.yml` template; language-specific release JARs are not produced. Live server configuration belongs only in `plugins/WorldAreaReset/config.yml` and is excluded from the repository. When `language` changes, plugin-owned comments, the configuration header, and flat `messages.*` values are refreshed to the selected template while administrator parameters and unknown keys remain unchanged.
 
-At every startup, the plugin parses the live `config.yml` and matching bundled default as structured YAML. Existing parameters, unknown custom keys, selected language, and parsed comments are retained. Future schema changes increment `config-version` and use ordered migrations; incompatible or newer unsupported schemas are never overwritten. Legacy `lang` files are removed after migration.
+At every startup, the plugin parses the live `config.yml` and matching bundled default as structured YAML. Existing parameters, unknown custom keys, selected language, and parsed comments are retained. Known v1-v25 configurations from the pre-reset chain use the retained compatibility migrations; future schema changes increment `config-version` and use ordered migrations. Incompatible or newer unsupported schemas are never overwritten. Legacy `lang` files are removed after migration.
 
 Before changing the main `config.yml`, the plugin creates `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`; it then writes a same-directory temporary file, flushes it, and atomically replaces the original. `config-version` advances only after the entire structure is compatible. Invalid YAML, a scalar where a section is required, a section where a value is required, or incompatible value types block the merge without modifying the original. A blocked main configuration stops plugin startup before cleanup scheduling.
 
@@ -235,7 +235,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-首次新建的 `config.yml` 会直接包含两种模式的可复制世界模块。首个公开版本从配置格式 `1` 开始；后续配置结构变化会递增 `config-version`，并在保留管理员设置的前提下按顺序迁移。
+首次新建的 `config.yml` 会直接包含两种模式的可复制世界模块。首个公开版本从配置格式 `1` 开始；已知 v1-v25 的重置前配置会通过保留的兼容迁移步骤处理，未知更高格式仍会阻止启动；后续配置结构变化会递增 `config-version`，并在保留管理员设置的前提下按顺序迁移。
 
 稀疏模板会按方块位置融合。模板明确保存的状态（包括 `minecraft:air`）会覆盖目标；模板缺失的 section 没有状态，会保留目标方块。缺失数据不会占用重叠坐标，因此其他配置区域仍可在该位置提供已保存状态。下面的 `world_nether` 分层配置会恢复外层已保存的高层，同时保留外层下方原有地形：
 
@@ -276,7 +276,7 @@ recreate:
 | 路径 | 默认值 | 说明 |
 | --- | --- | --- |
 | `config-version` | `1` | 由插件自动维护的公开配置格式版本 |
-| `language` | `en_US` | 单个 `WorldAreaReset-1.0.0.jar` 默认使用英文 `config.yml`；设为 `zh_CN` 后重载即可应用同一 JAR 内的简体中文模板 |
+| `language` | `en_US` | 单个 `WorldAreaReset-1.0.1.jar` 默认使用英文 `config.yml`；设为 `zh_CN` 后重载即可应用同一 JAR 内的简体中文模板 |
 | `language-applied` | 当前语言 | 插件自动维护的最近应用语言标记；只修改 `language`，然后 reload 或重启 |
 | `messages` | 当前语言扁平消息 | 运行时配置只保留 `messages` 下当前语言的一份消息 |
 | `cleanup.enabled` | `false` | 是否启用自动排程；关闭时仍可手动清理 |
@@ -298,9 +298,9 @@ recreate:
 
 官方默认配置和首次创建时的参数示例位于 `src/main/resources/config.yml`、`src/main/resources/config-zh_CN.yml`、`src/main/resources/config-en_US.yml` 与 `defaults/`。发布流程只生成一个 JAR，使用英文 `config.yml` 作为默认配置，同时包含中文 `config-zh_CN.yml` 模板和完整配置注释；不会构建语言专用发布包。服务器实际配置只应位于 `plugins/WorldAreaReset/config.yml`，该运行目录已排除在仓库之外。修改 `language` 后重载会刷新插件官方配置头、注释和当前语言扁平消息；旧版 `lang` 文件会自动删除。
 
-插件每次启动都会把服务器实际 `config.yml` 与内置默认配置作为结构化 YAML 解析。管理员已有参数、未知自定义键、语言选择和已解析注释都会保留。首个公开配置格式为 `1`；后续配置结构变化会递增 `config-version` 并按顺序安全迁移。
+插件每次启动都会把服务器实际 `config.yml` 与内置默认配置作为结构化 YAML 解析。管理员已有参数、未知自定义键、语言选择和已解析注释都会保留。首个公开配置格式为 `1`；已知 v1-v25 的重置前配置会通过保留的兼容迁移步骤处理，未知更高格式仍会阻止启动；后续配置结构变化会递增 `config-version` 并按顺序安全迁移。
 
-主 `config.yml` 需要变化时，会先创建 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件、刷新到磁盘，并在支持时原子替换正式文件。只有整体结构兼容时才推进 `config-version`。YAML 无效、应为配置节的位置出现标量、应为值的位置出现配置节或值类型不兼容时，迁移会停止且不会修改原文件。
+主 `config.yml` 需要变化时，会先创建 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件、刷新到磁盘，并在支持时原子替换正式文件。只有整体结构兼容时才推进 `config-version`。已知 v1-v25 的重置前配置会执行兼容迁移；YAML 无效、应为配置节的位置出现标量、应为值的位置出现配置节、值类型不兼容或未知更高格式时，迁移会停止且不会修改原文件。
 
 ### 4. 消息与语言逻辑
 

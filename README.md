@@ -34,7 +34,7 @@ A Paper/Folia terrain-maintenance plugin designed for administrator-defined free
 - Restore writes reuse one current-state snapshot per target chunk and run in scheduled Folia Region batches; the configured budget is used consistently, while protection is limited to blocks near players.
 - Optional template filters can leave liquids or selected Bukkit Material blocks unchanged with `recreate.ignore_liquids` and `recreate.ignore_blocks`.
 - Cleanup and restoration each have their own world list, bounds, countdown, timer, and notification.
-- One release JAR (`WorldAreaReset-1.0.0.jar`) with English defaults, a Chinese configuration template, and built-in language support; no language-specific release packages are produced.
+- One release JAR (`WorldAreaReset-1.0.1.jar`) with English defaults, a Chinese configuration template, and built-in language support; no language-specific release packages are produced.
 - Startup GitHub Release checks with optional automatic JAR download.
 - Localized, color-coded latest-version, update-success, and update-failure console notices.
 - A wider, fully enclosed startup banner with a language-specific PvP terrain-maintenance subtitle and dashed title separator; banner rows are prefix-free while updater notices use the purple/red plugin prefix and distinct status colors.
@@ -53,11 +53,11 @@ WorldAreaReset's message, color, prefix, separator, GUI, and severity convention
 | Java | 21 or newer |
 | Permission | `worldareareset.admin` for administrator commands |
 
-WorldAreaReset 1.0.0 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
+WorldAreaReset 1.0.1 is tested and supported only on Paper/Folia 1.21.11. Other Minecraft versions, Spigot, CraftBukkit, Purpur, and hybrid/modded servers are untested and receive no compatibility guarantee. `api-version: 1.21` is Bukkit metadata and does not expand this tested-version range.
 
 ## Install
 
-1. Download `WorldAreaReset-1.0.0.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest). It starts with the English `config.yml`; set `language: "zh_CN"` to apply the bundled Simplified Chinese template.
+1. Download `WorldAreaReset-1.0.1.jar` from the [latest release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest). It starts with the English `config.yml`; set `language: "zh_CN"` to apply the bundled Simplified Chinese template.
 2. Place it in the server's `plugins` directory.
 3. Start the server once.
 4. Review `plugins/WorldAreaReset/config.yml` and make a world backup.
@@ -114,7 +114,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-The first newly created `config.yml` contains copy-ready world modules for cleanup and hot restoration. A recreate module with an empty `regions` list restores every chunk actually stored in that world's template region files; this scope does not depend on loaded chunks or online players. The first public release starts at configuration format `1`; future schema changes increment `config-version` and migrate existing values safely. Use explicit regions when only part of a template should be restored.
+The first newly created `config.yml` contains copy-ready world modules for cleanup and hot restoration. A recreate module with an empty `regions` list restores every chunk actually stored in that world's template region files; this scope does not depend on loaded chunks or online players. The first public release starts at configuration format `1`; known v1-v25 configurations from the pre-reset chain are migrated through the retained compatibility steps, while unknown newer schemas remain blocked. Future schema changes increment `config-version` and migrate existing values safely. Use explicit regions when only part of a template should be restored.
 
 ## Language
 
@@ -148,7 +148,7 @@ The top of every bundled configuration uses the exact 103-column ASCII layout. T
 
 Administrators no longer need to delete `plugins/WorldAreaReset/config.yml` after an update. During startup or `/war reload`, WorldAreaReset recreates a missing file from bundled defaults, then parses the configuration and adds only missing paths. Existing values, custom messages, unknown extension keys, explicit `false` values, empty lists, comments, and the selected language are preserved. A reload error keeps the current plugin state running; startup stops safely when the configuration is invalid. Legacy generated language files are removed automatically.
 
-When the main `config.yml` changes, it is copied first to `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`, then written through a same-directory temporary file and atomically replaced. `config-version` is updated only after a compatible merge. Malformed YAML, parent/child structure conflicts, or incompatible value types are never overwritten. Unknown custom keys remain intact, and future schema changes will use ordered migrations without replacing administrator values.
+When the main `config.yml` changes, it is copied first to `config-backups/config-v<old>-to-v<new>-<timestamp>.yml`, then written through a same-directory temporary file and atomically replaced. `config-version` is updated only after a compatible merge. Known v1-v25 configurations are migrated after the public marker reset; malformed YAML, parent/child structure conflicts, incompatible value types, and unknown newer schemas are never overwritten. Unknown custom keys remain intact, and future schema changes will use ordered migrations without replacing administrator values.
 
 ## Commands
 
@@ -220,7 +220,7 @@ WorldAreaReset does not define PvP zones or control combat permissions. Configur
 ./gradlew clean build
 ```
 
-`WorldAreaReset-1.0.0.jar` is the only file written to `build/libs/`. The build verifies that its packaged English `config.yml` and Chinese `config-zh_CN.yml` match the official source configurations; language-specific release JARs are not created.
+`WorldAreaReset-1.0.1.jar` is the only file written to `build/libs/`. The build verifies that its packaged English `config.yml` and Chinese `config-zh_CN.yml` match the official source configurations; language-specific release JARs are not created.
 
 ## Documentation and community
 
@@ -255,7 +255,7 @@ WorldAreaReset 是一款面向 Paper/Folia 服务器、专为管理员指定的�
 - 支持 MiniMessage/Hex/渐变消息解析；五色调色板仅用于明确写入渐变标签的文本，并兼容旧 Legacy 色码。
 - 所有插件游戏内文本均以粗体、左对齐显示；运行时会移除配置中的行首缩进，并让装饰分割线不显示插件前缀，以保留完整宽度。
 - 包含边界的 X/Y/Z 长方体范围与材质白名单。
-- 单个通用发布包 (`WorldAreaReset-1.0.0.jar`) 内置英文默认配置和中文配置模板，运行时只保留当前语言，不再构建语言专用发布包。
+- 单个通用发布包 (`WorldAreaReset-1.0.1.jar`) 内置英文默认配置和中文配置模板，运行时只保留当前语言，不再构建语言专用发布包。
 - 可从 `templates/<世界名>/region/` 外部模板执行地形热恢复，支持多个世界、指定区域或模板中实际存在的全部区块；目标区块会异步加载，因此世界内没有玩家时也能恢复，并保护配置的玩家周围方块半径。
 - 稀疏或分层模板会融合恢复：模板明确保存的方块状态（包含空气）会写入，模板未保存的 section 会保留目标地形。
 - 恢复写入会合并同一区块内的多个配置区域，复用一次当前状态快照，并通过 Folia Region 分批调度；使用配置的统一批次，玩家保护只作用于附近方块。
@@ -272,11 +272,11 @@ WorldAreaReset 的消息、颜色、前缀、分割线、GUI 和严重级别约�
 
 ## 版本限制
 
-WorldAreaReset 1.0.0 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
+WorldAreaReset 1.0.1 仅在 Paper/Folia 1.21.11 上测试并提供兼容支持，需要 Java 21 或更高版本。其他 Minecraft 版本、Spigot、CraftBukkit、Purpur 及混合/模组服务端均未测试，不提供兼容保证。`plugin.yml` 中的 `api-version: 1.21` 只是 Bukkit 元数据，不代表所有 1.21.x 版本均受支持。
 
 ## 安装
 
-1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.0.0.jar`。默认使用英文 `config.yml`；将 `language` 设为 `zh_CN` 后重载即可应用简体中文配置模板。
+1. 从[最新 Release](https://github.com/Lazyzouo/WorldAreaReset/releases/latest)下载 `WorldAreaReset-1.0.1.jar`。默认使用英文 `config.yml`；将 `language` 设为 `zh_CN` 后重载即可应用简体中文配置模板。
 2. 放入服务器 `plugins` 目录。
 3. 启动一次服务器。
 4. 检查 `plugins/WorldAreaReset/config.yml` 并备份世界。
@@ -333,7 +333,7 @@ recreate:
         - {min_x: -16, max_x: 16, min_y: 0, max_y: 80, min_z: -16, max_z: 16}
 ```
 
-首次新建的 `config.yml` 会直接包含 cleanup 与 recreate 的可复制世界模块。recreate 世界模块的 `regions` 留空时，按模板 region 文件中实际存在的区块恢复，不依赖当前已加载区块或在线玩家；只需恢复模板的一部分时请填写明确区域。首个公开版本从配置格式 `1` 开始；后续配置结构变化会递增 `config-version` 并按顺序安全迁移。
+首次新建的 `config.yml` 会直接包含 cleanup 与 recreate 的可复制世界模块。recreate 世界模块的 `regions` 留空时，按模板 region 文件中实际存在的区块恢复，不依赖当前已加载区块或在线玩家；只需恢复模板的一部分时请填写明确区域。首个公开版本从配置格式 `1` 开始；已知 v1-v25 的重置前配置会通过保留的兼容迁移步骤处理，未知更高格式仍会阻止启动；后续配置结构变化会递增 `config-version` 并按顺序安全迁移。
 
 ## 语言切换
 
@@ -349,7 +349,7 @@ recreate:
 
 更新后不再需要删除 `plugins/WorldAreaReset/config.yml`。服务器启动或执行 `/war reload` 时，如果文件缺失，插件会先从内置默认值恢复，再解析配置并补充缺失路径；当前语言消息保持扁平结构，并统一使用 WorldAreaReset 五色渐变和 `✧` 分割线。其他已有参数、未知扩展键、明确设置的 `false`、注释及语言选择都会保留。
 
-主 `config.yml` 需要更新时，会先备份到 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件并原子替换正式文件。只有兼容合并成功后才更新 `config-version`；YAML 损坏或结构冲突时不会覆盖原文件。未知自定义键会保留，后续配置结构变化会通过有序迁移处理。
+主 `config.yml` 需要更新时，会先备份到 `config-backups/config-v<旧>-to-v<新>-<时间>.yml`，再写入同目录临时文件并原子替换正式文件。只有兼容合并成功后才更新 `config-version`；已知 v1-v25 的重置前配置会执行兼容迁移，YAML 损坏、结构冲突或未知更高格式时不会覆盖原文件。未知自定义键会保留，后续配置结构变化会通过有序迁移处理。
 
 ## 自动更新
 

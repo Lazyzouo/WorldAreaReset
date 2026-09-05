@@ -33,6 +33,11 @@ final class ConfigurationUpdater {
     private static final int FLAT_MESSAGES_CONFIG_VERSION = 23;
     private static final int HELP_LAYOUT_CONFIG_VERSION = 24;
     private static final int KITLOADER_PRESENTATION_CONFIG_VERSION = 25;
+    /**
+     * The 1.0.0 release line reset the public marker to one while retaining
+     * compatibility with the previous 1.14.x configuration structure.
+     */
+    private static final int PUBLIC_SCHEMA_RESET_VERSION = 1;
     private static final String STANDARD_DIVIDER =
             "<gradient:#FFB7D5:#D7C7FF:#B9E7FF:#D7C7FF:#FFB7D5><bold><strikethrough>---------"
                     + "<bold><strikethrough>---------<bold> ✧ <bold><strikethrough>---------"
@@ -89,21 +94,30 @@ final class ConfigurationUpdater {
             throw new InvalidConfigurationException(
                     "Bundled defaults must define a non-negative integer " + versionPath);
         }
-        if (versionPath != null && oldVersion > targetVersion) {
+        boolean legacyReleaseLineReset = versionPath != null
+                && targetVersion == PUBLIC_SCHEMA_RESET_VERSION
+                && oldVersion > targetVersion
+                && oldVersion <= KITLOADER_PRESENTATION_CONFIG_VERSION;
+        int migrationTargetVersion = legacyReleaseLineReset
+                ? KITLOADER_PRESENTATION_CONFIG_VERSION : targetVersion;
+        if (versionPath != null && oldVersion > targetVersion && !legacyReleaseLineReset) {
             throw new InvalidConfigurationException(
                     "Existing configuration uses newer schema v" + oldVersion
                             + "; refusing to downgrade it to v" + targetVersion);
         }
-        int migratedKeys = migrateWorldModules(current, defaults, versionPath, oldVersion, targetVersion);
+        int migratedKeys = migrateWorldModules(current, defaults, versionPath, oldVersion, migrationTargetVersion);
         migratedKeys += legacyVersionMarkerChanged;
-        migratedKeys += migrateCleanupInterval(current, defaults, versionPath, oldVersion, targetVersion);
-        migratedKeys += migrateLanguageAndVisualStructure(current, defaults, versionPath, oldVersion, targetVersion);
+        migratedKeys += migrateCleanupInterval(current, defaults, versionPath, oldVersion, migrationTargetVersion);
+        migratedKeys += migrateLanguageAndVisualStructure(current, defaults, versionPath, oldVersion,
+                migrationTargetVersion);
         migratedKeys += migrateKnownLegacyMessages(current, defaults);
         migratedKeys += migrateLegacyDividers(current);
-        migratedKeys += migrateLegacyMessageFormatting(current, defaults, versionPath, oldVersion, targetVersion);
-        migratedKeys += migrateHelpMenuLayout(current, defaults, versionPath, oldVersion, targetVersion);
-        migratedKeys += migrateKitloaderPresentation(current, defaults, versionPath, oldVersion, targetVersion);
-        migratedKeys += refreshOfficialHeader(current, defaults, versionPath, oldVersion, targetVersion,
+        migratedKeys += migrateLegacyMessageFormatting(current, defaults, versionPath, oldVersion,
+                migrationTargetVersion);
+        migratedKeys += migrateHelpMenuLayout(current, defaults, versionPath, oldVersion, migrationTargetVersion);
+        migratedKeys += migrateKitloaderPresentation(current, defaults, versionPath, oldVersion,
+                migrationTargetVersion);
+        migratedKeys += refreshOfficialHeader(current, defaults, versionPath, oldVersion, migrationTargetVersion,
                 refreshComments);
         if (refreshComments) {
             migratedKeys += refreshLocalizedComments(current, defaults);
@@ -117,14 +131,14 @@ final class ConfigurationUpdater {
         }
 
         int addedKeys = migratedKeys + mergeMissingPaths(current, defaults, defaultPaths, versionPath);
-        boolean versionUpdated = updateVersion(current, defaults, targetVersion, versionPath, oldVersion);
+        boolean versionUpdated = updateVersion(current, defaults, migrationTargetVersion, versionPath, oldVersion);
         if (addedKeys == 0 && !versionUpdated) {
             return new UpdateResult(0, false, null, List.of());
         }
 
         copyHeaderAndFooterWhenMissing(current, defaults);
         Path backupFile = save(current, normalizedTarget, releaseVersion, createBackup, versionPath, oldVersion,
-                targetVersion);
+                migrationTargetVersion);
         return new UpdateResult(addedKeys, versionUpdated, backupFile, List.of());
     }
 
